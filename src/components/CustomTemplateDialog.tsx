@@ -8,19 +8,6 @@ import { specialties } from "@/data/lawyers";
 const field =
   "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-gold";
 
-const templateTypes = [
-  "عقد",
-  "اتفاقية",
-  "توكيل",
-  "صحيفة دعوى",
-  "إنذار رسمي",
-  "مذكرة قانونية",
-  "لائحة دفاع",
-  "إقرار",
-  "محضر تصالح",
-  "أخرى",
-];
-
 export function CustomTemplateDialog({ trigger }: { trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
@@ -73,10 +60,7 @@ export function CustomTemplateDialog({ trigger }: { trigger: React.ReactNode }) 
             </div>
             <div>
               <label className="mb-2 block text-sm font-semibold text-navy">نوع النموذج المطلوب</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} className={field}>
-                <option value="">اختر نوع النموذج</option>
-                {templateTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
+              <input value={type} onChange={(e) => setType(e.target.value)} className={field} placeholder="مثال: عقد شراكة بين ثلاثة مؤسسين" maxLength={120} />
             </div>
             <div>
               <label className="mb-2 block text-sm font-semibold text-navy">المحتويات والبنود المطلوبة</label>

@@ -3,17 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
-import { LawFirmCard } from "@/components/LawFirmCard";
-import { SwipeRow } from "@/components/SwipeRow";
 import { lawyers, specialties, cities } from "@/data/lawyers";
-import { firms } from "@/data/firms";
 
 export const Route = createFileRoute("/lawyers/")({
   head: () => ({
     meta: [
-      { title: "المحامون | محام" },
+      { title: "المحامون | محاميك" },
       { name: "description", content: "تصفح قائمة المحامين والمستشارين القانونيين، ابحث وفلتر حسب التخصص والمدينة." },
-      { property: "og:title", content: "المحامون | محام" },
+      { property: "og:title", content: "المحامون | محاميك" },
       { property: "og:description", content: "ابحث عن المحامي المناسب حسب التخصص والتقييم والمدينة." },
     ],
   }),
@@ -49,19 +46,6 @@ function LawyersPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-        {/* All law firms */}
-        <div className="mb-12">
-          <SectionHeading light align="start" title="المكاتب القانونية" subtitle="تصفح كبرى مكاتب المحاماة على المنصة." />
-          <div className="mt-8">
-            <SwipeRow
-              items={firms}
-              cols={4}
-              getKey={(f) => f.id}
-              render={(f) => <LawFirmCard firm={f} />}
-            />
-          </div>
-        </div>
-
         {/* Filters */}
         <div className="mb-10 grid gap-3 rounded-xl border border-white/10 bg-navy-card/50 p-4 md:grid-cols-4">
           <div className="relative md:col-span-2">

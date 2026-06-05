@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, CreditCard } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PaymentSection } from "@/components/PaymentSection";
 import type { Lawyer } from "@/data/lawyers";
 
 const times = ["10:00 ص", "12:00 م", "02:00 م", "04:00 م", "06:00 م", "08:00 م"];
@@ -20,15 +19,19 @@ export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
   const [done, setDone] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [payValid, setPayValid] = useState(false);
+  const [card, setCard] = useState("");
+  const [exp, setExp] = useState("");
+  const [cvv, setCvv] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
-  const valid = !!date && !!time && payValid;
+  const valid =
+    !!date && !!time &&
+    card.replace(/\s/g, "").length >= 12 && exp.length >= 4 && cvv.length >= 3;
 
   const reset = () => {
     setDone(false);
-    setDate(""); setTime(""); setPayValid(false);
+    setDate(""); setTime(""); setCard(""); setExp(""); setCvv("");
   };
 
   return (
@@ -85,7 +88,20 @@ export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
               <span className="text-lg font-extrabold text-navy">{lawyer.price} ج.م</span>
               <span className="text-sm text-muted-foreground">قيمة الاستشارة</span>
             </div>
-            <PaymentSection onValidityChange={setPayValid} />
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy"><CreditCard className="h-4 w-4 text-gold" />رقم البطاقة</label>
+              <input value={card} onChange={(e) => setCard(e.target.value)} className={field} placeholder="0000 0000 0000 0000" inputMode="numeric" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-navy">تاريخ الانتهاء</label>
+                <input value={exp} onChange={(e) => setExp(e.target.value)} className={field} placeholder="MM/YY" />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-navy">CVV</label>
+                <input value={cvv} onChange={(e) => setCvv(e.target.value)} className={field} placeholder="123" inputMode="numeric" />
+              </div>
+            </div>
             <button type="submit" disabled={!valid} className="w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold disabled:opacity-50">
               ادفع {lawyer.price} ج.م
             </button>

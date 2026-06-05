@@ -8,9 +8,9 @@ import { templates } from "@/data/content";
 export const Route = createFileRoute("/templates")({
   head: () => ({
     meta: [
-      { title: "النماذج القانونية | محام" },
+      { title: "النماذج القانونية | محاميك" },
       { name: "description", content: "نماذج وعقود قانونية جاهزة للبيع: عقود إيجار وعمل واتفاقيات وتوكيلات وصحف دعاوى." },
-      { property: "og:title", content: "النماذج القانونية | محام" },
+      { property: "og:title", content: "النماذج القانونية | محاميك" },
       { property: "og:description", content: "نماذج وعقود قانونية جاهزة للتحميل والتعديل." },
     ],
   }),

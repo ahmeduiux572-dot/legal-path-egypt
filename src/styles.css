@@ -202,11 +202,4 @@
     background-image: radial-gradient(oklch(0.76 0.1 80 / 0.08) 1px, transparent 1px);
     background-size: 22px 22px;
   }
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
 }

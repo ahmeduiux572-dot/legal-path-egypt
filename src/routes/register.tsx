@@ -8,10 +8,10 @@ import { specialties as specs } from "@/data/lawyers";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "انضم كمحامٍ | محام" },
-      { name: "description", content: "سجّل كمحامٍ على منصة محام، اختر باقتك وارفع بياناتك وصورتك وسيرتك الذاتية." },
-      { property: "og:title", content: "انضم كمحامٍ | محام" },
-      { property: "og:description", content: "اختر باقتك وابدأ استقبال العملاء على منصة محام." },
+      { title: "انضم كمحامٍ | محاميك" },
+      { name: "description", content: "سجّل كمحامٍ على منصة محاميك، اختر باقتك وارفع بياناتك وصورتك وسيرتك الذاتية." },
+      { property: "og:title", content: "انضم كمحامٍ | محاميك" },
+      { property: "og:description", content: "اختر باقتك وابدأ استقبال العملاء على منصة محاميك." },
     ],
   }),
   component: RegisterPage,
@@ -27,7 +27,7 @@ function RegisterPage() {
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
-          <SectionHeading light title="انضم إلى محام كمحامٍ" subtitle="اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء." />
+          <SectionHeading light title="انضم إلى محاميك كمحامٍ" subtitle="اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء." />
         </div>
       </section>
 
