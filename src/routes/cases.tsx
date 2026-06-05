@@ -8,9 +8,9 @@ import { cases } from "@/data/content";
 export const Route = createFileRoute("/cases")({
   head: () => ({
     meta: [
-      { title: "سوق القضايا | محاميك" },
+      { title: "سوق القضايا | محام" },
       { name: "description", content: "اطرح قضيتك واستقبل عروضاً من المحامين، أو تصفح القضايا المتاحة على سوق القضايا." },
-      { property: "og:title", content: "سوق القضايا | محاميك" },
+      { property: "og:title", content: "سوق القضايا | محام" },
       { property: "og:description", content: "اطرح قضيتك واستقبل عروضاً من أفضل المحامين." },
     ],
   }),

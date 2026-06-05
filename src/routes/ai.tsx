@@ -5,9 +5,9 @@ import { Send, Sparkles } from "lucide-react";
 export const Route = createFileRoute("/ai")({
   head: () => ({
     meta: [
-      { title: "المساعد القانوني الذكي | محاميك" },
+      { title: "المساعد القانوني الذكي | محام" },
       { name: "description", content: "اطرح سؤالك القانوني واحصل على إجابة فورية من المساعد القانوني الذكي." },
-      { property: "og:title", content: "المساعد القانوني الذكي | محاميك" },
+      { property: "og:title", content: "المساعد القانوني الذكي | محام" },
       { property: "og:description", content: "إجابات قانونية فورية على مدار الساعة." },
     ],
   }),

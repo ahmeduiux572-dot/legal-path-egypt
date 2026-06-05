@@ -2,17 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scale, GraduationCap, Building2, ShieldCheck, MessageSquare, Clock, ArrowLeft } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
+import { LawFirmCard } from "@/components/LawFirmCard";
+import { SwipeRow } from "@/components/SwipeRow";
 import { AdCarousel } from "@/components/AdCarousel";
 import { topRated, mostConsulted } from "@/data/lawyers";
+import { firms } from "@/data/firms";
 import heroLegal from "@/assets/hero-legal.jpg";
 import library from "@/assets/library.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "محاميك | منصة قانونية رقمية في مصر والشرق الأوسط" },
-      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة محاميك." },
-      { property: "og:title", content: "محاميك | منصة قانونية رقمية" },
+      { title: "محام | منصة قانونية رقمية في مصر والشرق الأوسط" },
+      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة محام." },
+      { property: "og:title", content: "محام | منصة قانونية رقمية" },
       { property: "og:description", content: "العلاقة بين القانون والتكنولوجيا — استشارات قانونية موثوقة بسهولة وأمان." },
     ],
   }),
@@ -27,7 +30,7 @@ const services = [
 
 const why = [
   { icon: ShieldCheck, title: "خصوصية وأمان", text: "حماية كاملة لبياناتك ومحادثاتك مع المحامين بسرية تامة." },
-  { icon: MessageSquare, title: "تواصل مباشر", text: "شات ومكالمات صوتية ومرئية مع محاميك بكل سهولة." },
+  { icon: MessageSquare, title: "تواصل مباشر", text: "شات ومكالمات صوتية ومرئية مع محام بكل سهولة." },
   { icon: Clock, title: "العمل في الوقت المناسب", text: "متابعة فورية للحالة ورد سريع على استفساراتك على مدار الساعة." },
 ];
 
@@ -55,17 +58,17 @@ function Index() {
               منصة قانونية رقمية · مصر والشرق الأوسط
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-cream md:text-6xl">
-              محاميك
+              محام
               <span className="block text-gradient-gold">العلاقة بين القانون والتكنولوجيا</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/80">
               مجتمع من المحامين نسعى لتعزيز الوصول إلى العدالة من خلال الابتكار والتكنولوجيا، لتحصل على استشارتك القانونية بسرعة واحترافية وشفافية.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/lawyers" className="rounded-md bg-gradient-gold px-6 py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+            <div className="mt-8 grid w-full max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
+              <Link to="/lawyers" className="rounded-md bg-gradient-gold px-6 py-3 text-center text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
                 تواصل مع محامٍ متخصص
               </Link>
-              <Link to="/ai" className="rounded-md border border-gold/50 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
+              <Link to="/ai" className="rounded-md border border-gold/50 px-6 py-3 text-center text-sm font-semibold text-cream transition-colors hover:bg-white/5">
                 جرّب المساعد الذكي
               </Link>
             </div>
@@ -76,9 +79,9 @@ function Index() {
       {/* About */}
       <section className="bg-cream">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8">
-          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">مرحباً بكم في محاميك</h2>
+          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">مرحباً بكم في محام</h2>
           <p className="mt-5 text-sm leading-loose text-muted-foreground md:text-base">
-            "محاميك" منصة قانونية رقمية تهدف إلى تسهيل التواصل بين العملاء والمحامين بطريقة حديثة وموثوقة، من خلال تجربة استخدام سهلة تساعدك على الوصول إلى المحامي المناسب وفقاً للتخصص والتقييمات وآراء العملاء.
+            "محام" منصة قانونية رقمية تهدف إلى تسهيل التواصل بين العملاء والمحامين بطريقة حديثة وموثوقة، من خلال تجربة استخدام سهلة تساعدك على الوصول إلى المحامي المناسب وفقاً للتخصص والتقييمات وآراء العملاء.
           </p>
           <p className="mt-4 text-sm leading-loose text-muted-foreground md:text-base">
             تتيح المنصة التواصل مع المحامين عبر الشات والمكالمات الصوتية والمرئية، ومتابعة الاستشارات والقضايا في أي وقت، لتقديم تجربة قانونية أكثر سرعة واحترافية وشفافية.
@@ -123,14 +126,27 @@ function Index() {
       {/* Ad carousel */}
       <AdCarousel />
 
+      {/* Famous law firms */}
+      <section className="bg-navy pt-16">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <SectionHeading light title="أشهر المكاتب القانونية" subtitle="كبرى مكاتب المحاماة الموثوقة على المنصة بخبرات وفرق متخصصة." />
+          <div className="mt-10">
+            <SwipeRow
+              items={firms}
+              cols={4}
+              getKey={(f) => f.id}
+              render={(f) => <LawFirmCard firm={f} />}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Top rated */}
       <section className="bg-navy pb-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="المحامون الأكثر تقييماً" subtitle="نخبة من المحامين الحاصلين على أعلى تقييمات من عملائنا." />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {topRated.map((l) => (
-              <LawyerCard key={l.id} lawyer={l} />
-            ))}
+          <div className="mt-10">
+            <SwipeRow items={topRated} getKey={(l) => l.id} render={(l) => <LawyerCard lawyer={l} />} />
           </div>
         </div>
       </section>
@@ -139,10 +155,8 @@ function Index() {
       <section className="bg-navy-deep py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="المحامون الأكثر استشارة" subtitle="الأكثر طلباً من العملاء على المنصة." />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {mostConsulted.map((l) => (
-              <LawyerCard key={l.id} lawyer={l} />
-            ))}
+          <div className="mt-10">
+            <SwipeRow items={mostConsulted} getKey={(l) => l.id} render={(l) => <LawyerCard lawyer={l} />} />
           </div>
           <div className="mt-10 text-center">
             <Link to="/lawyers" className="inline-flex items-center gap-2 rounded-md border border-gold/50 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5">

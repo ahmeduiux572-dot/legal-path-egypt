@@ -10,7 +10,7 @@ export const Route = createFileRoute("/lawyers/$lawyerId")({
     const l = getLawyer(params.lawyerId);
     return {
       meta: [
-        { title: l ? `${l.name} | محاميك` : "محامٍ | محاميك" },
+        { title: l ? `${l.name} | محام` : "محامٍ | محام" },
         { name: "description", content: l ? `${l.title} — ${l.bio.slice(0, 120)}` : "ملف المحامي" },
       ],
     };
