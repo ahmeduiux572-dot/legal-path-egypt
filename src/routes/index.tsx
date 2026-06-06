@@ -138,7 +138,7 @@ function Index() {
       </section>
 
       {/* Top rated */}
-      <section className="bg-navy pb-16">
+      <section className="bg-navy py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="المحامون الأكثر تقييماً" subtitle="نخبة من المحامين الحاصلين على أعلى تقييمات من عملائنا." />
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
