@@ -11,6 +11,11 @@ export interface DashCase {
   priority?: "عادية" | "متوسطة" | "عاجلة";
   description?: string;
   files?: string[];
+  opponent?: string;
+  opponentLawyer?: string;
+  degree?: string;
+  claimAmount?: number;
+  startDate?: string;
 }
 
 export interface DashClient {
@@ -23,6 +28,9 @@ export interface DashClient {
   type?: "فرد" | "شركة";
   city?: string;
   nationalId?: string;
+  address?: string;
+  notes?: string;
+  altPhone?: string;
 }
 
 export interface DashSession {
@@ -33,6 +41,8 @@ export interface DashSession {
   time: string;
   location: string;
   type?: string;
+  caseRef?: string;
+  notes?: string;
 }
 
 export interface DashReminder {
@@ -51,6 +61,10 @@ export interface DashInvoice {
   status: "مدفوعة" | "معلقة" | "متأخرة";
   dueDate?: string;
   item?: string;
+  caseRef?: string;
+  tax?: number;
+  issueDate?: string;
+  notes?: string;
 }
 
 /* ---------- Shared option lists for dashboard forms ---------- */
