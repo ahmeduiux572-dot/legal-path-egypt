@@ -34,11 +34,6 @@ function LoginPage() {
     }
   };
 
-  const openDashboardPreview = () => {
-    login({ role: "lawyer", email: email || "preview@moham.app" });
-    navigate({ to: "/dashboard" });
-  };
-
   return (
     <div
       className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-navy-deep px-4 py-12"
@@ -149,14 +144,6 @@ function LoginPage() {
                   className="w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-gold"
                 >
                   تسجيل الدخول
-                </button>
-
-                <button
-                  type="button"
-                  onClick={openDashboardPreview}
-                  className="w-full rounded-lg border border-gold/40 py-3 text-sm font-bold text-gold transition-all duration-200 hover:border-gold hover:bg-gold/10"
-                >
-                  فتح لوحة التحكم مباشرة
                 </button>
               </form>
 
