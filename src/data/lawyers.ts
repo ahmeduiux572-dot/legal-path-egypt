@@ -18,6 +18,7 @@ export interface Lawyer {
   phone: string;
   email: string;
   bio: string;
+  verified?: boolean;
 }
 
 export interface Review {
