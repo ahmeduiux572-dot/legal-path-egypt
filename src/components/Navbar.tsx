@@ -34,6 +34,12 @@ export function Navbar() {
 
         <div className="hidden items-center gap-2 lg:flex">
           <Link
+            to="/login"
+            className="rounded-md px-3 py-2 text-sm font-semibold text-cream/80 transition-colors hover:text-gold"
+          >
+            تسجيل الدخول
+          </Link>
+          <Link
             to="/register"
             className="rounded-md border border-gold/50 px-4 py-2 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
           >
@@ -73,18 +79,18 @@ export function Navbar() {
             ))}
             <div className="mt-3 flex gap-2">
               <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="flex-1 rounded-md border border-white/15 px-4 py-2 text-center text-sm font-semibold text-cream"
+              >
+                تسجيل الدخول
+              </Link>
+              <Link
                 to="/register"
                 onClick={() => setOpen(false)}
                 className="flex-1 rounded-md border border-gold/50 px-4 py-2 text-center text-sm font-semibold text-cream"
               >
                 انضم كمحامٍ
-              </Link>
-              <Link
-                to="/lawyers"
-                onClick={() => setOpen(false)}
-                className="flex-1 rounded-md bg-gradient-gold px-4 py-2 text-center text-sm font-bold text-navy"
-              >
-                احجز استشارة
               </Link>
             </div>
           </nav>
