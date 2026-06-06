@@ -744,7 +744,7 @@ function Consultations() {
       {open && (
         <Modal title="إضافة استشارة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
+            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
             <Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
