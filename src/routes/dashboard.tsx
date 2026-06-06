@@ -593,7 +593,9 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", client: "", day: "", time: "", location: "" });
+  const emptyForm = { title: "", type: "", client: "", day: "", time: "", location: "" };
+  const [form, setForm] = useState(emptyForm);
+  const clientNames = dashClients.map((c) => c.name);
 
   const monthName = "يونيو 2026";
   const weekDays = ["سبت", "أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة"];
@@ -606,8 +608,8 @@ function Sessions() {
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, client: form.client, day: Number(form.day), time: form.time, location: form.location }]);
-    setForm({ title: "", client: "", day: "", time: "", location: "" });
+    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location }]);
+    setForm(emptyForm);
     setOpen(false);
   };
 
@@ -674,13 +676,16 @@ function Sessions() {
         <Modal title="إضافة جلسة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
             <Field label="عنوان الجلسة"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
+            <div className="grid grid-cols-2 gap-3">
+              <SelectField label="نوع الجلسة" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={sessionTypes} placeholder="اختر النوع" />
+              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label="اليوم (1-30)"><input type="number" min={1} max={30} className={fieldCls} value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })} required /></Field>
               <Field label="الوقت"><input className={fieldCls} placeholder="10:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
             </div>
-            <Field label="المكان"><input className={fieldCls} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <SelectField label="المكان" value={form.location} onChange={(v) => setForm({ ...form, location: v })} options={[...courts, "أونلاين", "المكتب"]} placeholder="اختر المكان" required />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة الجلسة</button>
           </form>
         </Modal>
       )}
