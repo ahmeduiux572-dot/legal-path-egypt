@@ -1029,11 +1029,17 @@ function Sessions() {
           </div>
           <div className="space-y-3">
             {filteredList.map((s) => (
-              <button key={s.id} type="button" onClick={() => setViewing(s)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-3 text-start transition-colors hover:border-gold/30">
-                <p className="text-sm font-bold text-cream">{s.title}</p>
-                <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
-                <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
-              </button>
+              <div key={s.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3 transition-colors hover:border-gold/30">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-cream">{s.title}</p>
+                    <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
+                  </div>
+                  <ViewButton onClick={() => setViewingId(s.id)} />
+                </div>
+                {s.status && <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${statusColor[s.status]}`}>{s.status}</span>}
+              </div>
             ))}
             {filteredList.length === 0 && <p className="py-4 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
           </div>
