@@ -12,9 +12,9 @@ import library from "@/assets/library.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "محاميك | منصة قانونية رقمية في مصر والشرق الأوسط" },
-      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة محاميك." },
-      { property: "og:title", content: "محاميك | منصة قانونية رقمية" },
+      { title: "محام | منصة قانونية رقمية في مصر والشرق الأوسط" },
+      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة محام." },
+      { property: "og:title", content: "محام | منصة قانونية رقمية" },
       { property: "og:description", content: "العلاقة بين القانون والتكنولوجيا — استشارات قانونية موثوقة بسهولة وأمان." },
     ],
   }),
@@ -29,7 +29,7 @@ const services = [
 
 const why = [
   { icon: ShieldCheck, title: "خصوصية وأمان", text: "حماية كاملة لبياناتك ومحادثاتك مع المحامين بسرية تامة." },
-  { icon: MessageSquare, title: "تواصل مباشر", text: "شات ومكالمات صوتية ومرئية مع محاميك بكل سهولة." },
+  { icon: MessageSquare, title: "تواصل مباشر", text: "شات ومكالمات صوتية ومرئية مع محام بكل سهولة." },
   { icon: Clock, title: "العمل في الوقت المناسب", text: "متابعة فورية للحالة ورد سريع على استفساراتك على مدار الساعة." },
 ];
 
@@ -57,7 +57,7 @@ function Index() {
               منصة قانونية رقمية · مصر والشرق الأوسط
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-cream md:text-6xl">
-              محاميك
+              محام
               <span className="block text-gradient-gold">العلاقة بين القانون والتكنولوجيا</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/80">
@@ -78,9 +78,9 @@ function Index() {
       {/* About */}
       <section className="bg-cream">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8">
-          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">مرحباً بكم في محاميك</h2>
+          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">مرحباً بكم في محام</h2>
           <p className="mt-5 text-sm leading-loose text-muted-foreground md:text-base">
-            "محاميك" منصة قانونية رقمية تهدف إلى تسهيل التواصل بين العملاء والمحامين بطريقة حديثة وموثوقة، من خلال تجربة استخدام سهلة تساعدك على الوصول إلى المحامي المناسب وفقاً للتخصص والتقييمات وآراء العملاء.
+            "محام" منصة قانونية رقمية تهدف إلى تسهيل التواصل بين العملاء والمحامين بطريقة حديثة وموثوقة، من خلال تجربة استخدام سهلة تساعدك على الوصول إلى المحامي المناسب وفقاً للتخصص والتقييمات وآراء العملاء.
           </p>
           <p className="mt-4 text-sm leading-loose text-muted-foreground md:text-base">
             تتيح المنصة التواصل مع المحامين عبر الشات والمكالمات الصوتية والمرئية، ومتابعة الاستشارات والقضايا في أي وقت، لتقديم تجربة قانونية أكثر سرعة واحترافية وشفافية.
