@@ -186,17 +186,19 @@ function DashboardPage() {
   const user = useAuth();
   const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>("overview");
+  const [request, setRequest] = useState<NavRequest | null>(null);
 
   useEffect(() => {
     if (user === null) navigate({ to: "/login" });
   }, [user, navigate]);
 
-  const handleLogout = () => {
-    logout();
-    navigate({ to: "/" });
+  const go = (s: SectionId, id: string) => {
+    setSection(s);
+    setRequest({ section: s, id, nonce: Date.now() });
   };
 
   return (
+   <DashNavContext.Provider value={{ go, request }}>
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center md:px-8">
@@ -213,9 +215,6 @@ function DashboardPage() {
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
               <Bell className="h-4 w-4 text-gold" /> الإشعارات
-            </button>
-            <button onClick={handleLogout} className="flex items-center gap-2 rounded-md border border-gold/50 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
-              <LogOut className="h-4 w-4 text-gold" /> تسجيل الخروج
             </button>
           </div>
         </div>
@@ -247,11 +246,13 @@ function DashboardPage() {
           {section === "sessions" && <Sessions />}
           {section === "consultations" && <Consultations />}
           {section === "invoices" && <Invoices />}
+          {section === "documents" && <Documents />}
           {section === "wallet" && <WalletPanel />}
           {section === "ai" && <LegalAI />}
         </div>
       </div>
     </div>
+   </DashNavContext.Provider>
   );
 }
 
