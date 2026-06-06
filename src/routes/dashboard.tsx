@@ -201,6 +201,13 @@ function DashboardPage() {
     setRequest({ section: s, id, nonce: Date.now() });
   };
 
+  // Always start any new section/detail view from the top of the page.
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [section, request]);
+
   const notifications = useMemo(() => {
     const items: { id: string; icon: typeof Bell; text: string; meta: string; urgent: boolean; go: () => void }[] = [];
     dashReminders.forEach((r) =>
