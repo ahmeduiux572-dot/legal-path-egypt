@@ -278,6 +278,56 @@ function FormSection({ title, children }: { title: string; children: React.React
   );
 }
 
+/* ---------- Detail view helpers ---------- */
+function DetailPage({
+  title, subtitle, icon: Icon, status, onBack, actions, children,
+}: {
+  title: string; subtitle?: string; icon: typeof Briefcase; status?: string;
+  onBack: () => void; actions?: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-cream transition-colors hover:bg-white/5 hover:text-gold">
+            <ArrowRight className="h-5 w-5" />
+          </button>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Icon className="h-5 w-5 text-gold" /> {title}</h2>
+            {subtitle && <p className="mt-0.5 text-sm text-cream/55">{subtitle}</p>}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[status] ?? "bg-white/10 text-cream/60"}`}>{status}</span>}
+          {actions}
+        </div>
+      </div>
+      <div className="space-y-6">{children}</div>
+    </div>
+  );
+}
+
+/* Card block with a section title and a responsive info grid */
+function DetailGrid({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className={card}>
+      <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">{title}</h3>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+    </div>
+  );
+}
+
+/* A single label/value cell that renders only when a value exists */
+function DetailItem({ label, value, full }: { label: string; value?: string | number | null; full?: boolean }) {
+  if (value === undefined || value === null || value === "" || value === "—") return null;
+  return (
+    <div className={`rounded-xl border border-white/10 bg-navy-deep/50 p-4 ${full ? "sm:col-span-2" : ""}`}>
+      <p className="text-xs text-cream/50">{label}</p>
+      <p className="mt-1 text-sm leading-relaxed text-cream">{value}</p>
+    </div>
+  );
+}
+
 /* Reusable select with a placeholder option */
 function SelectField({
   label, value, onChange, options, placeholder, required,
