@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, MapPin, Users } from "lucide-react";
+import { ArrowLeft, MapPin, Users, BadgeCheck } from "lucide-react";
 import type { Firm } from "@/data/firms";
 import { StarRating } from "./StarRating";
 
@@ -24,7 +24,12 @@ export function FirmCard({ firm }: { firm: Firm }) {
         </span>
       </div>
       <div className="flex flex-1 flex-col p-5 text-center">
-        <h3 className="text-base font-bold text-cream">{firm.name}</h3>
+        <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
+          {firm.name}
+          {firm.verified && (
+            <BadgeCheck className="h-4 w-4 shrink-0 fill-gold/20 text-gold" aria-label="مكتب موثّق" />
+          )}
+        </h3>
         <p className="mt-1 text-xs text-gold">{firm.tagline}</p>
         <div className="mt-3 flex items-center justify-center gap-2">
           <StarRating value={firm.rating} size={14} />
