@@ -1017,6 +1017,7 @@ function Sessions() {
 
   if (viewing) {
     const s = viewing;
+    const linkedCase = dashCases.find((cs) => cs.title === s.caseRef);
     return (
       <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={s.status ?? "قادمة"} options={["قادمة", "منتهية", "مؤجلة", "ملغاة"]} onChange={(v) => changeStatus(s.id, v)} />}>
@@ -1031,6 +1032,14 @@ function Sessions() {
           <DetailItem label="الوقت" value={s.time} />
           <DetailItem label="المكان" value={s.location} full />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
         {s.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
