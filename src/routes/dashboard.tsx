@@ -331,6 +331,75 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
   );
 }
 
+/* Inline status selector shown in detail header */
+function StatusChanger({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  return (
+    <label className="flex items-center gap-2 text-xs text-cream/60">
+      الحالة
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-lg border border-white/15 bg-navy-deep px-3 py-2 text-sm font-semibold text-cream focus:border-gold focus:outline-none">
+        {options.map((o) => <option key={o} value={o} className="bg-navy-deep">{o}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/* Small eye trigger placed inside list cards */
+function ViewButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-label="عرض التفاصيل" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/15 text-cream/70 transition-colors hover:border-gold hover:text-gold">
+      <Eye className="h-4 w-4" />
+    </button>
+  );
+}
+
+/* Shared comment + timeline data types */
+interface DashComment { id: string; text: string; date: string; }
+interface DashTLEvent { id: string; title: string; date: string; desc?: string; }
+
+function CommentsPanel({ comments, onAdd }: { comments: DashComment[]; onAdd: (text: string) => void }) {
+  const [text, setText] = useState("");
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><MessageCircle className="h-4 w-4" /> التعليقات</h3>
+      <div className="mb-4 space-y-3">
+        {comments.map((c) => (
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+            <p className="text-sm leading-relaxed text-cream">{c.text}</p>
+            <p className="mt-1 text-xs text-cream/45">{c.date}</p>
+          </div>
+        ))}
+        {comments.length === 0 && <p className="text-sm text-cream/50">لا توجد تعليقات بعد.</p>}
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onAdd(text.trim()); setText(""); } }} className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="أضف تعليقاً..." className={`${fieldCls} flex-1`} />
+        <button type="submit" className="flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold"><Send className="h-4 w-4" /> إضافة</button>
+      </form>
+    </div>
+  );
+}
+
+function TimelinePanel({ events }: { events: DashTLEvent[] }) {
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><History className="h-4 w-4" /> التايم لاين</h3>
+      {events.length === 0 ? (
+        <p className="text-sm text-cream/50">لا توجد أحداث بعد.</p>
+      ) : (
+        <ol className="space-y-5 border-r border-white/10 pr-5">
+          {events.map((ev) => (
+            <li key={ev.id} className="relative">
+              <span className="absolute -right-[1.42rem] top-1.5 h-3 w-3 rounded-full bg-gold ring-4 ring-navy-card" />
+              <p className="text-sm font-semibold text-cream">{ev.title}</p>
+              <p className="mt-0.5 text-xs text-cream/45">{ev.date}</p>
+              {ev.desc && <p className="mt-1 text-sm text-cream/70">{ev.desc}</p>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 /* Reusable select with a placeholder option */
 function SelectField({
   label, value, onChange, options, placeholder, required,
