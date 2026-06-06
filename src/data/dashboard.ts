@@ -31,6 +31,7 @@ export interface DashClient {
   address?: string;
   notes?: string;
   altPhone?: string;
+  files?: string[];
 }
 
 export interface DashSession {
@@ -171,6 +172,7 @@ export const dashClients: DashClient[] = [
     email: "ahmed@mail.com", cases: 2, since: "يناير 2025", type: "فرد", city: "القاهرة",
     nationalId: "28704121200513", address: "12 شارع التحرير، الدقي، الجيزة",
     notes: "عميل متعاون، يفضّل التواصل مساءً عبر الهاتف.",
+    files: ["صورة البطاقة.pdf", "توكيل رسمي.pdf"],
   },
   {
     id: "u2", name: "منى عبد الله", phone: "+20 101 234 5678", altPhone: "+20 111 222 3344",
@@ -189,6 +191,7 @@ export const dashClients: DashClient[] = [
     email: "info@noor.com", cases: 1, since: "مايو 2025", type: "شركة", city: "القاهرة",
     nationalId: "سجل تجاري 145872", address: "برج النيل، كورنيش النيل، ماسبيرو، القاهرة",
     notes: "ممثل الشركة القانوني: م. طارق النجار — جميع المراسلات عبر البريد الرسمي.",
+    files: ["السجل التجاري.pdf", "البطاقة الضريبية.pdf", "عقد التأسيس.pdf"],
   },
   {
     id: "u5", name: "مؤسسة الأمل", phone: "+20 104 567 8901", altPhone: "+20 2 2680 4455",

@@ -39,6 +39,12 @@ import {
   Eye,
   MessageCircle,
   History,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  Maximize2,
+  MonitorUp,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -62,6 +68,7 @@ import {
   type DashSession,
   type DashInvoice,
   type DashConsultation,
+  type DashReminder,
 } from "@/data/dashboard";
 
 export const Route = createFileRoute("/dashboard")({
@@ -478,6 +485,79 @@ function FileField({ label, files, setFiles }: { label: string; files: string[];
   );
 }
 
+/* ---------- In-platform video call ---------- */
+function VideoCall({ consultation, onClose }: { consultation: DashConsultation; onClose: () => void }) {
+  const [seconds, setSeconds] = useState(0);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  const clientInitial = consultation.client.trim().charAt(0);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-navy p-3 sm:p-5">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-sm font-bold text-cream">
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
+          </p>
+          <p className="mt-0.5 truncate text-xs text-cream/55">{consultation.subject} — {consultation.client}</p>
+        </div>
+        <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-sm font-bold text-gold">{mm}:{ss}</span>
+      </div>
+
+      {/* Video tiles */}
+      <div className="my-3 grid flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+        {/* Client tile (large) */}
+        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{clientInitial}</div>
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> {consultation.client} (العميل)
+          </span>
+        </div>
+        {/* Lawyer tile */}
+        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+          {camOn ? (
+            <img src={lawyer.image} alt={lawyer.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-cream/70"><VideoOff className="h-8 w-8" /></div>
+          )}
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            {micOn ? <Mic className="h-3 w-3 text-emerald-400" /> : <MicOff className="h-3 w-3 text-red-400" />} {lawyer.name} (أنت)
+          </span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+        <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setCamOn((v) => !v)} aria-label="الكاميرا"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${camOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setSharing((v) => !v)} aria-label="مشاركة الشاشة"
+          className={`hidden h-12 w-12 items-center justify-center rounded-full transition-colors sm:flex ${sharing ? "bg-gold/20 text-gold" : "bg-white/10 text-cream hover:bg-white/15"}`}>
+          <MonitorUp className="h-5 w-5" />
+        </button>
+        <button onClick={onClose} aria-label="إنهاء المكالمة"
+          className="flex h-12 items-center justify-center gap-2 rounded-full bg-red-500 px-6 text-sm font-bold text-white transition-colors hover:bg-red-600">
+          <PhoneOff className="h-5 w-5" /> إنهاء
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Overview ---------- */
 function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
   const stats = [
@@ -832,6 +912,7 @@ function Clients() {
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
+  const [files, setFiles] = useState<string[]>([]);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
@@ -842,8 +923,9 @@ function Clients() {
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined }, ...p]);
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined, files: files.length ? files : undefined }, ...p]);
     setForm(emptyForm);
+    setFiles([]);
     setAdding(false);
   };
 
@@ -867,6 +949,10 @@ function Clients() {
           <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
           <Field label="ملاحظات إضافية"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
         </div>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">المرفقات</h3>
+          <FileField label="مستندات وملفات العميل" files={files} setFiles={setFiles} />
+        </div>
       </FormPage>
     );
   }
@@ -876,7 +962,6 @@ function Clients() {
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
     const relatedSessions = dashSessions.filter((s) => s.client === c.name);
     const relatedInvoices = dashInvoices.filter((iv) => iv.client === c.name);
-    const relatedConsultations = dashConsultations.filter((co) => co.client === c.name);
     const totalBilled = relatedInvoices.reduce((sum, iv) => sum + iv.amount, 0);
     return (
       <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
@@ -904,6 +989,16 @@ function Clients() {
             <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
           </div>
         )}
+        {c.files && c.files.length > 0 && (
+          <div className={card}>
+            <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Paperclip className="h-4 w-4" /> المرفقات <span className="text-cream/40">({c.files.length})</span></h3>
+            <ul className="space-y-2">
+              {c.files.map((f, i) => (
+                <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         {relatedCases.length > 0 && (
           <div className={card}>
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
@@ -921,8 +1016,6 @@ function Clients() {
           items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
           items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
-        <RelatedSection title="استشارات العميل" icon={MessageSquare}
-          items={relatedConsultations.map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -964,6 +1057,11 @@ function Sessions() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [reminders, setReminders] = useState<DashReminder[]>(dashReminders);
+  const [reminderModal, setReminderModal] = useState<{ day: number } | null>(null);
+  const [reminderText, setReminderText] = useState("");
+  const [reminderUrgent, setReminderUrgent] = useState(false);
+  const [consultationModal, setConsultationModal] = useState<DashConsultation | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -981,7 +1079,26 @@ function Sessions() {
   const filteredList = items.filter((s) => s.title.includes(search) || s.client.includes(search) || s.location.includes(search));
   const sessionByDay = new Map<number, DashSession[]>();
   items.forEach((s) => { const a = sessionByDay.get(s.day) ?? []; a.push(s); sessionByDay.set(s.day, a); });
+  const consultationByDay = new Map<number, DashConsultation>();
+  dashConsultations.forEach((co) => {
+    const m = co.date.match(/\d+/);
+    if (m) { const d = Number(m[0]); if (!consultationByDay.has(d)) consultationByDay.set(d, co); }
+  });
   const today = 6;
+
+  const handleDayClick = (day: number) => {
+    const co = consultationByDay.get(day);
+    if (co) { setConsultationModal(co); return; }
+    setReminderModal({ day });
+    setReminderText("");
+    setReminderUrgent(false);
+  };
+  const addReminder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reminderModal || !reminderText.trim()) return;
+    setReminders((p) => [{ id: `r${Date.now()}`, text: reminderText.trim(), due: `${reminderModal.day} يونيو 2026`, urgent: reminderUrgent }, ...p]);
+    setReminderModal(null);
+  };
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1065,12 +1182,16 @@ function Sessions() {
           {cells.map((day, i) => {
             if (day === null) return <div key={`e${i}`} />;
             const sessions = sessionByDay.get(day);
+            const consultation = consultationByDay.get(day);
             const isToday = day === today;
             return (
-              <div key={day} className={`min-h-16 rounded-lg border p-1.5 text-start ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
+              <button key={day} type="button" onClick={() => handleDayClick(day)}
+                title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
+                className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
                 {sessions?.map((s) => <p key={s.id} className="mt-1 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`${s.title} - ${s.time}`}>{s.time} {s.title}</p>)}
-              </div>
+                {consultation && <p className="mt-1 flex items-center gap-1 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400"><MessageSquare className="h-2.5 w-2.5" /> استشارة</p>}
+              </button>
             );
           })}
         </div>
@@ -1104,8 +1225,9 @@ function Sessions() {
         </div>
         <div className={card}>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><Bell className="h-5 w-5 text-gold" /> التذكيرات</h2>
+          <p className="mb-3 text-xs text-cream/45">اضغط على أي يوم في التقويم لإضافة تذكير، أو على يوم به استشارة لعرض تفاصيلها.</p>
           <div className="space-y-3">
-            {dashReminders.map((r) => (
+            {reminders.map((r) => (
               <div key={r.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
                 {r.urgent ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold" />}
                 <div><p className="text-sm text-cream">{r.text}</p><p className="mt-1 text-xs text-cream/50">{r.due}</p></div>
@@ -1114,6 +1236,47 @@ function Sessions() {
           </div>
         </div>
       </div>
+
+      {reminderModal && (
+        <Modal title={`إضافة تذكير — ${reminderModal.day} يونيو 2026`} onClose={() => setReminderModal(null)}>
+          <form onSubmit={addReminder} className="space-y-4">
+            <Field label="نص التذكير"><textarea rows={3} className={fieldCls} value={reminderText} onChange={(e) => setReminderText(e.target.value)} placeholder="مثال: تسليم مذكرة دفاع..." required /></Field>
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-cream/80">
+              <input type="checkbox" checked={reminderUrgent} onChange={(e) => setReminderUrgent(e.target.checked)} className="h-4 w-4 accent-gold" /> تذكير عاجل
+            </label>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setReminderModal(null)} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إلغاء</button>
+              <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold"><Plus className="h-4 w-4" /> إضافة التذكير</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {consultationModal && (
+        <Modal title="تفاصيل الاستشارة" onClose={() => setConsultationModal(null)}>
+          <div className="space-y-3">
+            <div>
+              <p className="text-lg font-bold text-cream">{consultationModal.subject}</p>
+              <p className="mt-0.5 text-sm text-cream/60">{consultationModal.client}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Info label="التاريخ" value={consultationModal.date} />
+              <Info label="الوقت" value={consultationModal.time} />
+              <Info label="القناة" value={consultationModal.channel} />
+              <Info label="الحالة" value={consultationModal.status} />
+              {consultationModal.duration && <Info label="المدة" value={consultationModal.duration} />}
+              <Info label="السعر" value={`${consultationModal.price.toLocaleString()} ج.م`} />
+            </div>
+            {consultationModal.caseRef && <Info label="القضية المرتبطة" value={consultationModal.caseRef} />}
+            {consultationModal.notes && (
+              <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4">
+                <p className="text-xs text-cream/50">ملاحظات</p>
+                <p className="mt-1 text-sm leading-relaxed text-cream/85">{consultationModal.notes}</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -1127,6 +1290,7 @@ function Consultations() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [inCall, setInCall] = useState<DashConsultation | null>(null);
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
@@ -1168,8 +1332,17 @@ function Consultations() {
     const c = viewing;
     const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
     return (
+      <>
+      {inCall && <VideoCall consultation={inCall} onClose={() => setInCall(null)} />}
       <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
-        actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
+        actions={<div className="flex items-center gap-2">
+          {c.status !== "ملغاة" && (
+            <button onClick={() => setInCall(c)} className="flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+              <Video className="h-4 w-4" /> انضمام للمكالمة
+            </button>
+          )}
+          <StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />
+        </div>}>
         <DetailGrid title="تفاصيل الاستشارة">
           <DetailItem label="العميل" value={c.client} />
           <DetailItem label="قناة التواصل" value={c.channel} />
@@ -1196,10 +1369,13 @@ function Consultations() {
         )}
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
+      </>
     );
   }
 
   return (
+    <>
+    {inCall && <VideoCall consultation={inCall} onClose={() => setInCall(null)} />}
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الاستشارات..." filter={filter} setFilter={setFilter}
@@ -1222,6 +1398,11 @@ function Consultations() {
               <div className="flex items-center gap-3">
                 <span className="font-extrabold text-cream">{c.price} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                {c.status !== "ملغاة" && (
+                  <button onClick={() => setInCall(c)} aria-label="انضمام للمكالمة" className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+                    <Video className="h-4 w-4" /> انضمام
+                  </button>
+                )}
                 <ViewButton onClick={() => setViewingId(c.id)} />
               </div>
             </div>
@@ -1230,6 +1411,7 @@ function Consultations() {
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
     </div>
+    </>
   );
 }
 
