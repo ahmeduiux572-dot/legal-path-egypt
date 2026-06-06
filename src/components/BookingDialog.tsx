@@ -8,14 +8,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PaymentSection } from "@/components/PaymentSection";
-import type { Lawyer } from "@/data/lawyers";
 
 const times = ["10:00 ص", "12:00 م", "02:00 م", "04:00 م", "06:00 م", "08:00 م"];
 
 const field =
   "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none focus:border-gold";
 
-export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
+export function BookingDialog({
+  name,
+  price,
+  label = "احجز وادفع الآن",
+}: {
+  name: string;
+  price: number;
+  label?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [date, setDate] = useState("");
@@ -41,12 +48,12 @@ export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
     >
       <DialogTrigger asChild>
         <button className="mt-5 w-full rounded-lg bg-navy py-3 text-sm font-bold text-cream transition-colors hover:bg-navy-deep">
-          احجز وادفع الآن
+          {label}
         </button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-start text-navy">حجز استشارة مع {lawyer.name}</DialogTitle>
+          <DialogTitle className="text-start text-navy">حجز استشارة مع {name}</DialogTitle>
         </DialogHeader>
 
         {done ? (
@@ -54,7 +61,7 @@ export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
             <CheckCircle2 className="mx-auto h-14 w-14 text-gold" />
             <h4 className="mt-4 text-lg font-bold text-navy">تم تأكيد حجز استشارتك بنجاح</h4>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              استشارتك مع {lawyer.name} يوم {date} الساعة {time}. سيصلك تأكيد بموعد الجلسة قريباً.
+              استشارتك مع {name} يوم {date} الساعة {time}. سيصلك تأكيد بموعد الجلسة قريباً.
             </p>
             <button onClick={() => { setOpen(false); reset(); }} className="mt-5 rounded-lg bg-navy px-6 py-2.5 text-sm font-bold text-cream">تم</button>
           </div>
@@ -82,12 +89,12 @@ export function BookingDialog({ lawyer }: { lawyer: Lawyer }) {
               </div>
             </div>
             <div className="flex items-center justify-between rounded-lg bg-secondary p-4">
-              <span className="text-lg font-extrabold text-navy">{lawyer.price} ج.م</span>
+              <span className="text-lg font-extrabold text-navy">{price} ج.م</span>
               <span className="text-sm text-muted-foreground">قيمة الاستشارة</span>
             </div>
             <PaymentSection onValidChange={setPayValid} />
             <button type="submit" disabled={!valid} className="w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold disabled:opacity-50">
-              ادفع {lawyer.price} ج.م
+              ادفع {price} ج.م
             </button>
           </form>
         )}

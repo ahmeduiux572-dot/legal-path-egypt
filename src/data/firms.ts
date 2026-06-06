@@ -16,6 +16,7 @@ export interface Firm {
   city: string;
   established: number;
   teamSize: number;
+  consultationPrice: number;
   about: string;
   lawyerIds: string[];
 }
@@ -36,6 +37,7 @@ export const firms: Firm[] = [
     city: "القاهرة",
     established: 2004,
     teamSize: 24,
+    consultationPrice: 600,
     about: baseAbout,
     lawyerIds: ["murtada-mansour", "khaled-elsayed", "mahmoud-ibrahim"],
   },
@@ -51,6 +53,7 @@ export const firms: Firm[] = [
     city: "دبي",
     established: 2010,
     teamSize: 18,
+    consultationPrice: 750,
     about: baseAbout,
     lawyerIds: ["mohamed-elnabawy", "fares-awad", "nourhan-adel"],
   },
@@ -66,6 +69,7 @@ export const firms: Firm[] = [
     city: "الرياض",
     established: 2007,
     teamSize: 21,
+    consultationPrice: 550,
     about: baseAbout,
     lawyerIds: ["fahd-elwaled", "mahmoud-ibrahim"],
   },
@@ -81,6 +85,7 @@ export const firms: Firm[] = [
     city: "الإسكندرية",
     established: 2013,
     teamSize: 15,
+    consultationPrice: 500,
     about: baseAbout,
     lawyerIds: ["salma-fawzy", "khaled-elsayed", "hossam-tarek"],
   },

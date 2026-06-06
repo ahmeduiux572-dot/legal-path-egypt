@@ -64,7 +64,7 @@ function LawyerProfile() {
               <span className="text-sm text-muted-foreground">التقييم ({lawyer.reviews})</span>
             </div>
 
-            <BookingDialog lawyer={lawyer} />
+            <BookingDialog name={lawyer.name} price={lawyer.price} />
 
             <div className="mt-5 space-y-3 text-sm">
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" />{lawyer.city}</span><span>المدينة</span></p>
