@@ -278,6 +278,56 @@ function FormSection({ title, children }: { title: string; children: React.React
   );
 }
 
+/* ---------- Detail view helpers ---------- */
+function DetailPage({
+  title, subtitle, icon: Icon, status, onBack, actions, children,
+}: {
+  title: string; subtitle?: string; icon: typeof Briefcase; status?: string;
+  onBack: () => void; actions?: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-cream transition-colors hover:bg-white/5 hover:text-gold">
+            <ArrowRight className="h-5 w-5" />
+          </button>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Icon className="h-5 w-5 text-gold" /> {title}</h2>
+            {subtitle && <p className="mt-0.5 text-sm text-cream/55">{subtitle}</p>}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[status] ?? "bg-white/10 text-cream/60"}`}>{status}</span>}
+          {actions}
+        </div>
+      </div>
+      <div className="space-y-6">{children}</div>
+    </div>
+  );
+}
+
+/* Card block with a section title and a responsive info grid */
+function DetailGrid({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className={card}>
+      <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">{title}</h3>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+    </div>
+  );
+}
+
+/* A single label/value cell that renders only when a value exists */
+function DetailItem({ label, value, full }: { label: string; value?: string | number | null; full?: boolean }) {
+  if (value === undefined || value === null || value === "" || value === "—") return null;
+  return (
+    <div className={`rounded-xl border border-white/10 bg-navy-deep/50 p-4 ${full ? "sm:col-span-2" : ""}`}>
+      <p className="text-xs text-cream/50">{label}</p>
+      <p className="mt-1 text-sm leading-relaxed text-cream">{value}</p>
+    </div>
+  );
+}
+
 /* Reusable select with a placeholder option */
 function SelectField({
   label, value, onChange, options, placeholder, required,
@@ -486,6 +536,7 @@ function Cases() {
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashCase | null>(null);
   const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", degree: "", status: "نشطة", priority: "عادية", nextDate: "", startDate: "", progress: "0", opponent: "", opponentLawyer: "", claimAmount: "", description: "" };
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
@@ -557,6 +608,54 @@ function Cases() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    return (
+      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} status={c.status} onBack={() => setViewing(null)}>
+        <div className={card}>
+          <div className="mb-2 flex items-center justify-between text-sm">
+            <span className="font-semibold text-cream">نسبة الإنجاز</span>
+            <span className="text-cream/55">{c.progress}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-gold" style={{ width: `${c.progress}%` }} /></div>
+        </div>
+        <DetailGrid title="بيانات أساسية">
+          <DetailItem label="رقم القضية" value={c.caseNumber} />
+          <DetailItem label="نوع القضية" value={c.type} />
+          <DetailItem label="العميل" value={c.client} />
+          <DetailItem label="درجة التقاضي" value={c.degree} />
+          <DetailItem label="الأولوية" value={c.priority} />
+          <DetailItem label="الحالة" value={c.status} />
+        </DetailGrid>
+        <DetailGrid title="المحكمة والجدول">
+          <DetailItem label="المحكمة" value={c.court} />
+          <DetailItem label="تاريخ البدء" value={c.startDate} />
+          <DetailItem label="الجلسة القادمة" value={c.nextDate} />
+        </DetailGrid>
+        {(c.opponent || c.opponentLawyer || c.claimAmount) && (
+          <DetailGrid title="الطرف الآخر">
+            <DetailItem label="اسم الخصم" value={c.opponent} />
+            <DetailItem label="محامي الخصم" value={c.opponentLawyer} />
+            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${c.claimAmount.toLocaleString()} ج.م` : undefined} />
+          </DetailGrid>
+        )}
+        {(c.description || (c.files && c.files.length > 0)) && (
+          <div className={card}>
+            <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
+            {c.description && <p className="mb-4 text-sm leading-relaxed text-cream/85">{c.description}</p>}
+            {c.files && c.files.length > 0 && (
+              <ul className="space-y-2">
+                {c.files.map((f, i) => (
+                  <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Briefcase className="h-5 w-5 text-gold" /> القضايا</h2>
@@ -567,7 +666,7 @@ function Cases() {
         onAdd={() => setAdding(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
-          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+          <button key={c.id} type="button" onClick={() => setViewing(c)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-bold text-cream">{c.title}</p>
@@ -585,7 +684,7 @@ function Cases() {
               <span className="text-xs text-cream/55">{c.progress}%</span>
               <span className="flex items-center gap-1 text-xs text-cream/55"><CalendarDays className="h-3.5 w-3.5 text-gold" /> {c.nextDate}</span>
             </div>
-          </div>
+          </button>
         ))}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
@@ -599,6 +698,7 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashClient | null>(null);
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
 
@@ -637,6 +737,47 @@ function Clients() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    const relatedCases = dashCases.filter((cs) => cs.client === c.name);
+    return (
+      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewing(null)}>
+        <DetailGrid title="بيانات التواصل">
+          <DetailItem label="الهاتف" value={c.phone} />
+          <DetailItem label="هاتف بديل" value={c.altPhone} />
+          <DetailItem label="البريد الإلكتروني" value={c.email} />
+          <DetailItem label="العنوان" value={c.address} full />
+        </DetailGrid>
+        <DetailGrid title="بيانات التعريف">
+          <DetailItem label="نوع العميل" value={c.type} />
+          <DetailItem label="المدينة" value={c.city} />
+          <DetailItem label={c.type === "شركة" ? "السجل التجاري" : "الرقم القومي"} value={c.nationalId} />
+          <DetailItem label="عدد القضايا" value={c.cases} />
+          <DetailItem label="عميل منذ" value={c.since} />
+        </DetailGrid>
+        {c.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
+          </div>
+        )}
+        {relatedCases.length > 0 && (
+          <div className={card}>
+            <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
+            <div className="space-y-3">
+              {relatedCases.map((cs) => (
+                <div key={cs.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+                  <div><p className="text-sm font-bold text-cream">{cs.title}</p><p className="mt-0.5 text-xs text-cream/60">{cs.type}</p></div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Users className="h-5 w-5 text-gold" /> العملاء</h2>
@@ -645,7 +786,7 @@ function Clients() {
         onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
-          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+          <button key={c.id} type="button" onClick={() => setViewing(c)} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
             <div className="flex items-center justify-between">
               <p className="font-bold text-cream">{c.name}</p>
               <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
@@ -655,7 +796,7 @@ function Clients() {
               <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gold" /> {c.email}</p>
               <p className="text-xs text-cream/45">عميل منذ {c.since}</p>
             </div>
-          </div>
+          </button>
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
@@ -668,6 +809,7 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashSession | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -712,6 +854,30 @@ function Sessions() {
     );
   }
 
+  if (viewing) {
+    const s = viewing;
+    return (
+      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewing(null)}>
+        <DetailGrid title="بيانات الجلسة">
+          <DetailItem label="العميل" value={s.client} />
+          <DetailItem label="نوع الجلسة" value={s.type} />
+          <DetailItem label="القضية المرتبطة" value={s.caseRef} full />
+        </DetailGrid>
+        <DetailGrid title="الموعد والمكان">
+          <DetailItem label="التاريخ" value={`${s.day} يونيو 2026`} />
+          <DetailItem label="الوقت" value={s.time} />
+          <DetailItem label="المكان" value={s.location} full />
+        </DetailGrid>
+        {s.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{s.notes}</p>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-3">
       <div className={`${card} lg:col-span-2`}>
@@ -750,11 +916,11 @@ function Sessions() {
           </div>
           <div className="space-y-3">
             {filteredList.map((s) => (
-              <div key={s.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+              <button key={s.id} type="button" onClick={() => setViewing(s)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-3 text-start transition-colors hover:border-gold/30">
                 <p className="text-sm font-bold text-cream">{s.title}</p>
                 <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
                 <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
-              </div>
+              </button>
             ))}
             {filteredList.length === 0 && <p className="py-4 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
           </div>
@@ -782,6 +948,7 @@ function Consultations() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashConsultation | null>(null);
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
 
@@ -814,6 +981,22 @@ function Consultations() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    return (
+      <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} status={c.status} onBack={() => setViewing(null)}>
+        <DetailGrid title="تفاصيل الاستشارة">
+          <DetailItem label="العميل" value={c.client} />
+          <DetailItem label="قناة التواصل" value={c.channel} />
+          <DetailItem label="التاريخ" value={c.date} />
+          <DetailItem label="الوقت" value={c.time} />
+          <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
+          <DetailItem label="الحالة" value={c.status} />
+        </DetailGrid>
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
@@ -824,7 +1007,7 @@ function Consultations() {
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
           return (
-            <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+            <button key={c.id} type="button" onClick={() => setViewing(c)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
               <div>
                 <p className="font-bold text-cream">{c.subject}</p>
                 <p className="mt-0.5 text-sm text-cream/60">{c.client}</p>
@@ -838,7 +1021,7 @@ function Consultations() {
                 <span className="font-extrabold text-cream">{c.price} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
               </div>
-            </div>
+            </button>
           );
         })}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
@@ -853,6 +1036,7 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashInvoice | null>(null);
   const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -896,6 +1080,38 @@ function Invoices() {
     );
   }
 
+  if (viewing) {
+    const inv = viewing;
+    const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
+    return (
+      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} status={inv.status} onBack={() => setViewing(null)}>
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-cream/60">الإجمالي المستحق</span>
+            <span className="text-2xl font-extrabold text-gradient-gold">{(inv.amount + taxAmount).toLocaleString()} ج.م</span>
+          </div>
+        </div>
+        <DetailGrid title="بيانات الفاتورة">
+          <DetailItem label="العميل" value={inv.client} />
+          <DetailItem label="بند الفاتورة" value={inv.item} />
+          <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
+        </DetailGrid>
+        <DetailGrid title="المبالغ والتواريخ">
+          <DetailItem label="المبلغ" value={`${inv.amount.toLocaleString()} ج.م`} />
+          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${taxAmount.toLocaleString()} ج.م)` : undefined} />
+          <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
+          <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
+        </DetailGrid>
+        {inv.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{inv.notes}</p>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
@@ -910,13 +1126,13 @@ function Invoices() {
           onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
-            <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4">
+            <button key={inv.id} type="button" onClick={() => setViewing(inv)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
                 <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
               </div>
-            </div>
+            </button>
           ))}
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
