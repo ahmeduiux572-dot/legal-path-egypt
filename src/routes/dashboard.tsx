@@ -8,7 +8,6 @@ import {
   Receipt,
   Wallet,
   Sparkles,
-  LogOut,
   Bell,
   Clock,
   MapPin,
