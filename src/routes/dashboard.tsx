@@ -875,6 +875,71 @@ function Profile() {
           </div>
         )}
       </div>
+
+      <SubscriptionCard />
+    </div>
+  );
+}
+
+/* ---------- Current subscription ---------- */
+function SubscriptionCard() {
+  const plan = {
+    name: "الباقة الاحترافية",
+    price: "499 ج.م / شهرياً",
+    renew: "15 يوليو 2026",
+    status: "نشط",
+    features: [
+      "ظهور مميز في نتائج البحث",
+      "عدد غير محدود من القضايا والعملاء",
+      "وصول كامل للمساعد القانوني الذكي",
+      "تقارير ومحفظة مالية متقدمة",
+    ],
+    usage: { used: 320, total: 500, label: "رسائل الذكاء الاصطناعي هذا الشهر" },
+  };
+  const pct = Math.round((plan.usage.used / plan.usage.total) * 100);
+
+  return (
+    <div className={card}>
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Wallet className="h-5 w-5 text-gold" /> الاشتراك الحالي</h2>
+        <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-400">{plan.status}</span>
+      </div>
+
+      <div className="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/10 to-transparent p-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xl font-bold text-cream">{plan.name}</p>
+            <p className="mt-1 text-sm text-gold">{plan.price}</p>
+          </div>
+          <div className="text-end">
+            <p className="text-xs text-cream/50">يتجدد في</p>
+            <p className="text-sm font-semibold text-cream">{plan.renew}</p>
+          </div>
+        </div>
+
+        <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+          {plan.features.map((f) => (
+            <li key={f} className="flex items-center gap-2 text-sm text-cream/80">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> {f}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-5">
+          <div className="mb-1.5 flex items-center justify-between text-xs text-cream/60">
+            <span>{plan.usage.label}</span>
+            <span>{plan.usage.used} / {plan.usage.total}</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-navy-deep">
+            <div className="h-full rounded-full bg-gradient-gold" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button className="flex-1 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">ترقية الباقة</button>
+          <button className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إدارة الفواتير</button>
+        </div>
+      </div>
     </div>
   );
 }
