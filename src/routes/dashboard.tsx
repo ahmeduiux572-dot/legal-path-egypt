@@ -1133,6 +1133,7 @@ function Clients() {
 /* ---------- Sessions ---------- */
 function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -1147,6 +1148,7 @@ function Sessions() {
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
   const viewing = items.find((s) => s.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "sessions") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
