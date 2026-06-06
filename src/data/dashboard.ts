@@ -94,3 +94,59 @@ export const walletTransactions: WalletTx[] = [
 ];
 
 export const walletBalance = 42500;
+
+export interface DashConsultation {
+  id: string;
+  client: string;
+  subject: string;
+  date: string;
+  time: string;
+  channel: "أونلاين" | "مكتب" | "هاتف";
+  status: "قادمة" | "مكتملة" | "ملغاة";
+  price: number;
+}
+
+export const dashConsultations: DashConsultation[] = [
+  { id: "co1", client: "أحمد سمير", subject: "استشارة نفقة وحضانة", date: "8 يونيو 2026", time: "04:30 م", channel: "أونلاين", status: "قادمة", price: 500 },
+  { id: "co2", client: "منى عبد الله", subject: "مراجعة عقد إيجار", date: "10 يونيو 2026", time: "11:00 ص", channel: "مكتب", status: "قادمة", price: 700 },
+  { id: "co3", client: "كريم حسن", subject: "نزاع تجاري", date: "3 يونيو 2026", time: "01:00 م", channel: "هاتف", status: "مكتملة", price: 600 },
+  { id: "co4", client: "شركة النور", subject: "تأسيس شركة", date: "1 يونيو 2026", time: "10:00 ص", channel: "مكتب", status: "مكتملة", price: 1200 },
+  { id: "co5", client: "مؤسسة الأمل", subject: "حماية علامة تجارية", date: "28 مايو 2026", time: "12:00 م", channel: "أونلاين", status: "ملغاة", price: 800 },
+];
+
+export interface AIConversation {
+  id: string;
+  title: string;
+  date: string;
+  messages: { role: "user" | "ai"; text: string }[];
+}
+
+export const aiConversations: AIConversation[] = [
+  {
+    id: "conv1",
+    title: "صياغة مذكرة دفاع",
+    date: "أمس",
+    messages: [
+      { role: "user", text: "ساعدني في صياغة مذكرة دفاع في قضية نفقة." },
+      { role: "ai", text: "بالتأكيد، إليك هيكل مذكرة الدفاع: أولاً البيانات، ثانياً الوقائع، ثالثاً الأسانيد القانونية، رابعاً الطلبات..." },
+    ],
+  },
+  {
+    id: "conv2",
+    title: "إجراءات دعوى تعويض",
+    date: "منذ 3 أيام",
+    messages: [
+      { role: "user", text: "ما هي إجراءات رفع دعوى تعويض إصابة عمل؟" },
+      { role: "ai", text: "تبدأ الإجراءات بإثبات إصابة العمل عبر تقرير طبي، ثم تقديم الطلب لجهة العمل والتأمينات، وفي حال الرفض تُرفع الدعوى أمام المحكمة العمالية المختصة..." },
+    ],
+  },
+  {
+    id: "conv3",
+    title: "مراجعة عقد شراكة",
+    date: "منذ أسبوع",
+    messages: [
+      { role: "user", text: "راجع بنود عقد الشراكة التجارية." },
+      { role: "ai", text: "عند مراجعة عقد الشراكة ركّز على: حصص الشركاء، توزيع الأرباح والخسائر، آلية اتخاذ القرار، وشروط الخروج وفض النزاعات..." },
+    ],
+  },
+];
