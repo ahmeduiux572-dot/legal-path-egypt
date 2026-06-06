@@ -1164,11 +1164,17 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashInvoice | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
+  const viewing = items.find((i) => i.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (id: string, status: string) =>
+    setItems((p) => p.map((i) => (i.id === id ? { ...i, status: status as DashInvoice["status"] } : i)));
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
@@ -1212,7 +1218,8 @@ function Invoices() {
     const inv = viewing;
     const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
     return (
-      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} status={inv.status} onBack={() => setViewing(null)}>
+      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />}>
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-cream/60">الإجمالي المستحق</span>
@@ -1221,6 +1228,7 @@ function Invoices() {
         </div>
         <DetailGrid title="بيانات الفاتورة">
           <DetailItem label="العميل" value={inv.client} />
+          <DetailItem label="الحالة" value={inv.status} />
           <DetailItem label="بند الفاتورة" value={inv.item} />
           <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
         </DetailGrid>
@@ -1236,6 +1244,7 @@ function Invoices() {
             <p className="text-sm leading-relaxed text-cream/85">{inv.notes}</p>
           </div>
         )}
+        <CommentsPanel comments={comments[inv.id] ?? []} onAdd={(t) => addComment(inv.id, t)} />
       </DetailPage>
     );
   }
@@ -1254,13 +1263,14 @@ function Invoices() {
           onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
-            <button key={inv.id} type="button" onClick={() => setViewing(inv)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
+            <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
                 <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
+                <ViewButton onClick={() => setViewingId(inv.id)} />
               </div>
-            </button>
+            </div>
           ))}
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
