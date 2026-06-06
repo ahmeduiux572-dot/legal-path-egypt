@@ -937,7 +937,6 @@ function SubscriptionCard() {
 
         <div className="mt-5 flex flex-wrap gap-2">
           <button className="flex-1 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">ترقية الباقة</button>
-          <button className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إدارة الفواتير</button>
         </div>
       </div>
     </div>
