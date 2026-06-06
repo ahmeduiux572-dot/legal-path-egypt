@@ -1056,6 +1056,11 @@ function Sessions() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [reminders, setReminders] = useState<DashReminder[]>(dashReminders);
+  const [reminderModal, setReminderModal] = useState<{ day: number } | null>(null);
+  const [reminderText, setReminderText] = useState("");
+  const [reminderUrgent, setReminderUrgent] = useState(false);
+  const [consultationModal, setConsultationModal] = useState<DashConsultation | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -1073,7 +1078,26 @@ function Sessions() {
   const filteredList = items.filter((s) => s.title.includes(search) || s.client.includes(search) || s.location.includes(search));
   const sessionByDay = new Map<number, DashSession[]>();
   items.forEach((s) => { const a = sessionByDay.get(s.day) ?? []; a.push(s); sessionByDay.set(s.day, a); });
+  const consultationByDay = new Map<number, DashConsultation>();
+  dashConsultations.forEach((co) => {
+    const m = co.date.match(/\d+/);
+    if (m) { const d = Number(m[0]); if (!consultationByDay.has(d)) consultationByDay.set(d, co); }
+  });
   const today = 6;
+
+  const handleDayClick = (day: number) => {
+    const co = consultationByDay.get(day);
+    if (co) { setConsultationModal(co); return; }
+    setReminderModal({ day });
+    setReminderText("");
+    setReminderUrgent(false);
+  };
+  const addReminder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reminderModal || !reminderText.trim()) return;
+    setReminders((p) => [{ id: `r${Date.now()}`, text: reminderText.trim(), due: `${reminderModal.day} يونيو 2026`, urgent: reminderUrgent }, ...p]);
+    setReminderModal(null);
+  };
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
