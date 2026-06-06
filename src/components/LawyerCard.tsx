@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck } from "lucide-react";
 import type { Lawyer } from "@/data/lawyers";
 import { StarRating } from "./StarRating";
 
@@ -21,7 +21,12 @@ export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
         />
       </div>
       <div className="flex flex-1 flex-col p-5 text-center">
-        <h3 className="text-base font-bold text-cream">{lawyer.name}</h3>
+        <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
+          {lawyer.name}
+          {lawyer.verified && (
+            <BadgeCheck className="h-4 w-4 shrink-0 fill-gold/20 text-gold" aria-label="محامٍ موثّق" />
+          )}
+        </h3>
         <p className="mt-1 text-xs text-gold">{lawyer.title}</p>
         <div className="mt-3 flex items-center justify-center gap-2">
           <StarRating value={lawyer.rating} size={14} />

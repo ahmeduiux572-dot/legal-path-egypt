@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { MapPin, Users, Briefcase, CalendarDays } from "lucide-react";
+import { MapPin, Users, Briefcase, CalendarDays, BadgeCheck } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import { BookingDialog } from "@/components/BookingDialog";
 import { ReviewsSection } from "@/components/ReviewsSection";
@@ -39,8 +39,11 @@ function FirmProfile() {
   return (
     <div className="bg-cream">
       <div className="mx-auto max-w-6xl px-4 py-12 md:px-8">
-        <h1 className="border-b-2 border-gold pb-3 text-2xl font-extrabold text-navy md:text-3xl">
+        <h1 className="flex items-center gap-2 border-b-2 border-gold pb-3 text-2xl font-extrabold text-navy md:text-3xl">
           {firm.name}
+          {firm.verified && (
+            <BadgeCheck className="h-6 w-6 shrink-0 fill-gold/20 text-gold" aria-label="مكتب موثّق" />
+          )}
         </h1>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
