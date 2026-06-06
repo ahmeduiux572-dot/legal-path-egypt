@@ -598,8 +598,8 @@ function Clients() {
   const [items, setItems] = useState<DashClient[]>(dashClients);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { name: "", phone: "", email: "", type: "فرد", city: "", nationalId: "" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
 
   const filtered = items.filter((c) =>
@@ -608,16 +608,41 @@ function Clients() {
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined }, ...p]);
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined }, ...p]);
     setForm(emptyForm);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إضافة عميل جديد" subtitle="سجّل بيانات التواصل والتعريف الخاصة بالعميل" icon={Users}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ العميل">
+        <FormSection title="البيانات الأساسية">
+          <div className="sm:col-span-2"><Field label="الاسم الكامل"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
+          <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
+          <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
+        </FormSection>
+        <FormSection title="بيانات التواصل">
+          <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
+          <Field label="هاتف بديل"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.altPhone} onChange={(e) => setForm({ ...form, altPhone: e.target.value })} /></Field>
+          <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
+          <div className="sm:col-span-2"><Field label="العنوان"><input className={fieldCls} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></Field></div>
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+          <Field label="ملاحظات إضافية"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+      </FormPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Users className="h-5 w-5 text-gold" /> العملاء</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في العملاء..." filter={filter} setFilter={setFilter}
         options={[{ value: "all", label: "كل العملاء" }, { value: "active", label: "لديهم قضايا" }, { value: "none", label: "بدون قضايا" }]}
-        onAdd={() => setOpen(true)} addLabel="إضافة عميل" />
+        onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
           <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
@@ -634,21 +659,6 @@ function Clients() {
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
-      {open && (
-        <Modal title="إضافة عميل" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2"><Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
-              <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
-              <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
-              <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
-              <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
-              <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
-            </div>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة العميل</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
