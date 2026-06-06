@@ -961,7 +961,6 @@ function Clients() {
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
     const relatedSessions = dashSessions.filter((s) => s.client === c.name);
     const relatedInvoices = dashInvoices.filter((iv) => iv.client === c.name);
-    const relatedConsultations = dashConsultations.filter((co) => co.client === c.name);
     const totalBilled = relatedInvoices.reduce((sum, iv) => sum + iv.amount, 0);
     return (
       <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
