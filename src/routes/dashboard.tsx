@@ -799,6 +799,7 @@ function Info({ label, value }: { label: string; value: string }) {
 /* ---------- Cases ---------- */
 function Cases() {
   const [items, setItems] = useState<DashCase[]>(dashCases);
+  const { go, request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -811,6 +812,7 @@ function Cases() {
   const [files, setFiles] = useState<string[]>([]);
   const clientNames = dashClients.map((c) => c.name);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "cases") setViewingId(request.id); }, [request]);
 
   const baseTimeline = (c: DashCase): DashTLEvent[] => [
     { id: "b1", title: "تم إنشاء القضية", date: c.startDate ?? "—" },
