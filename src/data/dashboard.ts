@@ -43,6 +43,7 @@ export interface DashSession {
   type?: string;
   caseRef?: string;
   notes?: string;
+  status?: "قادمة" | "منتهية" | "مؤجلة" | "ملغاة";
 }
 
 export interface DashReminder {
@@ -138,11 +139,11 @@ export const dashClients: DashClient[] = [
 ];
 
 export const dashSessions: DashSession[] = [
-  { id: "s1", day: 8, title: "جلسة استئناف", client: "أحمد سمير", time: "10:00 ص", location: "محكمة القاهرة" },
-  { id: "s2", day: 10, title: "استشارة عقد", client: "شركة النور", time: "01:00 م", location: "أونلاين" },
-  { id: "s3", day: 15, title: "جلسة تعويض", client: "كريم حسن", time: "11:30 ص", location: "محكمة الجيزة" },
-  { id: "s4", day: 18, title: "مرافعة علامة", client: "مؤسسة الأمل", time: "09:00 ص", location: "محكمة الاقتصادية" },
-  { id: "s5", day: 22, title: "متابعة قضية", client: "منى عبد الله", time: "12:00 م", location: "أونلاين" },
+  { id: "s1", day: 8, title: "جلسة استئناف", client: "أحمد سمير", time: "10:00 ص", location: "محكمة القاهرة", status: "قادمة" },
+  { id: "s2", day: 10, title: "استشارة عقد", client: "شركة النور", time: "01:00 م", location: "أونلاين", status: "قادمة" },
+  { id: "s3", day: 15, title: "جلسة تعويض", client: "كريم حسن", time: "11:30 ص", location: "محكمة الجيزة", status: "قادمة" },
+  { id: "s4", day: 18, title: "مرافعة علامة", client: "مؤسسة الأمل", time: "09:00 ص", location: "محكمة الاقتصادية", status: "قادمة" },
+  { id: "s5", day: 22, title: "متابعة قضية", client: "منى عبد الله", time: "12:00 م", location: "أونلاين", status: "قادمة" },
 ];
 
 export const dashReminders: DashReminder[] = [
