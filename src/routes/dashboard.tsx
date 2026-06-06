@@ -31,6 +31,10 @@ import {
   Save,
   Video,
   Building2,
+  Paperclip,
+  FileText,
+  Gavel,
+  Hash,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -44,6 +48,10 @@ import {
   aiConversations,
   walletTransactions,
   walletBalance,
+  caseTypes,
+  courts,
+  sessionTypes,
+  invoiceItems,
   type DashCase,
   type DashClient,
   type DashSession,
