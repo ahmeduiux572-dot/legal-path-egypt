@@ -1219,6 +1219,7 @@ function Consultations() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [inCall, setInCall] = useState<DashConsultation | null>(null);
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
