@@ -189,6 +189,8 @@ function DashboardPage() {
   const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>("overview");
   const [request, setRequest] = useState<NavRequest | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [readIds, setReadIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (user === null) navigate({ to: "/login" });
@@ -198,6 +200,25 @@ function DashboardPage() {
     setSection(s);
     setRequest({ section: s, id, nonce: Date.now() });
   };
+
+  const notifications = useMemo(() => {
+    const items: { id: string; icon: typeof Bell; text: string; meta: string; urgent: boolean; go: () => void }[] = [];
+    dashReminders.forEach((r) =>
+      items.push({ id: `rem-${r.id}`, icon: Bell, text: r.text, meta: `تذكير • ${r.due}`, urgent: r.urgent, go: () => setSection("sessions") }),
+    );
+    dashSessions.filter((s) => s.status === "قادمة").forEach((s) =>
+      items.push({ id: `ses-${s.id}`, icon: CalendarDays, text: `${s.title} — ${s.client}`, meta: `جلسة • ${s.day} يونيو ${s.time}`, urgent: false, go: () => go("sessions", s.id) }),
+    );
+    dashConsultations.filter((c) => c.status === "قادمة").forEach((c) =>
+      items.push({ id: `con-${c.id}`, icon: MessageSquare, text: `${c.subject} — ${c.client}`, meta: `استشارة • ${c.date} ${c.time}`, urgent: false, go: () => go("consultations", c.id) }),
+    );
+    dashInvoices.filter((i) => i.status === "متأخرة").forEach((i) =>
+      items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${i.amount.toLocaleString()} ج.م`, urgent: true, go: () => go("invoices", i.id) }),
+    );
+    return items;
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
 
   return (
    <DashNavContext.Provider value={{ go, request }}>
@@ -215,9 +236,70 @@ function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
-              <Bell className="h-4 w-4 text-gold" /> الإشعارات
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
+              >
+                <span className="relative">
+                  <Bell className="h-4 w-4 text-gold" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </span>
+                الإشعارات
+              </button>
+              {notifOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                  <div className="absolute left-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-white/10 bg-navy-card shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                      <span className="flex items-center gap-2 text-sm font-bold text-cream">
+                        <Bell className="h-4 w-4 text-gold" /> الإشعارات
+                      </span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={() => setReadIds(notifications.map((n) => n.id))}
+                          className="text-xs font-semibold text-gold hover:underline"
+                        >
+                          تعليم الكل كمقروء
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 && (
+                        <p className="px-4 py-8 text-center text-sm text-cream/60">لا توجد إشعارات</p>
+                      )}
+                      {notifications.map((n) => {
+                        const read = readIds.includes(n.id);
+                        return (
+                          <button
+                            key={n.id}
+                            onClick={() => {
+                              setReadIds((p) => (p.includes(n.id) ? p : [...p, n.id]));
+                              setNotifOpen(false);
+                              n.go();
+                            }}
+                            className={`flex w-full items-start gap-3 border-b border-white/5 px-4 py-3 text-right transition-colors hover:bg-white/5 ${read ? "opacity-55" : ""}`}
+                          >
+                            <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${n.urgent ? "bg-red-500/15 text-red-400" : "bg-gold/15 text-gold"}`}>
+                              <n.icon className="h-4 w-4" />
+                            </span>
+                            <span className="flex-1">
+                              <span className="block text-sm font-semibold text-cream">{n.text}</span>
+                              <span className="mt-0.5 block text-xs text-cream/55">{n.meta}</span>
+                            </span>
+                            {!read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gold" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
