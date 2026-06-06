@@ -6,6 +6,11 @@ export interface DashCase {
   status: "نشطة" | "قيد المراجعة" | "مغلقة";
   nextDate: string;
   progress: number;
+  caseNumber?: string;
+  court?: string;
+  priority?: "عادية" | "متوسطة" | "عاجلة";
+  description?: string;
+  files?: string[];
 }
 
 export interface DashClient {
@@ -15,6 +20,9 @@ export interface DashClient {
   email: string;
   cases: number;
   since: string;
+  type?: "فرد" | "شركة";
+  city?: string;
+  nationalId?: string;
 }
 
 export interface DashSession {
@@ -24,6 +32,7 @@ export interface DashSession {
   client: string;
   time: string;
   location: string;
+  type?: string;
 }
 
 export interface DashReminder {
@@ -40,7 +49,49 @@ export interface DashInvoice {
   amount: number;
   date: string;
   status: "مدفوعة" | "معلقة" | "متأخرة";
+  dueDate?: string;
+  item?: string;
 }
+
+/* ---------- Shared option lists for dashboard forms ---------- */
+export const caseTypes = [
+  "قانون الأسرة",
+  "تجاري",
+  "عمالي",
+  "مدني",
+  "جنائي",
+  "إداري",
+  "ملكية فكرية",
+  "عقاري",
+  "ضرائب",
+];
+
+export const courts = [
+  "محكمة القاهرة",
+  "محكمة الجيزة",
+  "محكمة الاقتصادية",
+  "محكمة الأسرة",
+  "محكمة العمال",
+  "محكمة الاستئناف",
+  "محكمة النقض",
+  "مجلس الدولة",
+];
+
+export const sessionTypes = [
+  "جلسة مرافعة",
+  "جلسة استئناف",
+  "استشارة",
+  "متابعة قضية",
+  "تحضير شهود",
+];
+
+export const invoiceItems = [
+  "أتعاب قضية",
+  "استشارة قانونية",
+  "صياغة عقد",
+  "تمثيل قانوني",
+  "مراجعة مستندات",
+];
 
 export interface WalletTx {
   id: string;

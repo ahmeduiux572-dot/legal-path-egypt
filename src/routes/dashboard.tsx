@@ -31,6 +31,10 @@ import {
   Save,
   Video,
   Building2,
+  Paperclip,
+  FileText,
+  Gavel,
+  Hash,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -44,6 +48,10 @@ import {
   aiConversations,
   walletTransactions,
   walletBalance,
+  caseTypes,
+  courts,
+  sessionTypes,
+  invoiceItems,
   type DashCase,
   type DashClient,
   type DashSession,
@@ -178,10 +186,11 @@ function DashboardPage() {
 
 /* ---------- Shared UI ---------- */
 function Toolbar({
-  search, setSearch, placeholder, filter, setFilter, options, onAdd, addLabel,
+  search, setSearch, placeholder, filter, setFilter, options, filter2, setFilter2, options2, onAdd, addLabel,
 }: {
   search: string; setSearch: (v: string) => void; placeholder: string;
   filter?: string; setFilter?: (v: string) => void; options?: { value: string; label: string }[];
+  filter2?: string; setFilter2?: (v: string) => void; options2?: { value: string; label: string }[];
   onAdd: () => void; addLabel: string;
 }) {
   return (
@@ -197,6 +206,13 @@ function Toolbar({
           ))}
         </select>
       )}
+      {options2 && setFilter2 && (
+        <select value={filter2} onChange={(e) => setFilter2(e.target.value)} className={`${fieldCls} sm:w-44`}>
+          {options2.map((o) => (
+            <option key={o.value} value={o.value} className="bg-navy-deep">{o.label}</option>
+          ))}
+        </select>
+      )}
       <button onClick={onAdd} className="flex items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
         <Plus className="h-4 w-4" /> {addLabel}
       </button>
@@ -207,7 +223,7 @@ function Toolbar({
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-deep/80 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-card p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-navy-card p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold text-cream">{title}</h3>
           <button onClick={onClose} className="text-cream/60 hover:text-gold"><X className="h-5 w-5" /></button>
@@ -215,6 +231,52 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
         {children}
       </div>
     </div>
+  );
+}
+
+/* Reusable select with a placeholder option */
+function SelectField({
+  label, value, onChange, options, placeholder, required,
+}: {
+  label: string; value: string; onChange: (v: string) => void;
+  options: string[]; placeholder: string; required?: boolean;
+}) {
+  return (
+    <Field label={label}>
+      <select className={fieldCls} value={value} onChange={(e) => onChange(e.target.value)} required={required}>
+        <option value="" disabled className="bg-navy-deep">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o} value={o} className="bg-navy-deep">{o}</option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
+/* Reusable multi-file upload */
+function FileField({ label, files, setFiles }: { label: string; files: string[]; setFiles: (f: string[]) => void }) {
+  return (
+    <Field label={label}>
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-white/25 bg-navy-deep px-3 py-4 text-sm text-cream/60 transition-colors hover:border-gold hover:text-gold">
+        <Paperclip className="h-4 w-4" /> اسحب الملفات أو اضغط للرفع
+        <input
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? []).map((f) => f.name)])}
+        />
+      </label>
+      {files.length > 0 && (
+        <ul className="mt-2 space-y-1.5">
+          {files.map((f, i) => (
+            <li key={`${f}-${i}`} className="flex items-center justify-between rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-xs text-cream/75">
+              <span className="flex items-center gap-2 truncate"><FileText className="h-3.5 w-3.5 shrink-0 text-gold" /> {f}</span>
+              <button type="button" onClick={() => setFiles(files.filter((_, idx) => idx !== i))} className="text-cream/50 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Field>
   );
 }
 
@@ -378,30 +440,59 @@ function Cases() {
   const [items, setItems] = useState<DashCase[]>(dashCases);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", client: "", type: "" });
+  const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", status: "نشطة", priority: "عادية", nextDate: "", progress: "0", description: "" };
+  const [form, setForm] = useState(emptyForm);
+  const [files, setFiles] = useState<string[]>([]);
+  const clientNames = dashClients.map((c) => c.name);
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
-    (c.title.includes(search) || c.client.includes(search) || c.type.includes(search))
+    (typeFilter === "all" || c.type === typeFilter) &&
+    (c.title.includes(search) || c.client.includes(search) || c.type.includes(search) || (c.caseNumber ?? "").includes(search) || (c.court ?? "").includes(search))
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `c${Date.now()}`, title: form.title, client: form.client, type: form.type, status: "نشطة", nextDate: "—", progress: 0 }, ...p]);
-    setForm({ title: "", client: "", type: "" });
+    setItems((p) => [{
+      id: `c${Date.now()}`,
+      title: form.title,
+      client: form.client,
+      type: form.type,
+      status: form.status as DashCase["status"],
+      nextDate: form.nextDate || "—",
+      progress: Number(form.progress) || 0,
+      caseNumber: form.caseNumber || undefined,
+      court: form.court || undefined,
+      priority: form.priority as DashCase["priority"],
+      description: form.description || undefined,
+      files: files.length ? files : undefined,
+    }, ...p]);
+    setForm(emptyForm);
+    setFiles([]);
     setOpen(false);
   };
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Briefcase className="h-5 w-5 text-gold" /> القضايا</h2>
-      <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في القضايا..." filter={filter} setFilter={setFilter}
+      <Toolbar search={search} setSearch={setSearch} placeholder="ابحث بالعنوان أو العميل أو رقم القضية..." filter={filter} setFilter={setFilter}
         options={[{ value: "all", label: "كل الحالات" }, { value: "نشطة", label: "نشطة" }, { value: "قيد المراجعة", label: "قيد المراجعة" }, { value: "مغلقة", label: "مغلقة" }]}
+        filter2={typeFilter} setFilter2={setTypeFilter}
+        options2={[{ value: "all", label: "كل الأنواع" }, ...caseTypes.map((t) => ({ value: t, label: t }))]}
         onAdd={() => setOpen(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
           <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div><p className="font-bold text-cream">{c.title}</p><p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p></div>
+              <div>
+                <p className="font-bold text-cream">{c.title}</p>
+                <p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-3 text-xs text-cream/45">
+                  {c.caseNumber && <span className="flex items-center gap-1"><Hash className="h-3 w-3 text-gold" />{c.caseNumber}</span>}
+                  {c.court && <span className="flex items-center gap-1"><Gavel className="h-3 w-3 text-gold" />{c.court}</span>}
+                  {c.files && c.files.length > 0 && <span className="flex items-center gap-1"><Paperclip className="h-3 w-3 text-gold" />{c.files.length} ملف</span>}
+                </p>
+              </div>
               <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
             </div>
             <div className="mt-4 flex items-center gap-3">
@@ -416,10 +507,20 @@ function Cases() {
       {open && (
         <Modal title="إضافة قضية" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
-            <Field label="النوع"><input className={fieldCls} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field></div>
+              <Field label="رقم القضية"><input className={fieldCls} placeholder="123/2026" value={form.caseNumber} onChange={(e) => setForm({ ...form, caseNumber: e.target.value })} /></Field>
+              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+              <SelectField label="نوع القضية" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={caseTypes} placeholder="اختر النوع" required />
+              <SelectField label="المحكمة" value={form.court} onChange={(v) => setForm({ ...form, court: v })} options={courts} placeholder="اختر المحكمة" />
+              <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["نشطة", "قيد المراجعة", "مغلقة"]} placeholder="اختر الحالة" />
+              <SelectField label="الأولوية" value={form.priority} onChange={(v) => setForm({ ...form, priority: v })} options={["عادية", "متوسطة", "عاجلة"]} placeholder="اختر الأولوية" />
+              <Field label="تاريخ الجلسة القادمة"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} /></Field>
+              <Field label="نسبة الإنجاز (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.progress} onChange={(e) => setForm({ ...form, progress: e.target.value })} /></Field>
+            </div>
+            <Field label="وصف القضية"><textarea rows={3} className={fieldCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
+            <FileField label="ملفات ومستندات القضية" files={files} setFiles={setFiles} />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة القضية</button>
           </form>
         </Modal>
       )}
@@ -433,16 +534,17 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", email: "" });
+  const emptyForm = { name: "", phone: "", email: "", type: "فرد", city: "", nationalId: "" };
+  const [form, setForm] = useState(emptyForm);
 
   const filtered = items.filter((c) =>
     (filter === "all" || (filter === "active" ? c.cases > 0 : c.cases === 0)) &&
-    (c.name.includes(search) || c.phone.includes(search) || c.email.includes(search))
+    (c.name.includes(search) || c.phone.includes(search) || c.email.includes(search) || (c.city ?? "").includes(search))
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026" }, ...p]);
-    setForm({ name: "", phone: "", email: "" });
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined }, ...p]);
+    setForm(emptyForm);
     setOpen(false);
   };
   return (
@@ -470,10 +572,15 @@ function Clients() {
       {open && (
         <Modal title="إضافة عميل" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
-            <Field label="الهاتف"><input className={fieldCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
-            <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
+              <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
+              <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+              <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
+              <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
+              <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
+            </div>
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة العميل</button>
           </form>
         </Modal>
       )}
@@ -486,7 +593,9 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", client: "", day: "", time: "", location: "" });
+  const emptyForm = { title: "", type: "", client: "", day: "", time: "", location: "" };
+  const [form, setForm] = useState(emptyForm);
+  const clientNames = dashClients.map((c) => c.name);
 
   const monthName = "يونيو 2026";
   const weekDays = ["سبت", "أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة"];
@@ -499,8 +608,8 @@ function Sessions() {
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, client: form.client, day: Number(form.day), time: form.time, location: form.location }]);
-    setForm({ title: "", client: "", day: "", time: "", location: "" });
+    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location }]);
+    setForm(emptyForm);
     setOpen(false);
   };
 
@@ -567,13 +676,16 @@ function Sessions() {
         <Modal title="إضافة جلسة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
             <Field label="عنوان الجلسة"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
+            <div className="grid grid-cols-2 gap-3">
+              <SelectField label="نوع الجلسة" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={sessionTypes} placeholder="اختر النوع" />
+              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label="اليوم (1-30)"><input type="number" min={1} max={30} className={fieldCls} value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })} required /></Field>
               <Field label="الوقت"><input className={fieldCls} placeholder="10:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
             </div>
-            <Field label="المكان"><input className={fieldCls} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <SelectField label="المكان" value={form.location} onChange={(v) => setForm({ ...form, location: v })} options={[...courts, "أونلاين", "المكتب"]} placeholder="اختر المكان" required />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة الجلسة</button>
           </form>
         </Modal>
       )}
@@ -632,7 +744,7 @@ function Consultations() {
       {open && (
         <Modal title="إضافة استشارة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
+            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
             <Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
@@ -660,19 +772,21 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ client: "", amount: "", status: "معلقة" });
+  const emptyForm = { client: "", item: "", amount: "", dueDate: "", status: "معلقة" };
+  const [form, setForm] = useState(emptyForm);
+  const clientNames = dashClients.map((c) => c.name);
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
-    (i.number.includes(search) || i.client.includes(search))
+    (i.number.includes(search) || i.client.includes(search) || (i.item ?? "").includes(search))
   );
   const total = items.reduce((s, i) => s + i.amount, 0);
   const paid = items.filter((i) => i.status === "مدفوعة").reduce((s, i) => s + i.amount, 0);
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     const n = `INV-${2044 + items.length}`;
-    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"] }, ...p]);
-    setForm({ client: "", amount: "", status: "معلقة" });
+    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined }, ...p]);
+    setForm(emptyForm);
     setOpen(false);
   };
   return (
@@ -703,14 +817,14 @@ function Invoices() {
       {open && (
         <Modal title="إنشاء فاتورة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
-            <Field label="المبلغ (ج.م)"><input type="number" className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
-            <Field label="الحالة">
-              <select className={fieldCls} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option className="bg-navy-deep">معلقة</option><option className="bg-navy-deep">مدفوعة</option><option className="bg-navy-deep">متأخرة</option>
-              </select>
-            </Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء</button>
+            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+            <SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+              <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
+            </div>
+            <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء الفاتورة</button>
           </form>
         </Modal>
       )}
