@@ -484,6 +484,79 @@ function FileField({ label, files, setFiles }: { label: string; files: string[];
   );
 }
 
+/* ---------- In-platform video call ---------- */
+function VideoCall({ consultation, onClose }: { consultation: DashConsultation; onClose: () => void }) {
+  const [seconds, setSeconds] = useState(0);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  const clientInitial = consultation.client.trim().charAt(0);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-navy p-3 sm:p-5">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-sm font-bold text-cream">
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
+          </p>
+          <p className="mt-0.5 truncate text-xs text-cream/55">{consultation.subject} — {consultation.client}</p>
+        </div>
+        <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-sm font-bold text-gold">{mm}:{ss}</span>
+      </div>
+
+      {/* Video tiles */}
+      <div className="my-3 grid flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+        {/* Client tile (large) */}
+        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{clientInitial}</div>
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> {consultation.client} (العميل)
+          </span>
+        </div>
+        {/* Lawyer tile */}
+        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+          {camOn ? (
+            <img src={lawyer.image} alt={lawyer.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-cream/70"><VideoOff className="h-8 w-8" /></div>
+          )}
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            {micOn ? <Mic className="h-3 w-3 text-emerald-400" /> : <MicOff className="h-3 w-3 text-red-400" />} {lawyer.name} (أنت)
+          </span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+        <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setCamOn((v) => !v)} aria-label="الكاميرا"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${camOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setSharing((v) => !v)} aria-label="مشاركة الشاشة"
+          className={`hidden h-12 w-12 items-center justify-center rounded-full transition-colors sm:flex ${sharing ? "bg-gold/20 text-gold" : "bg-white/10 text-cream hover:bg-white/15"}`}>
+          <MonitorUp className="h-5 w-5" />
+        </button>
+        <button onClick={onClose} aria-label="إنهاء المكالمة"
+          className="flex h-12 items-center justify-center gap-2 rounded-full bg-red-500 px-6 text-sm font-bold text-white transition-colors hover:bg-red-600">
+          <PhoneOff className="h-5 w-5" /> إنهاء
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Overview ---------- */
 function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
   const stats = [
