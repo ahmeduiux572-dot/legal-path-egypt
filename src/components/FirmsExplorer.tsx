@@ -30,12 +30,8 @@ export function FirmsExplorer() {
             className="w-full rounded-lg border border-white/15 bg-navy-deep px-10 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none"
           />
         </div>
-        <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
-          {firmSpecialties.map((s) => (<option key={s} value={s}>{s}</option>))}
-        </select>
-        <select value={city} onChange={(e) => setCity(e.target.value)} className="rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
-          {firmCities.map((c) => (<option key={c} value={c}>{c}</option>))}
-        </select>
+        <OptionScroller value={specialty} options={[...firmSpecialties]} onChange={setSpecialty} ariaLabel="فلترة تخصص المكتب" />
+        <OptionScroller value={city} options={[...firmCities]} onChange={setCity} ariaLabel="فلترة مدينة المكتب" />
       </div>
 
       {filtered.length === 0 ? (
@@ -45,6 +41,38 @@ export function FirmsExplorer() {
           {filtered.map((f) => (<FirmCard key={f.id} firm={f} />))}
         </div>
       )}
+    </div>
+  );
+}
+
+function OptionScroller({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div className="flex min-h-11 items-center gap-2 overflow-x-auto rounded-lg border border-white/15 bg-navy-deep p-1" role="radiogroup" aria-label={ariaLabel}>
+      {options.map((option) => {
+        const selected = option === value;
+        return (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(option)}
+            className={`shrink-0 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${selected ? "bg-gold text-navy-deep" : "text-cream/70 hover:bg-white/5 hover:text-cream"}`}
+          >
+            {option}
+          </button>
+        );
+      })}
     </div>
   );
 }
