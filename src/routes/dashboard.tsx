@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -8,7 +8,6 @@ import {
   Receipt,
   Wallet,
   Sparkles,
-  LogOut,
   Bell,
   Clock,
   MapPin,
@@ -47,7 +46,7 @@ import {
   MonitorUp,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
-import { useAuth, logout } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import {
   dashCases,
   dashClients,
