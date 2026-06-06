@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { MapPin, Users, Briefcase, CalendarDays } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
-import { LawyerCard } from "@/components/LawyerCard";
-import { SectionHeading } from "@/components/SectionHeading";
-import { getFirm, getFirmLawyers } from "@/data/firms";
+import { BookingDialog } from "@/components/BookingDialog";
+import { ReviewsSection } from "@/components/ReviewsSection";
+import { getFirm } from "@/data/firms";
 
 export const Route = createFileRoute("/firms/$firmId")({
   head: ({ params }) => {
@@ -34,7 +34,6 @@ export const Route = createFileRoute("/firms/$firmId")({
 
 function FirmProfile() {
   const { firm } = Route.useLoaderData();
-  const firmLawyers = getFirmLawyers(firm);
 
   return (
     <div className="bg-cream">
@@ -52,6 +51,10 @@ function FirmProfile() {
             <div className="flex items-center justify-between border-b border-border pb-4">
               <span className="text-sm text-muted-foreground">التخصص الرئيسي</span>
               <h2 className="text-lg font-bold text-navy">{firm.specialty}</h2>
+            </div>
+            <div className="flex items-center justify-between border-b border-border py-4">
+              <span className="text-2xl font-extrabold text-navy">{firm.consultationPrice} ج.م</span>
+              <span className="text-sm text-muted-foreground">سعر الاستشارة</span>
             </div>
             <div className="flex items-center justify-between border-b border-border py-4">
               <div className="flex items-center gap-2">
@@ -72,6 +75,7 @@ function FirmProfile() {
                 <p className="text-xs text-muted-foreground">عضو في الفريق</p>
               </div>
             </div>
+            <BookingDialog name={firm.name} price={firm.consultationPrice} />
             <div className="mt-5 space-y-3 text-sm">
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" />{firm.city}</span><span>المقر</span></p>
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" />{firm.established}</span><span>سنة التأسيس</span></p>
@@ -84,14 +88,7 @@ function FirmProfile() {
           <p className="mt-4 text-sm leading-loose text-muted-foreground">{firm.about}</p>
         </div>
 
-        {firmLawyers.length > 0 && (
-          <section className="mt-12 rounded-2xl bg-navy p-7 shadow-card md:p-10">
-            <SectionHeading light title="محامو المكتب" subtitle="نخبة المحامين والمستشارين العاملين في المكتب." />
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {firmLawyers.map((l) => (<LawyerCard key={l.id} lawyer={l} />))}
-            </div>
-          </section>
-        )}
+        <ReviewsSection lawyerName={firm.name} />
 
         <div className="mt-10 text-center">
           <Link to="/lawyers" className="text-sm font-semibold text-navy underline">العودة لقائمة المحامين والمكاتب</Link>
