@@ -792,9 +792,13 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashClient | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
+  const viewing = items.find((c) => c.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
 
   const filtered = items.filter((c) =>
     (filter === "all" || (filter === "active" ? c.cases > 0 : c.cases === 0)) &&
@@ -835,7 +839,7 @@ function Clients() {
     const c = viewing;
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
     return (
-      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewing(null)}>
+      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
           <DetailItem label="هاتف بديل" value={c.altPhone} />
@@ -868,6 +872,7 @@ function Clients() {
             </div>
           </div>
         )}
+        <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
   }
@@ -880,17 +885,20 @@ function Clients() {
         onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
-          <button key={c.id} type="button" onClick={() => setViewing(c)} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
-            <div className="flex items-center justify-between">
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+            <div className="flex items-center justify-between gap-2">
               <p className="font-bold text-cream">{c.name}</p>
-              <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
+                <ViewButton onClick={() => setViewingId(c.id)} />
+              </div>
             </div>
             <div className="mt-3 space-y-1.5 text-sm text-cream/60">
               <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gold" /> {c.phone}</p>
               <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gold" /> {c.email}</p>
               <p className="text-xs text-cream/45">عميل منذ {c.since}</p>
             </div>
-          </button>
+          </div>
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
