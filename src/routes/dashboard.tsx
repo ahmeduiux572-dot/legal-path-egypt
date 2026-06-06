@@ -44,6 +44,9 @@ import {
   PhoneOff,
   Maximize2,
   MonitorUp,
+  FolderOpen,
+  Upload,
+  ScrollText,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
@@ -1627,20 +1630,57 @@ function WalletPanel() {
 
 /* ---------- Documents ---------- */
 type DocSourceKind = "case" | "client";
-interface DocRow { id: string; name: string; sourceName: string; sourceKind: DocSourceKind; sourceId: string; }
+type DocKind = DocSourceKind | "manual";
+interface DocRow { id: string; name: string; sourceName: string; sourceKind: DocKind; sourceId?: string; category: string; }
+
+/* Document categories (sections) */
+const docCategories = ["عقود", "مذكرات", "أحكام", "توكيلات", "تقارير", "أخرى"];
+
+/* Infer a category from the file name */
+function inferCategory(name: string): string {
+  const n = name;
+  if (n.includes("عقد") || n.includes("اتفاق") || n.includes("التأسيس")) return "عقود";
+  if (n.includes("مذكرة") || n.includes("لائحة") || n.includes("صحيفة")) return "مذكرات";
+  if (n.includes("حكم") || n.includes("قرار") || n.includes("محضر")) return "أحكام";
+  if (n.includes("توكيل")) return "توكيلات";
+  if (n.includes("تقرير") || n.includes("كشف") || n.includes("طبي")) return "تقارير";
+  return "أخرى";
+}
+
 function Documents() {
   const { go } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [adding, setAdding] = useState(false);
+  const [manual, setManual] = useState<DocRow[]>([]);
 
-  const rows: DocRow[] = [
-    ...dashCases.flatMap((c) => (c.files ?? []).map((f, i) => ({ id: `case-${c.id}-${i}`, name: f, sourceName: c.title, sourceKind: "case" as DocSourceKind, sourceId: c.id }))),
-    ...dashClients.flatMap((cl) => (cl.files ?? []).map((f, i) => ({ id: `client-${cl.id}-${i}`, name: f, sourceName: cl.name, sourceKind: "client" as DocSourceKind, sourceId: cl.id }))),
+  // Add-document form state
+  const [newName, setNewName] = useState("");
+  const [newCategory, setNewCategory] = useState(docCategories[0]);
+  const [newSource, setNewSource] = useState("");
+
+  const baseRows: DocRow[] = [
+    ...dashCases.flatMap((c) => (c.files ?? []).map((f, i) => ({ id: `case-${c.id}-${i}`, name: f, sourceName: c.title, sourceKind: "case" as DocKind, sourceId: c.id, category: inferCategory(f) }))),
+    ...dashClients.flatMap((cl) => (cl.files ?? []).map((f, i) => ({ id: `client-${cl.id}-${i}`, name: f, sourceName: cl.name, sourceKind: "client" as DocKind, sourceId: cl.id, category: inferCategory(f) }))),
   ];
+  const rows = [...manual, ...baseRows];
+
   const filtered = rows.filter((r) =>
-    (filter === "all" || r.sourceKind === filter) &&
+    (filter === "all" || r.category === filter) &&
     (r.name.includes(search) || r.sourceName.includes(search))
   );
+
+  const addDocument = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = newName.trim();
+    if (!name) return;
+    const finalName = /\.\w{2,5}$/.test(name) ? name : `${name}.pdf`;
+    setManual((prev) => [
+      { id: `manual-${Date.now()}`, name: finalName, sourceName: newSource.trim() || "مستند عام", sourceKind: "manual", category: newCategory },
+      ...prev,
+    ]);
+    setNewName(""); setNewSource(""); setNewCategory(docCategories[0]); setAdding(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -1649,17 +1689,42 @@ function Documents() {
         <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات القضايا</p><p className="mt-2 text-2xl font-extrabold text-gold">{rows.filter((r) => r.sourceKind === "case").length}</p></div>
         <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات العملاء</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{rows.filter((r) => r.sourceKind === "client").length}</p></div>
       </div>
+
+      {/* Category sections overview */}
       <div className={card}>
-        <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><FileText className="h-5 w-5 text-gold" /> المستندات</h2>
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><FolderOpen className="h-5 w-5 text-gold" /> أقسام المستندات</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <button type="button" onClick={() => setFilter("all")} className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-colors ${filter === "all" ? "border-gold bg-gold/10 text-gold" : "border-white/10 bg-navy-deep/50 text-cream/75 hover:border-gold/40"}`}>
+            <FolderOpen className="h-5 w-5" />
+            <span className="text-xs font-bold">الكل</span>
+            <span className="text-[11px] text-cream/50">{rows.length}</span>
+          </button>
+          {docCategories.map((cat) => {
+            const count = rows.filter((r) => r.category === cat).length;
+            return (
+              <button key={cat} type="button" onClick={() => setFilter(cat)} className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-colors ${filter === cat ? "border-gold bg-gold/10 text-gold" : "border-white/10 bg-navy-deep/50 text-cream/75 hover:border-gold/40"}`}>
+                <ScrollText className="h-5 w-5" />
+                <span className="text-xs font-bold">{cat}</span>
+                <span className="text-[11px] text-cream/50">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={card}>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><FileText className="h-5 w-5 text-gold" /> المستندات {filter !== "all" && <span className="text-sm font-medium text-gold">— {filter}</span>}</h2>
+          <button type="button" onClick={() => setAdding(true)} className="flex items-center gap-1.5 rounded-lg bg-gradient-gold px-4 py-2 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"><Plus className="h-4 w-4" /> إضافة مستند</button>
+        </div>
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث في المستندات..." className={`${fieldCls} pr-9`} />
           </div>
           <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`${fieldCls} sm:w-44`}>
-            <option value="all" className="bg-navy-deep">كل المصادر</option>
-            <option value="case" className="bg-navy-deep">مستندات القضايا</option>
-            <option value="client" className="bg-navy-deep">مستندات العملاء</option>
+            <option value="all" className="bg-navy-deep">كل الأقسام</option>
+            {docCategories.map((cat) => <option key={cat} value={cat} className="bg-navy-deep">{cat}</option>)}
           </select>
         </div>
         <div className="space-y-3">
@@ -1669,20 +1734,55 @@ function Documents() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold/15 text-gold"><FileText className="h-5 w-5" /></span>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-bold text-cream">{r.name}</span>
-                  <span className="mt-0.5 block text-xs text-cream/55">{r.sourceKind === "case" ? "قضية" : "عميل"}: {r.sourceName}</span>
+                  <span className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-cream/55">
+                    <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">{r.category}</span>
+                    {r.sourceKind === "manual" ? "مرفوع يدويًا" : `${r.sourceKind === "case" ? "قضية" : "عميل"}: ${r.sourceName}`}
+                  </span>
                 </span>
               </button>
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => openDocument(r.name)} className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"><Eye className="h-4 w-4" /> فتح</button>
-                <button type="button" onClick={() => go(r.sourceKind === "case" ? "cases" : "clients", r.sourceId)} className="flex h-9 items-center gap-1.5 rounded-lg border border-white/15 px-3 text-xs font-semibold text-cream/80 transition-colors hover:border-gold hover:text-gold">
-                  {r.sourceKind === "case" ? <Briefcase className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />} المصدر
-                </button>
+                {r.sourceKind === "manual" ? (
+                  <button type="button" onClick={() => setManual((prev) => prev.filter((m) => m.id !== r.id))} className="flex h-9 items-center gap-1.5 rounded-lg border border-white/15 px-3 text-xs font-semibold text-cream/80 transition-colors hover:border-red-400 hover:text-red-400"><X className="h-3.5 w-3.5" /> حذف</button>
+                ) : (
+                  <button type="button" onClick={() => go(r.sourceKind === "case" ? "cases" : "clients", r.sourceId!)} className="flex h-9 items-center gap-1.5 rounded-lg border border-white/15 px-3 text-xs font-semibold text-cream/80 transition-colors hover:border-gold hover:text-gold">
+                    {r.sourceKind === "case" ? <Briefcase className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />} المصدر
+                  </button>
+                )}
               </div>
             </div>
           ))}
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد مستندات.</p>}
         </div>
       </div>
+
+      {adding && (
+        <Modal title="إضافة مستند جديد" onClose={() => setAdding(false)}>
+          <form onSubmit={addDocument} className="space-y-4">
+            <Field label="اسم المستند">
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} className={fieldCls} placeholder="مثال: عقد إيجار محل تجاري" required />
+            </Field>
+            <Field label="القسم">
+              <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className={fieldCls}>
+                {docCategories.map((cat) => <option key={cat} value={cat} className="bg-navy-deep">{cat}</option>)}
+              </select>
+            </Field>
+            <Field label="المصدر / الجهة (اختياري)">
+              <input value={newSource} onChange={(e) => setNewSource(e.target.value)} className={fieldCls} placeholder="مثال: قضية فلان أو اسم العميل" />
+            </Field>
+            <Field label="رفع الملف">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-white/25 bg-navy-deep px-3 py-4 text-sm text-cream/60 transition-colors hover:border-gold hover:text-gold">
+                <Upload className="h-4 w-4" /> اضغط لاختيار ملف
+                <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setNewName(f.name); }} />
+              </label>
+            </Field>
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={() => setAdding(false)} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إلغاء</button>
+              <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold"><Plus className="h-4 w-4" /> إضافة المستند</button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
