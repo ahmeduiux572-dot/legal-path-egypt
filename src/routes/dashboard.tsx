@@ -913,11 +913,17 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashSession | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
+  const viewing = items.find((s) => s.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (id: string, status: string) =>
+    setItems((p) => p.map((s) => (s.id === id ? { ...s, status: status as DashSession["status"] } : s)));
 
   const monthName = "يونيو 2026";
   const weekDays = ["سبت", "أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة"];
@@ -930,7 +936,7 @@ function Sessions() {
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location, caseRef: form.caseRef || undefined, notes: form.notes || undefined }]);
+    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location, caseRef: form.caseRef || undefined, notes: form.notes || undefined, status: "قادمة" }]);
     setForm(emptyForm);
     setAdding(false);
   };
@@ -961,10 +967,12 @@ function Sessions() {
   if (viewing) {
     const s = viewing;
     return (
-      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewing(null)}>
+      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={s.status ?? "قادمة"} options={["قادمة", "منتهية", "مؤجلة", "ملغاة"]} onChange={(v) => changeStatus(s.id, v)} />}>
         <DetailGrid title="بيانات الجلسة">
           <DetailItem label="العميل" value={s.client} />
           <DetailItem label="نوع الجلسة" value={s.type} />
+          <DetailItem label="الحالة" value={s.status} />
           <DetailItem label="القضية المرتبطة" value={s.caseRef} full />
         </DetailGrid>
         <DetailGrid title="الموعد والمكان">
@@ -978,6 +986,7 @@ function Sessions() {
             <p className="text-sm leading-relaxed text-cream/85">{s.notes}</p>
           </div>
         )}
+        <CommentsPanel comments={comments[s.id] ?? []} onAdd={(t) => addComment(s.id, t)} />
       </DetailPage>
     );
   }
