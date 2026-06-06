@@ -1182,12 +1182,16 @@ function Sessions() {
           {cells.map((day, i) => {
             if (day === null) return <div key={`e${i}`} />;
             const sessions = sessionByDay.get(day);
+            const consultation = consultationByDay.get(day);
             const isToday = day === today;
             return (
-              <div key={day} className={`min-h-16 rounded-lg border p-1.5 text-start ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
+              <button key={day} type="button" onClick={() => handleDayClick(day)}
+                title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
+                className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
                 {sessions?.map((s) => <p key={s.id} className="mt-1 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`${s.title} - ${s.time}`}>{s.time} {s.title}</p>)}
-              </div>
+                {consultation && <p className="mt-1 flex items-center gap-1 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400"><MessageSquare className="h-2.5 w-2.5" /> استشارة</p>}
+              </button>
             );
           })}
         </div>
