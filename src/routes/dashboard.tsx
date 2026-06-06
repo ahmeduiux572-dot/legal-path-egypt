@@ -809,6 +809,7 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashSession | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -853,6 +854,30 @@ function Sessions() {
     );
   }
 
+  if (viewing) {
+    const s = viewing;
+    return (
+      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewing(null)}>
+        <DetailGrid title="بيانات الجلسة">
+          <DetailItem label="العميل" value={s.client} />
+          <DetailItem label="نوع الجلسة" value={s.type} />
+          <DetailItem label="القضية المرتبطة" value={s.caseRef} full />
+        </DetailGrid>
+        <DetailGrid title="الموعد والمكان">
+          <DetailItem label="التاريخ" value={`${s.day} يونيو 2026`} />
+          <DetailItem label="الوقت" value={s.time} />
+          <DetailItem label="المكان" value={s.location} full />
+        </DetailGrid>
+        {s.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{s.notes}</p>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-3">
       <div className={`${card} lg:col-span-2`}>
@@ -891,11 +916,11 @@ function Sessions() {
           </div>
           <div className="space-y-3">
             {filteredList.map((s) => (
-              <div key={s.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+              <button key={s.id} type="button" onClick={() => setViewing(s)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-3 text-start transition-colors hover:border-gold/30">
                 <p className="text-sm font-bold text-cream">{s.title}</p>
                 <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
                 <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
-              </div>
+              </button>
             ))}
             {filteredList.length === 0 && <p className="py-4 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
           </div>
