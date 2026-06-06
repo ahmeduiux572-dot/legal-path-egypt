@@ -44,6 +44,9 @@ import {
   PhoneOff,
   Maximize2,
   MonitorUp,
+  FolderOpen,
+  Upload,
+  ScrollText,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
