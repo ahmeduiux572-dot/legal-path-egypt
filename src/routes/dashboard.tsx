@@ -1168,6 +1168,7 @@ function Consultations() {
 
   if (viewing) {
     const c = viewing;
+    const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
     return (
       <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
@@ -1176,9 +1177,25 @@ function Consultations() {
           <DetailItem label="قناة التواصل" value={c.channel} />
           <DetailItem label="التاريخ" value={c.date} />
           <DetailItem label="الوقت" value={c.time} />
+          <DetailItem label="المدة" value={c.duration} />
           <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
           <DetailItem label="الحالة" value={c.status} />
+          <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
+        {c.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
+          </div>
+        )}
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
