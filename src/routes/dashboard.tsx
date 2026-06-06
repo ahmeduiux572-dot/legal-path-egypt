@@ -1264,8 +1264,16 @@ function Sessions() {
                 title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
                 className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
-                {sessions?.map((s) => <p key={s.id} className="mt-1 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`${s.title} - ${s.time}`}>{s.time} {s.title}</p>)}
-                {consultation && <p className="mt-1 flex items-center gap-1 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400"><MessageSquare className="h-2.5 w-2.5" /> استشارة</p>}
+                {sessions?.map((s) => (
+                  <p key={s.id} className="mt-1 flex items-center gap-0.5 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`جلسة: ${s.title} - ${s.time}`}>
+                    <CalendarDays className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">جلسة: {s.title}</span>
+                  </p>
+                ))}
+                {consultation && (
+                  <p className="mt-1 flex items-center gap-0.5 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400" title={`استشارة: ${consultation.subject}`}>
+                    <MessageSquare className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">استشارة: {consultation.subject}</span>
+                  </p>
+                )}
               </button>
             );
           })}
