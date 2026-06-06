@@ -215,7 +215,7 @@ function Toolbar({
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-deep/80 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-card p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-navy-card p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold text-cream">{title}</h3>
           <button onClick={onClose} className="text-cream/60 hover:text-gold"><X className="h-5 w-5" /></button>
@@ -223,6 +223,52 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
         {children}
       </div>
     </div>
+  );
+}
+
+/* Reusable select with a placeholder option */
+function SelectField({
+  label, value, onChange, options, placeholder, required,
+}: {
+  label: string; value: string; onChange: (v: string) => void;
+  options: string[]; placeholder: string; required?: boolean;
+}) {
+  return (
+    <Field label={label}>
+      <select className={fieldCls} value={value} onChange={(e) => onChange(e.target.value)} required={required}>
+        <option value="" disabled className="bg-navy-deep">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o} value={o} className="bg-navy-deep">{o}</option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
+/* Reusable multi-file upload */
+function FileField({ label, files, setFiles }: { label: string; files: string[]; setFiles: (f: string[]) => void }) {
+  return (
+    <Field label={label}>
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-white/25 bg-navy-deep px-3 py-4 text-sm text-cream/60 transition-colors hover:border-gold hover:text-gold">
+        <Paperclip className="h-4 w-4" /> اسحب الملفات أو اضغط للرفع
+        <input
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? []).map((f) => f.name)])}
+        />
+      </label>
+      {files.length > 0 && (
+        <ul className="mt-2 space-y-1.5">
+          {files.map((f, i) => (
+            <li key={`${f}-${i}`} className="flex items-center justify-between rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-xs text-cream/75">
+              <span className="flex items-center gap-2 truncate"><FileText className="h-3.5 w-3.5 shrink-0 text-gold" /> {f}</span>
+              <button type="button" onClick={() => setFiles(files.filter((_, idx) => idx !== i))} className="text-cream/50 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Field>
   );
 }
 
