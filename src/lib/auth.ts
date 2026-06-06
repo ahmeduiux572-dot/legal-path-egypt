@@ -10,17 +10,33 @@ export interface AuthUser {
 const STORAGE_KEY = "muhamik_auth";
 const listeners = new Set<() => void>();
 
+let cache: AuthUser | null = null;
+let cacheRaw: string | null = null;
+
 function read(): AuthUser | null {
   if (typeof window === "undefined") return null;
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
+    raw = window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    return null;
+    return cache;
   }
+  // Only re-parse (and create a new object) when the stored value changes,
+  // so the snapshot reference stays stable for useSyncExternalStore.
+  if (raw !== cacheRaw) {
+    cacheRaw = raw;
+    try {
+      cache = raw ? (JSON.parse(raw) as AuthUser) : null;
+    } catch {
+      cache = null;
+    }
+  }
+  return cache;
 }
 
 function emit() {
+  // Invalidate the cache so the next read picks up the new value.
+  cacheRaw = null;
   listeners.forEach((l) => l());
 }
 
