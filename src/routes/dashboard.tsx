@@ -68,6 +68,7 @@ import {
   type DashSession,
   type DashInvoice,
   type DashConsultation,
+  type DashReminder,
 } from "@/data/dashboard";
 
 export const Route = createFileRoute("/dashboard")({
