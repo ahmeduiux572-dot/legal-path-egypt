@@ -35,6 +35,7 @@ import {
   FileText,
   Gavel,
   Hash,
+  ArrowRight,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -52,6 +53,7 @@ import {
   courts,
   sessionTypes,
   invoiceItems,
+  caseDegrees,
   type DashCase,
   type DashClient,
   type DashSession,
@@ -230,6 +232,48 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
         </div>
         {children}
       </div>
+    </div>
+  );
+}
+
+/* Full-page form wrapper (replaces modals) */
+function FormPage({
+  title, subtitle, icon: Icon, onBack, onSubmit, submitLabel, children,
+}: {
+  title: string; subtitle?: string; icon: typeof Briefcase;
+  onBack: () => void; onSubmit: (e: React.FormEvent) => void; submitLabel: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-cream transition-colors hover:bg-white/5 hover:text-gold">
+          <ArrowRight className="h-5 w-5" />
+        </button>
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Icon className="h-5 w-5 text-gold" /> {title}</h2>
+          {subtitle && <p className="mt-0.5 text-sm text-cream/55">{subtitle}</p>}
+        </div>
+      </div>
+      <form onSubmit={onSubmit} className={card}>
+        <div className="space-y-6">{children}</div>
+        <div className="mt-8 flex gap-3">
+          <button type="button" onClick={onBack} className="flex-1 rounded-lg border border-white/15 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5 sm:flex-none sm:px-8">إلغاء</button>
+          <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:flex-none sm:px-10">
+            <Save className="h-4 w-4" /> {submitLabel}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* Section title inside a form page */
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">{title}</h3>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </div>
   );
 }
@@ -441,8 +485,8 @@ function Cases() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", status: "نشطة", priority: "عادية", nextDate: "", progress: "0", description: "" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", degree: "", status: "نشطة", priority: "عادية", nextDate: "", startDate: "", progress: "0", opponent: "", opponentLawyer: "", claimAmount: "", description: "" };
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
   const clientNames = dashClients.map((c) => c.name);
@@ -467,11 +511,52 @@ function Cases() {
       priority: form.priority as DashCase["priority"],
       description: form.description || undefined,
       files: files.length ? files : undefined,
+      degree: form.degree || undefined,
+      startDate: form.startDate || undefined,
+      opponent: form.opponent || undefined,
+      opponentLawyer: form.opponentLawyer || undefined,
+      claimAmount: form.claimAmount ? Number(form.claimAmount) : undefined,
     }, ...p]);
     setForm(emptyForm);
     setFiles([]);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إضافة قضية جديدة" subtitle="أدخل كل بيانات القضية والمستندات المرتبطة بها" icon={Briefcase}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ القضية">
+        <FormSection title="بيانات أساسية">
+          <div className="sm:col-span-2"><Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field></div>
+          <Field label="رقم القضية"><input className={fieldCls} placeholder="123/2026" value={form.caseNumber} onChange={(e) => setForm({ ...form, caseNumber: e.target.value })} /></Field>
+          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+          <SelectField label="نوع القضية" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={caseTypes} placeholder="اختر النوع" required />
+          <SelectField label="درجة التقاضي" value={form.degree} onChange={(v) => setForm({ ...form, degree: v })} options={caseDegrees} placeholder="اختر الدرجة" />
+        </FormSection>
+        <FormSection title="المحكمة والجدول">
+          <SelectField label="المحكمة" value={form.court} onChange={(v) => setForm({ ...form, court: v })} options={courts} placeholder="اختر المحكمة" />
+          <Field label="تاريخ بدء القضية"><input className={fieldCls} placeholder="1 يونيو 2026" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} /></Field>
+          <Field label="تاريخ الجلسة القادمة"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} /></Field>
+          <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["نشطة", "قيد المراجعة", "مغلقة"]} placeholder="اختر الحالة" />
+          <SelectField label="الأولوية" value={form.priority} onChange={(v) => setForm({ ...form, priority: v })} options={["عادية", "متوسطة", "عاجلة"]} placeholder="اختر الأولوية" />
+          <Field label="نسبة الإنجاز (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.progress} onChange={(e) => setForm({ ...form, progress: e.target.value })} /></Field>
+        </FormSection>
+        <FormSection title="الطرف الآخر">
+          <Field label="اسم الخصم"><input className={fieldCls} value={form.opponent} onChange={(e) => setForm({ ...form, opponent: e.target.value })} /></Field>
+          <Field label="محامي الخصم"><input className={fieldCls} value={form.opponentLawyer} onChange={(e) => setForm({ ...form, opponentLawyer: e.target.value })} /></Field>
+          <Field label="قيمة المطالبة (ج.م)"><input type="number" min={0} className={fieldCls} value={form.claimAmount} onChange={(e) => setForm({ ...form, claimAmount: e.target.value })} /></Field>
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
+          <div className="space-y-4">
+            <Field label="وصف القضية"><textarea rows={4} className={fieldCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
+            <FileField label="ملفات ومستندات القضية" files={files} setFiles={setFiles} />
+          </div>
+        </div>
+      </FormPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Briefcase className="h-5 w-5 text-gold" /> القضايا</h2>
@@ -479,7 +564,7 @@ function Cases() {
         options={[{ value: "all", label: "كل الحالات" }, { value: "نشطة", label: "نشطة" }, { value: "قيد المراجعة", label: "قيد المراجعة" }, { value: "مغلقة", label: "مغلقة" }]}
         filter2={typeFilter} setFilter2={setTypeFilter}
         options2={[{ value: "all", label: "كل الأنواع" }, ...caseTypes.map((t) => ({ value: t, label: t }))]}
-        onAdd={() => setOpen(true)} addLabel="إضافة قضية" />
+        onAdd={() => setAdding(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
           <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
@@ -504,26 +589,6 @@ function Cases() {
         ))}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
-      {open && (
-        <Modal title="إضافة قضية" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2"><Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field></div>
-              <Field label="رقم القضية"><input className={fieldCls} placeholder="123/2026" value={form.caseNumber} onChange={(e) => setForm({ ...form, caseNumber: e.target.value })} /></Field>
-              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
-              <SelectField label="نوع القضية" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={caseTypes} placeholder="اختر النوع" required />
-              <SelectField label="المحكمة" value={form.court} onChange={(v) => setForm({ ...form, court: v })} options={courts} placeholder="اختر المحكمة" />
-              <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["نشطة", "قيد المراجعة", "مغلقة"]} placeholder="اختر الحالة" />
-              <SelectField label="الأولوية" value={form.priority} onChange={(v) => setForm({ ...form, priority: v })} options={["عادية", "متوسطة", "عاجلة"]} placeholder="اختر الأولوية" />
-              <Field label="تاريخ الجلسة القادمة"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} /></Field>
-              <Field label="نسبة الإنجاز (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.progress} onChange={(e) => setForm({ ...form, progress: e.target.value })} /></Field>
-            </div>
-            <Field label="وصف القضية"><textarea rows={3} className={fieldCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
-            <FileField label="ملفات ومستندات القضية" files={files} setFiles={setFiles} />
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة القضية</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
@@ -533,8 +598,8 @@ function Clients() {
   const [items, setItems] = useState<DashClient[]>(dashClients);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { name: "", phone: "", email: "", type: "فرد", city: "", nationalId: "" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
 
   const filtered = items.filter((c) =>
@@ -543,16 +608,41 @@ function Clients() {
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined }, ...p]);
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined }, ...p]);
     setForm(emptyForm);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إضافة عميل جديد" subtitle="سجّل بيانات التواصل والتعريف الخاصة بالعميل" icon={Users}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ العميل">
+        <FormSection title="البيانات الأساسية">
+          <div className="sm:col-span-2"><Field label="الاسم الكامل"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
+          <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
+          <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
+        </FormSection>
+        <FormSection title="بيانات التواصل">
+          <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
+          <Field label="هاتف بديل"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.altPhone} onChange={(e) => setForm({ ...form, altPhone: e.target.value })} /></Field>
+          <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
+          <div className="sm:col-span-2"><Field label="العنوان"><input className={fieldCls} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></Field></div>
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+          <Field label="ملاحظات إضافية"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+      </FormPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Users className="h-5 w-5 text-gold" /> العملاء</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في العملاء..." filter={filter} setFilter={setFilter}
         options={[{ value: "all", label: "كل العملاء" }, { value: "active", label: "لديهم قضايا" }, { value: "none", label: "بدون قضايا" }]}
-        onAdd={() => setOpen(true)} addLabel="إضافة عميل" />
+        onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
           <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
@@ -569,21 +659,6 @@ function Clients() {
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
-      {open && (
-        <Modal title="إضافة عميل" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2"><Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
-              <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
-              <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
-              <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
-              <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
-              <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
-            </div>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة العميل</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
@@ -592,10 +667,11 @@ function Clients() {
 function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { title: "", type: "", client: "", day: "", time: "", location: "" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
+  const caseTitles = dashCases.map((c) => c.title);
 
   const monthName = "يونيو 2026";
   const weekDays = ["سبت", "أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة"];
@@ -608,10 +684,33 @@ function Sessions() {
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location }]);
+    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location, caseRef: form.caseRef || undefined, notes: form.notes || undefined }]);
     setForm(emptyForm);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إضافة جلسة جديدة" subtitle="حدّد موعد الجلسة والقضية المرتبطة بها" icon={CalendarDays}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ الجلسة">
+        <FormSection title="بيانات الجلسة">
+          <div className="sm:col-span-2"><Field label="عنوان الجلسة"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field></div>
+          <SelectField label="نوع الجلسة" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={sessionTypes} placeholder="اختر النوع" />
+          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+          <div className="sm:col-span-2"><SelectField label="القضية المرتبطة" value={form.caseRef} onChange={(v) => setForm({ ...form, caseRef: v })} options={caseTitles} placeholder="اختر القضية" /></div>
+        </FormSection>
+        <FormSection title="الموعد والمكان">
+          <Field label="اليوم (1-30)"><input type="number" min={1} max={30} className={fieldCls} value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })} required /></Field>
+          <Field label="الوقت"><input className={fieldCls} placeholder="10:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
+          <div className="sm:col-span-2"><SelectField label="المكان" value={form.location} onChange={(v) => setForm({ ...form, location: v })} options={[...courts, "أونلاين", "المكتب"]} placeholder="اختر المكان" required /></div>
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+          <Field label="ملاحظات الجلسة"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+      </FormPage>
+    );
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
@@ -643,7 +742,7 @@ function Sessions() {
         <div className={card}>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-cream">جلسات الشهر</h2>
-            <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 rounded-md bg-gradient-gold px-3 py-1.5 text-xs font-bold text-navy shadow-gold"><Plus className="h-3.5 w-3.5" /> إضافة</button>
+            <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 rounded-md bg-gradient-gold px-3 py-1.5 text-xs font-bold text-navy shadow-gold"><Plus className="h-3.5 w-3.5" /> إضافة</button>
           </div>
           <div className="relative mb-4">
             <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
@@ -672,23 +771,6 @@ function Sessions() {
           </div>
         </div>
       </div>
-      {open && (
-        <Modal title="إضافة جلسة" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <Field label="عنوان الجلسة"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
-            <div className="grid grid-cols-2 gap-3">
-              <SelectField label="نوع الجلسة" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={sessionTypes} placeholder="اختر النوع" />
-              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="اليوم (1-30)"><input type="number" min={1} max={30} className={fieldCls} value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })} required /></Field>
-              <Field label="الوقت"><input className={fieldCls} placeholder="10:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
-            </div>
-            <SelectField label="المكان" value={form.location} onChange={(v) => setForm({ ...form, location: v })} options={[...courts, "أونلاين", "المكتب"]} placeholder="اختر المكان" required />
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة الجلسة</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
@@ -699,8 +781,9 @@ function Consultations() {
   const [items, setItems] = useState<DashConsultation[]>(dashConsultations);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" });
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
+  const [form, setForm] = useState(emptyForm);
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
@@ -709,15 +792,34 @@ function Consultations() {
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     setItems((p) => [{ id: `co${Date.now()}`, client: form.client, subject: form.subject, date: form.date, time: form.time, channel: form.channel as DashConsultation["channel"], status: "قادمة", price: Number(form.price) }, ...p]);
-    setForm({ client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" });
-    setOpen(false);
+    setForm(emptyForm);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إضافة استشارة جديدة" subtitle="حدّد موعد الاستشارة وقناة التواصل" icon={MessageSquare}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ الاستشارة">
+        <FormSection title="بيانات الاستشارة">
+          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
+          <SelectField label="القناة" value={form.channel} onChange={(v) => setForm({ ...form, channel: v })} options={["أونلاين", "مكتب", "هاتف"]} placeholder="اختر القناة" />
+          <div className="sm:col-span-2"><Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field></div>
+        </FormSection>
+        <FormSection title="الموعد والسعر">
+          <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
+          <Field label="الوقت"><input className={fieldCls} placeholder="11:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
+          <Field label="السعر (ج.م)"><input type="number" min={0} className={fieldCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></Field>
+        </FormSection>
+      </FormPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الاستشارات..." filter={filter} setFilter={setFilter}
         options={[{ value: "all", label: "كل الحالات" }, { value: "قادمة", label: "قادمة" }, { value: "مكتملة", label: "مكتملة" }, { value: "ملغاة", label: "ملغاة" }]}
-        onAdd={() => setOpen(true)} addLabel="إضافة استشارة" />
+        onAdd={() => setAdding(true)} addLabel="إضافة استشارة" />
       <div className="space-y-3">
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
@@ -741,27 +843,6 @@ function Consultations() {
         })}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
-      {open && (
-        <Modal title="إضافة استشارة" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
-            <Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
-              <Field label="الوقت"><input className={fieldCls} placeholder="11:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="القناة">
-                <select className={fieldCls} value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })}>
-                  <option className="bg-navy-deep">أونلاين</option><option className="bg-navy-deep">مكتب</option><option className="bg-navy-deep">هاتف</option>
-                </select>
-              </Field>
-              <Field label="السعر (ج.م)"><input type="number" className={fieldCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></Field>
-            </div>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
@@ -771,10 +852,11 @@ function Invoices() {
   const [items, setItems] = useState<DashInvoice[]>(dashInvoices);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { client: "", item: "", amount: "", dueDate: "", status: "معلقة" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
+  const caseTitles = dashCases.map((c) => c.title);
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
@@ -785,10 +867,35 @@ function Invoices() {
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     const n = `INV-${2044 + items.length}`;
-    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined }, ...p]);
+    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: form.issueDate || "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined, caseRef: form.caseRef || undefined, tax: form.tax ? Number(form.tax) : undefined, issueDate: form.issueDate || undefined, notes: form.notes || undefined }, ...p]);
     setForm(emptyForm);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إنشاء فاتورة جديدة" subtitle="حدّد العميل والبند والمبالغ المستحقة" icon={Receipt}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="إنشاء الفاتورة">
+        <FormSection title="بيانات الفاتورة">
+          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+          <SelectField label="القضية المرتبطة" value={form.caseRef} onChange={(v) => setForm({ ...form, caseRef: v })} options={caseTitles} placeholder="اختر القضية" />
+          <div className="sm:col-span-2"><SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" /></div>
+        </FormSection>
+        <FormSection title="المبالغ والتواريخ">
+          <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+          <Field label="الضريبة (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.tax} onChange={(e) => setForm({ ...form, tax: e.target.value })} /></Field>
+          <Field label="تاريخ الإصدار"><input className={fieldCls} placeholder="6 يونيو 2026" value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} /></Field>
+          <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
+          <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+          <Field label="ملاحظات الفاتورة"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+      </FormPage>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
@@ -800,7 +907,7 @@ function Invoices() {
         <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Receipt className="h-5 w-5 text-gold" /> الفواتير</h2>
         <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الفواتير..." filter={filter} setFilter={setFilter}
           options={[{ value: "all", label: "كل الحالات" }, { value: "مدفوعة", label: "مدفوعة" }, { value: "معلقة", label: "معلقة" }, { value: "متأخرة", label: "متأخرة" }]}
-          onAdd={() => setOpen(true)} addLabel="إنشاء فاتورة" />
+          onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
             <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4">
@@ -814,20 +921,6 @@ function Invoices() {
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
       </div>
-      {open && (
-        <Modal title="إنشاء فاتورة" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
-            <SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" />
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
-              <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
-            </div>
-            <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء الفاتورة</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
