@@ -22,43 +22,22 @@ function LoginPage() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <div className="relative flex min-h-screen w-full overflow-hidden bg-navy-deep">
-      {/* Left side - image background (hidden on mobile) */}
-      <div
-        className="relative hidden w-0 lg:block lg:w-1/2"
-        style={{
-          backgroundImage: `url(${loginBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-navy-deep/60" />
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-transparent to-transparent" />
-        <div className="relative flex h-full flex-col items-start justify-end p-12">
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-gold/30 bg-navy-card/60 backdrop-blur-sm">
-            <Scale className="h-7 w-7 text-gold" />
-          </div>
-          <h2 className="text-3xl font-bold text-cream">محام</h2>
-          <p className="mt-3 max-w-sm text-base leading-relaxed text-cream/70">
-            منصتك الموثوقة للربط بين المحامين والعملاء في مصر. احجز استشاراتك بكل سهولة وأمان.
-          </p>
-          <div className="mt-8 flex items-center gap-6 text-cream/50">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-gold" />
-              <span className="text-sm">استشارات آمنة</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-gold" />
-              <span className="text-sm">محامون معتمدون</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-navy-deep px-4 py-12"
+      style={{
+        backgroundImage: `url(${loginBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-navy-deep/75" />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/60 to-navy-deep/40" />
 
-      {/* Right side - login form */}
-      <div className="flex w-full flex-col items-center justify-center px-4 py-12 lg:w-1/2 lg:px-16">
-        {/* Mobile logo */}
-        <div className="mb-8 flex items-center gap-3 lg:hidden">
+      {/* Centered form on top of background */}
+      <div className="relative z-10 flex w-full flex-col items-center justify-center">
+        {/* Logo */}
+        <div className="mb-8 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gold/30 bg-navy-card/60">
             <Scale className="h-5 w-5 text-gold" />
           </div>
@@ -66,7 +45,7 @@ function LoginPage() {
         </div>
 
         {submitted ? (
-          <div className="w-full max-w-sm rounded-2xl border border-gold/30 bg-navy-card/60 p-10 text-center">
+          <div className="w-full max-w-sm rounded-2xl border border-gold/30 bg-navy-card/80 p-10 text-center backdrop-blur-md">
             <CheckCircle2 className="mx-auto h-12 w-12 text-gold" />
             <h3 className="mt-4 text-xl font-bold text-cream">تم تسجيل الدخول بنجاح</h3>
             <p className="mt-2 text-sm text-cream/70">
@@ -74,9 +53,9 @@ function LoginPage() {
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-navy-card/70 p-6 backdrop-blur-md sm:p-8">
             {/* Header */}
-            <div className="mb-8 text-center lg:text-right">
+            <div className="mb-8 text-center">
               <h1 className="text-2xl font-bold text-cream">تسجيل الدخول</h1>
               <p className="mt-2 text-sm text-cream/60">
                 ادخل إلى حسابك على منصة محام للوصول إلى استشاراتك وخدماتك.
@@ -108,7 +87,7 @@ function LoginPage() {
             </div>
 
             {/* Form */}
-            <div className="rounded-2xl border border-white/10 bg-navy-card/40 p-6 backdrop-blur-sm">
+            <div>
               <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-cream/80">البريد الإلكتروني</label>
