@@ -202,5 +202,11 @@ export function getLawyer(id: string): Lawyer | undefined {
   return lawyers.find((l) => l.id === id);
 }
 
+// Most lawyers are verified on the platform
+const unverifiedLawyers = new Set(["hossam-tarek", "fares-awad"]);
+lawyers.forEach((l) => {
+  l.verified = !unverifiedLawyers.has(l.id);
+});
+
 export const topRated = [...lawyers].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 6);
 export const mostConsulted = [...lawyers].sort((a, b) => b.consultations - a.consultations).slice(0, 6);
