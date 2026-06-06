@@ -601,9 +601,8 @@ function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
         </div>
         <div className={card}>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><Bell className="h-5 w-5 text-gold" /> التذكيرات</h2>
-          <p className="mb-3 text-xs text-cream/45">اضغط على أي يوم في التقويم لإضافة تذكير، أو على يوم به استشارة لعرض تفاصيلها.</p>
           <div className="space-y-3">
-            {reminders.map((r) => (
+            {dashReminders.map((r) => (
               <div key={r.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
                 {r.urgent ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold" />}
                 <div><p className="text-sm text-cream">{r.text}</p><p className="mt-1 text-xs text-cream/50">{r.due}</p></div>
@@ -612,47 +611,6 @@ function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
           </div>
         </div>
       </div>
-
-      {reminderModal && (
-        <Modal title={`إضافة تذكير — ${reminderModal.day} يونيو 2026`} onClose={() => setReminderModal(null)}>
-          <form onSubmit={addReminder} className="space-y-4">
-            <Field label="نص التذكير"><textarea rows={3} className={fieldCls} value={reminderText} onChange={(e) => setReminderText(e.target.value)} placeholder="مثال: تسليم مذكرة دفاع..." required /></Field>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-cream/80">
-              <input type="checkbox" checked={reminderUrgent} onChange={(e) => setReminderUrgent(e.target.checked)} className="h-4 w-4 accent-gold" /> تذكير عاجل
-            </label>
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setReminderModal(null)} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إلغاء</button>
-              <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold"><Plus className="h-4 w-4" /> إضافة التذكير</button>
-            </div>
-          </form>
-        </Modal>
-      )}
-
-      {consultationModal && (
-        <Modal title="تفاصيل الاستشارة" onClose={() => setConsultationModal(null)}>
-          <div className="space-y-3">
-            <div>
-              <p className="text-lg font-bold text-cream">{consultationModal.subject}</p>
-              <p className="mt-0.5 text-sm text-cream/60">{consultationModal.client}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Info label="التاريخ" value={consultationModal.date} />
-              <Info label="الوقت" value={consultationModal.time} />
-              <Info label="القناة" value={consultationModal.channel} />
-              <Info label="الحالة" value={consultationModal.status} />
-              {consultationModal.duration && <Info label="المدة" value={consultationModal.duration} />}
-              <Info label="السعر" value={`${consultationModal.price.toLocaleString()} ج.م`} />
-            </div>
-            {consultationModal.caseRef && <Info label="القضية المرتبطة" value={consultationModal.caseRef} />}
-            {consultationModal.notes && (
-              <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4">
-                <p className="text-xs text-cream/50">ملاحظات</p>
-                <p className="mt-1 text-sm leading-relaxed text-cream/85">{consultationModal.notes}</p>
-              </div>
-            )}
-          </div>
-        </Modal>
-      )}
     </div>
   );
 }
