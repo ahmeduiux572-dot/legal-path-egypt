@@ -39,6 +39,12 @@ import {
   Eye,
   MessageCircle,
   History,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  Maximize2,
+  MonitorUp,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
