@@ -33,7 +33,8 @@ export const Route = createFileRoute("/firms/$firmId")({
 });
 
 function FirmProfile() {
-  const { firm } = Route.useLoaderData();
+  const { firmId } = Route.useParams();
+  const firm = getFirm(firmId)!;
 
   return (
     <div className="bg-cream">
