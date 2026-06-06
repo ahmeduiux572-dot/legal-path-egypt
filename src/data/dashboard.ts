@@ -31,6 +31,7 @@ export interface DashClient {
   address?: string;
   notes?: string;
   altPhone?: string;
+  files?: string[];
 }
 
 export interface DashSession {
