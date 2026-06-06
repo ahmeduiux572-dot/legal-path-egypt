@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import {
   LayoutDashboard,
   Briefcase,
@@ -50,6 +51,7 @@ import {
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
+import { askLegalAi } from "@/lib/legal-ai.functions";
 import {
   dashCases,
   dashClients,
