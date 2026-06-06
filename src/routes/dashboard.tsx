@@ -421,28 +421,6 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
 }
 
 /* Linked case card with a "view case" action that navigates to the case detail */
-function LinkedCaseGrid({ linkedCase }: { linkedCase: DashCase }) {
-  const { go } = useDashNav();
-  return (
-    <div className={card}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-gold"><Briefcase className="h-4 w-4" /> القضية المرتبطة</h3>
-        <button onClick={() => go("cases", linkedCase.id)}
-          className="flex items-center gap-1.5 rounded-md bg-gold/15 px-3 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/25">
-          <Eye className="h-3.5 w-3.5" /> عرض القضية
-        </button>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <DetailItem label="عنوان القضية" value={linkedCase.title} />
-        <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-        <DetailItem label="نوع القضية" value={linkedCase.type} />
-        <DetailItem label="المحكمة" value={linkedCase.court} />
-        <DetailItem label="حالة القضية" value={linkedCase.status} />
-      </div>
-    </div>
-  );
-}
-
 /* A list of related records (sessions / invoices / consultations) shown in a detail page */
 function RelatedSection({
   title, icon: Icon, items,
