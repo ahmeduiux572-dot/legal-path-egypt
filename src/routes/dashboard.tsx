@@ -333,6 +333,36 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
   );
 }
 
+/* A list of related records (sessions / invoices / consultations) shown in a detail page */
+function RelatedSection({
+  title, icon: Icon, items,
+}: {
+  title: string; icon: typeof Briefcase;
+  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string }[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Icon className="h-4 w-4" /> {title} <span className="text-cream/40">({items.length})</span></h3>
+      <div className="space-y-3">
+        {items.map((it) => (
+          <div key={it.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-cream">{it.primary}</p>
+              {it.secondary && <p className="mt-0.5 text-xs text-cream/60">{it.secondary}</p>}
+              {it.meta && <p className="mt-0.5 text-xs text-cream/45">{it.meta}</p>}
+            </div>
+            <div className="flex items-center gap-2">
+              {it.amount && <span className="text-sm font-extrabold text-cream">{it.amount}</span>}
+              {it.status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[it.status] ?? "bg-white/10 text-cream/60"}`}>{it.status}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* Inline status selector shown in detail header */
 function StatusChanger({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
   return (
