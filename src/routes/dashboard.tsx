@@ -186,10 +186,11 @@ function DashboardPage() {
 
 /* ---------- Shared UI ---------- */
 function Toolbar({
-  search, setSearch, placeholder, filter, setFilter, options, onAdd, addLabel,
+  search, setSearch, placeholder, filter, setFilter, options, filter2, setFilter2, options2, onAdd, addLabel,
 }: {
   search: string; setSearch: (v: string) => void; placeholder: string;
   filter?: string; setFilter?: (v: string) => void; options?: { value: string; label: string }[];
+  filter2?: string; setFilter2?: (v: string) => void; options2?: { value: string; label: string }[];
   onAdd: () => void; addLabel: string;
 }) {
   return (
@@ -201,6 +202,13 @@ function Toolbar({
       {options && setFilter && (
         <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`${fieldCls} sm:w-44`}>
           {options.map((o) => (
+            <option key={o.value} value={o.value} className="bg-navy-deep">{o.label}</option>
+          ))}
+        </select>
+      )}
+      {options2 && setFilter2 && (
+        <select value={filter2} onChange={(e) => setFilter2(e.target.value)} className={`${fieldCls} sm:w-44`}>
+          {options2.map((o) => (
             <option key={o.value} value={o.value} className="bg-navy-deep">{o.label}</option>
           ))}
         </select>
