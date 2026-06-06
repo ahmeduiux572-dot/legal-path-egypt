@@ -911,6 +911,7 @@ function Clients() {
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
+  const [files, setFiles] = useState<string[]>([]);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
@@ -921,8 +922,9 @@ function Clients() {
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined }, ...p]);
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined, altPhone: form.altPhone || undefined, address: form.address || undefined, notes: form.notes || undefined, files: files.length ? files : undefined }, ...p]);
     setForm(emptyForm);
+    setFiles([]);
     setAdding(false);
   };
 
@@ -945,6 +947,10 @@ function Clients() {
         <div>
           <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
           <Field label="ملاحظات إضافية"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">المرفقات</h3>
+          <FileField label="مستندات وملفات العميل" files={files} setFiles={setFiles} />
         </div>
       </FormPage>
     );
