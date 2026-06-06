@@ -36,6 +36,9 @@ import {
   Gavel,
   Hash,
   ArrowRight,
+  Eye,
+  MessageCircle,
+  History,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -111,6 +114,8 @@ const statusColor: Record<string, string> = {
   "قادمة": "bg-gold/15 text-gold",
   "مكتملة": "bg-emerald-500/15 text-emerald-400",
   "ملغاة": "bg-red-500/15 text-red-400",
+  "منتهية": "bg-emerald-500/15 text-emerald-400",
+  "مؤجلة": "bg-orange-500/15 text-orange-400",
 };
 
 function DashboardPage() {
@@ -328,6 +333,75 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
   );
 }
 
+/* Inline status selector shown in detail header */
+function StatusChanger({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  return (
+    <label className="flex items-center gap-2 text-xs text-cream/60">
+      الحالة
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-lg border border-white/15 bg-navy-deep px-3 py-2 text-sm font-semibold text-cream focus:border-gold focus:outline-none">
+        {options.map((o) => <option key={o} value={o} className="bg-navy-deep">{o}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/* Small eye trigger placed inside list cards */
+function ViewButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-label="عرض التفاصيل" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/15 text-cream/70 transition-colors hover:border-gold hover:text-gold">
+      <Eye className="h-4 w-4" />
+    </button>
+  );
+}
+
+/* Shared comment + timeline data types */
+interface DashComment { id: string; text: string; date: string; }
+interface DashTLEvent { id: string; title: string; date: string; desc?: string; }
+
+function CommentsPanel({ comments, onAdd }: { comments: DashComment[]; onAdd: (text: string) => void }) {
+  const [text, setText] = useState("");
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><MessageCircle className="h-4 w-4" /> التعليقات</h3>
+      <div className="mb-4 space-y-3">
+        {comments.map((c) => (
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+            <p className="text-sm leading-relaxed text-cream">{c.text}</p>
+            <p className="mt-1 text-xs text-cream/45">{c.date}</p>
+          </div>
+        ))}
+        {comments.length === 0 && <p className="text-sm text-cream/50">لا توجد تعليقات بعد.</p>}
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onAdd(text.trim()); setText(""); } }} className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="أضف تعليقاً..." className={`${fieldCls} flex-1`} />
+        <button type="submit" className="flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold"><Send className="h-4 w-4" /> إضافة</button>
+      </form>
+    </div>
+  );
+}
+
+function TimelinePanel({ events }: { events: DashTLEvent[] }) {
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><History className="h-4 w-4" /> التايم لاين</h3>
+      {events.length === 0 ? (
+        <p className="text-sm text-cream/50">لا توجد أحداث بعد.</p>
+      ) : (
+        <ol className="space-y-5 border-r border-white/10 pr-5">
+          {events.map((ev) => (
+            <li key={ev.id} className="relative">
+              <span className="absolute -right-[1.42rem] top-1.5 h-3 w-3 rounded-full bg-gold ring-4 ring-navy-card" />
+              <p className="text-sm font-semibold text-cream">{ev.title}</p>
+              <p className="mt-0.5 text-xs text-cream/45">{ev.date}</p>
+              {ev.desc && <p className="mt-1 text-sm text-cream/70">{ev.desc}</p>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 /* Reusable select with a placeholder option */
 function SelectField({
   label, value, onChange, options, placeholder, required,
@@ -536,11 +610,27 @@ function Cases() {
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashCase | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [timelines, setTimelines] = useState<Record<string, DashTLEvent[]>>({});
   const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", degree: "", status: "نشطة", priority: "عادية", nextDate: "", startDate: "", progress: "0", opponent: "", opponentLawyer: "", claimAmount: "", description: "" };
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
   const clientNames = dashClients.map((c) => c.name);
+  const viewing = items.find((c) => c.id === viewingId) ?? null;
+
+  const baseTimeline = (c: DashCase): DashTLEvent[] => [
+    { id: "b1", title: "تم إنشاء القضية", date: c.startDate ?? "—" },
+    ...(c.nextDate && c.nextDate !== "—" ? [{ id: "b2", title: "الجلسة القادمة", date: c.nextDate }] : []),
+    { id: "b3", title: `الحالة الحالية: ${c.status}`, date: "الآن" },
+  ];
+  const getTimeline = (c: DashCase) => timelines[c.id] ?? baseTimeline(c);
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (c: DashCase, status: string) => {
+    setItems((p) => p.map((it) => (it.id === c.id ? { ...it, status: status as DashCase["status"] } : it)));
+    setTimelines((p) => ({ ...p, [c.id]: [...(p[c.id] ?? baseTimeline(c)), { id: `tl${Date.now()}`, title: `تم تغيير الحالة إلى ${status}`, date: "الآن" }] }));
+  };
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
@@ -611,7 +701,8 @@ function Cases() {
   if (viewing) {
     const c = viewing;
     return (
-      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} status={c.status} onBack={() => setViewing(null)}>
+      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={c.status} options={["نشطة", "قيد المراجعة", "مغلقة"]} onChange={(v) => changeStatus(c, v)} />}>
         <div className={card}>
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="font-semibold text-cream">نسبة الإنجاز</span>
@@ -652,6 +743,8 @@ function Cases() {
             )}
           </div>
         )}
+        <TimelinePanel events={getTimeline(c)} />
+        <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
   }
@@ -666,9 +759,9 @@ function Cases() {
         onAdd={() => setAdding(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
-          <button key={c.id} type="button" onClick={() => setViewing(c)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="font-bold text-cream">{c.title}</p>
                 <p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p>
                 <p className="mt-1 flex flex-wrap items-center gap-3 text-xs text-cream/45">
@@ -677,14 +770,17 @@ function Cases() {
                   {c.files && c.files.length > 0 && <span className="flex items-center gap-1"><Paperclip className="h-3 w-3 text-gold" />{c.files.length} ملف</span>}
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+              <div className="flex items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                <ViewButton onClick={() => setViewingId(c.id)} />
+              </div>
             </div>
             <div className="mt-4 flex items-center gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-gold" style={{ width: `${c.progress}%` }} /></div>
               <span className="text-xs text-cream/55">{c.progress}%</span>
               <span className="flex items-center gap-1 text-xs text-cream/55"><CalendarDays className="h-3.5 w-3.5 text-gold" /> {c.nextDate}</span>
             </div>
-          </button>
+          </div>
         ))}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
@@ -698,9 +794,13 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashClient | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
+  const viewing = items.find((c) => c.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
 
   const filtered = items.filter((c) =>
     (filter === "all" || (filter === "active" ? c.cases > 0 : c.cases === 0)) &&
@@ -741,7 +841,7 @@ function Clients() {
     const c = viewing;
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
     return (
-      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewing(null)}>
+      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
           <DetailItem label="هاتف بديل" value={c.altPhone} />
@@ -774,6 +874,7 @@ function Clients() {
             </div>
           </div>
         )}
+        <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
   }
@@ -786,17 +887,20 @@ function Clients() {
         onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
-          <button key={c.id} type="button" onClick={() => setViewing(c)} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
-            <div className="flex items-center justify-between">
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+            <div className="flex items-center justify-between gap-2">
               <p className="font-bold text-cream">{c.name}</p>
-              <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
+                <ViewButton onClick={() => setViewingId(c.id)} />
+              </div>
             </div>
             <div className="mt-3 space-y-1.5 text-sm text-cream/60">
               <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gold" /> {c.phone}</p>
               <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gold" /> {c.email}</p>
               <p className="text-xs text-cream/45">عميل منذ {c.since}</p>
             </div>
-          </button>
+          </div>
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
@@ -809,11 +913,17 @@ function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashSession | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
+  const viewing = items.find((s) => s.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (id: string, status: string) =>
+    setItems((p) => p.map((s) => (s.id === id ? { ...s, status: status as DashSession["status"] } : s)));
 
   const monthName = "يونيو 2026";
   const weekDays = ["سبت", "أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة"];
@@ -826,7 +936,7 @@ function Sessions() {
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location, caseRef: form.caseRef || undefined, notes: form.notes || undefined }]);
+    setItems((p) => [...p, { id: `s${Date.now()}`, title: form.title, type: form.type || undefined, client: form.client, day: Number(form.day), time: form.time, location: form.location, caseRef: form.caseRef || undefined, notes: form.notes || undefined, status: "قادمة" }]);
     setForm(emptyForm);
     setAdding(false);
   };
@@ -857,10 +967,12 @@ function Sessions() {
   if (viewing) {
     const s = viewing;
     return (
-      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewing(null)}>
+      <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={s.status ?? "قادمة"} options={["قادمة", "منتهية", "مؤجلة", "ملغاة"]} onChange={(v) => changeStatus(s.id, v)} />}>
         <DetailGrid title="بيانات الجلسة">
           <DetailItem label="العميل" value={s.client} />
           <DetailItem label="نوع الجلسة" value={s.type} />
+          <DetailItem label="الحالة" value={s.status} />
           <DetailItem label="القضية المرتبطة" value={s.caseRef} full />
         </DetailGrid>
         <DetailGrid title="الموعد والمكان">
@@ -874,6 +986,7 @@ function Sessions() {
             <p className="text-sm leading-relaxed text-cream/85">{s.notes}</p>
           </div>
         )}
+        <CommentsPanel comments={comments[s.id] ?? []} onAdd={(t) => addComment(s.id, t)} />
       </DetailPage>
     );
   }
@@ -916,11 +1029,17 @@ function Sessions() {
           </div>
           <div className="space-y-3">
             {filteredList.map((s) => (
-              <button key={s.id} type="button" onClick={() => setViewing(s)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-3 text-start transition-colors hover:border-gold/30">
-                <p className="text-sm font-bold text-cream">{s.title}</p>
-                <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
-                <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
-              </button>
+              <div key={s.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-3 transition-colors hover:border-gold/30">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-cream">{s.title}</p>
+                    <p className="mt-1 text-xs text-cream/60">{s.client} — {s.location}</p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-gold"><CalendarDays className="h-3.5 w-3.5" /> {s.day} يونيو، {s.time}</p>
+                  </div>
+                  <ViewButton onClick={() => setViewingId(s.id)} />
+                </div>
+                {s.status && <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${statusColor[s.status]}`}>{s.status}</span>}
+              </div>
             ))}
             {filteredList.length === 0 && <p className="py-4 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
           </div>
@@ -948,9 +1067,15 @@ function Consultations() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashConsultation | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
+  const viewing = items.find((c) => c.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (id: string, status: string) =>
+    setItems((p) => p.map((c) => (c.id === id ? { ...c, status: status as DashConsultation["status"] } : c)));
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
@@ -984,7 +1109,8 @@ function Consultations() {
   if (viewing) {
     const c = viewing;
     return (
-      <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} status={c.status} onBack={() => setViewing(null)}>
+      <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
         <DetailGrid title="تفاصيل الاستشارة">
           <DetailItem label="العميل" value={c.client} />
           <DetailItem label="قناة التواصل" value={c.channel} />
@@ -993,6 +1119,7 @@ function Consultations() {
           <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
           <DetailItem label="الحالة" value={c.status} />
         </DetailGrid>
+        <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
   }
@@ -1007,7 +1134,7 @@ function Consultations() {
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
           return (
-            <button key={c.id} type="button" onClick={() => setViewing(c)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
+            <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
               <div>
                 <p className="font-bold text-cream">{c.subject}</p>
                 <p className="mt-0.5 text-sm text-cream/60">{c.client}</p>
@@ -1020,8 +1147,9 @@ function Consultations() {
               <div className="flex items-center gap-3">
                 <span className="font-extrabold text-cream">{c.price} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                <ViewButton onClick={() => setViewingId(c.id)} />
               </div>
-            </button>
+            </div>
           );
         })}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
@@ -1036,11 +1164,17 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashInvoice | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
+  const viewing = items.find((i) => i.id === viewingId) ?? null;
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (id: string, status: string) =>
+    setItems((p) => p.map((i) => (i.id === id ? { ...i, status: status as DashInvoice["status"] } : i)));
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
@@ -1084,7 +1218,8 @@ function Invoices() {
     const inv = viewing;
     const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
     return (
-      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} status={inv.status} onBack={() => setViewing(null)}>
+      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />}>
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-cream/60">الإجمالي المستحق</span>
@@ -1093,6 +1228,7 @@ function Invoices() {
         </div>
         <DetailGrid title="بيانات الفاتورة">
           <DetailItem label="العميل" value={inv.client} />
+          <DetailItem label="الحالة" value={inv.status} />
           <DetailItem label="بند الفاتورة" value={inv.item} />
           <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
         </DetailGrid>
@@ -1108,6 +1244,7 @@ function Invoices() {
             <p className="text-sm leading-relaxed text-cream/85">{inv.notes}</p>
           </div>
         )}
+        <CommentsPanel comments={comments[inv.id] ?? []} onAdd={(t) => addComment(inv.id, t)} />
       </DetailPage>
     );
   }
@@ -1126,13 +1263,14 @@ function Invoices() {
           onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
-            <button key={inv.id} type="button" onClick={() => setViewing(inv)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
+            <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
                 <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
+                <ViewButton onClick={() => setViewingId(inv.id)} />
               </div>
-            </button>
+            </div>
           ))}
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
