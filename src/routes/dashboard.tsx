@@ -1369,6 +1369,7 @@ function Sessions() {
 const channelIcon: Record<string, typeof Video> = { "أونلاين": Video, "مكتب": Building2, "هاتف": Phone };
 function Consultations() {
   const [items, setItems] = useState<DashConsultation[]>(dashConsultations);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -1378,6 +1379,7 @@ function Consultations() {
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "consultations") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
@@ -1437,14 +1439,7 @@ function Consultations() {
           <DetailItem label="الحالة" value={c.status} />
           <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
-        {linkedCase && (
-          <DetailGrid title="بيانات القضية المرتبطة">
-            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-            <DetailItem label="نوع القضية" value={linkedCase.type} />
-            <DetailItem label="المحكمة" value={linkedCase.court} />
-            <DetailItem label="حالة القضية" value={linkedCase.status} />
-          </DetailGrid>
-        )}
+        {linkedCase && <LinkedCaseGrid linkedCase={linkedCase} />}
         {c.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
