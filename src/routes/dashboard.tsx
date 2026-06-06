@@ -333,6 +333,36 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
   );
 }
 
+/* A list of related records (sessions / invoices / consultations) shown in a detail page */
+function RelatedSection({
+  title, icon: Icon, items,
+}: {
+  title: string; icon: typeof Briefcase;
+  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string }[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className={card}>
+      <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Icon className="h-4 w-4" /> {title} <span className="text-cream/40">({items.length})</span></h3>
+      <div className="space-y-3">
+        {items.map((it) => (
+          <div key={it.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-cream">{it.primary}</p>
+              {it.secondary && <p className="mt-0.5 text-xs text-cream/60">{it.secondary}</p>}
+              {it.meta && <p className="mt-0.5 text-xs text-cream/45">{it.meta}</p>}
+            </div>
+            <div className="flex items-center gap-2">
+              {it.amount && <span className="text-sm font-extrabold text-cream">{it.amount}</span>}
+              {it.status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[it.status] ?? "bg-white/10 text-cream/60"}`}>{it.status}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* Inline status selector shown in detail header */
 function StatusChanger({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
   return (
@@ -743,6 +773,12 @@ function Cases() {
             )}
           </div>
         )}
+        <RelatedSection title="جلسات القضية" icon={CalendarDays}
+          items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+        <RelatedSection title="فواتير القضية" icon={Receipt}
+          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+        <RelatedSection title="استشارات مرتبطة" icon={MessageSquare}
+          items={dashConsultations.filter((co) => co.caseRef === c.title).map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
@@ -840,8 +876,17 @@ function Clients() {
   if (viewing) {
     const c = viewing;
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
+    const relatedSessions = dashSessions.filter((s) => s.client === c.name);
+    const relatedInvoices = dashInvoices.filter((iv) => iv.client === c.name);
+    const relatedConsultations = dashConsultations.filter((co) => co.client === c.name);
+    const totalBilled = relatedInvoices.reduce((sum, iv) => sum + iv.amount, 0);
     return (
       <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">القضايا</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedCases.length}</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">الجلسات</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedSessions.length}</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{totalBilled.toLocaleString()} ج.م</p></div>
+        </div>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
           <DetailItem label="هاتف بديل" value={c.altPhone} />
@@ -874,6 +919,12 @@ function Clients() {
             </div>
           </div>
         )}
+        <RelatedSection title="جلسات العميل" icon={CalendarDays}
+          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+        <RelatedSection title="فواتير العميل" icon={Receipt}
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+        <RelatedSection title="استشارات العميل" icon={MessageSquare}
+          items={relatedConsultations.map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -966,6 +1017,7 @@ function Sessions() {
 
   if (viewing) {
     const s = viewing;
+    const linkedCase = dashCases.find((cs) => cs.title === s.caseRef);
     return (
       <DetailPage title={s.title} subtitle={s.type} icon={CalendarDays} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={s.status ?? "قادمة"} options={["قادمة", "منتهية", "مؤجلة", "ملغاة"]} onChange={(v) => changeStatus(s.id, v)} />}>
@@ -980,6 +1032,14 @@ function Sessions() {
           <DetailItem label="الوقت" value={s.time} />
           <DetailItem label="المكان" value={s.location} full />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
         {s.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
@@ -1108,6 +1168,7 @@ function Consultations() {
 
   if (viewing) {
     const c = viewing;
+    const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
     return (
       <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
@@ -1116,9 +1177,25 @@ function Consultations() {
           <DetailItem label="قناة التواصل" value={c.channel} />
           <DetailItem label="التاريخ" value={c.date} />
           <DetailItem label="الوقت" value={c.time} />
+          <DetailItem label="المدة" value={c.duration} />
           <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
           <DetailItem label="الحالة" value={c.status} />
+          <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
+        {c.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
+          </div>
+        )}
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -1217,6 +1294,7 @@ function Invoices() {
   if (viewing) {
     const inv = viewing;
     const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
+    const linkedCase = dashCases.find((cs) => cs.title === inv.caseRef);
     return (
       <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />}>
@@ -1238,6 +1316,14 @@ function Invoices() {
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
         {inv.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
