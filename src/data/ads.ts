@@ -1,44 +1,26 @@
-import type { AdSlide } from "./content";
-import gavelBanner from "@/assets/gavel-banner.jpg";
-import justiceStatue from "@/assets/justice-statue.jpg";
-import booksGavel from "@/assets/books-gavel.jpg";
-import library from "@/assets/library.jpg";
+import { lawyers, type Lawyer } from "./lawyers";
 
-export const ads: AdSlide[] = [
-  {
-    id: "ad-discount",
-    badge: "عرض خاص لفترة محدودة",
-    title: "خصم 50% على أول استشارة قانونية",
-    text: "ابدأ رحلتك القانونية مع نخبة المحامين والمستشارين واحصل على أول استشارة بنصف السعر.",
-    cta: "احجز استشارتك الآن",
-    to: "/lawyers",
-    image: gavelBanner,
-  },
-  {
-    id: "ad-cases",
-    badge: "سوق القضايا",
-    title: "انشر قضيتك واستقبل عروضاً تنافسية",
-    text: "اطرح تفاصيل قضيتك مجاناً واختر العرض الأنسب لك من بين عشرات المحامين المتخصصين.",
-    cta: "انشر قضيتك",
-    to: "/cases",
-    image: justiceStatue,
-  },
-  {
-    id: "ad-templates",
-    badge: "النماذج القانونية",
-    title: "عقود ونماذج جاهزة بصياغة احترافية",
-    text: "حمّل عقودك ونماذجك القانونية فوراً، أو اطلب نموذجاً مخصصاً يصممه لك محامٍ متخصص.",
-    cta: "تصفح النماذج",
-    to: "/templates",
-    image: booksGavel,
-  },
-  {
-    id: "ad-ai",
-    badge: "المساعد القانوني الذكي",
-    title: "إجابات قانونية فورية على مدار الساعة",
-    text: "احصل على توجيه قانوني أولي سريع في أي وقت قبل التواصل مع المحامي المناسب.",
-    cta: "جرّب المساعد",
-    to: "/ai",
-    image: library,
-  },
+export interface LawyerAd extends Pick<Lawyer, "id" | "name" | "title" | "image" | "rating" | "reviews" | "city"> {
+  offer: string;
+  text: string;
+}
+
+const offers = ["خصم 50% على أول استشارة", "استشارة مجانية أولى", "عرض خاص لفترة محدودة", "خصم 30% هذا الأسبوع"];
+const pitches = [
+  "نخبة الخبرة القانونية في خدمتك — تواصل الآن واحصل على استشارة دقيقة وسريعة.",
+  "متابعة احترافية لقضيتك خطوة بخطوة مع سرية تامة وحلول قانونية واضحة.",
+  "خبرة طويلة وآلاف الاستشارات الناجحة — ثقة عملائنا هي عنواننا.",
+  "احجز موعدك الآن واحصل على توجيه قانوني موثوق يناسب احتياجك.",
 ];
+
+export const featuredLawyerAds: LawyerAd[] = lawyers.slice(0, 4).map((l, i) => ({
+  id: l.id,
+  name: l.name,
+  title: l.title,
+  image: l.image,
+  rating: l.rating,
+  reviews: l.reviews,
+  city: l.city,
+  offer: offers[i % offers.length],
+  text: pitches[i % pitches.length],
+}));
