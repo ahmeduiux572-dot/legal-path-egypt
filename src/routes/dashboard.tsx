@@ -852,10 +852,11 @@ function Invoices() {
   const [items, setItems] = useState<DashInvoice[]>(dashInvoices);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(false);
-  const emptyForm = { client: "", item: "", amount: "", dueDate: "", status: "معلقة" };
+  const [adding, setAdding] = useState(false);
+  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
+  const caseTitles = dashCases.map((c) => c.title);
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
@@ -866,10 +867,35 @@ function Invoices() {
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     const n = `INV-${2044 + items.length}`;
-    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined }, ...p]);
+    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: form.issueDate || "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined, caseRef: form.caseRef || undefined, tax: form.tax ? Number(form.tax) : undefined, issueDate: form.issueDate || undefined, notes: form.notes || undefined }, ...p]);
     setForm(emptyForm);
-    setOpen(false);
+    setAdding(false);
   };
+
+  if (adding) {
+    return (
+      <FormPage title="إنشاء فاتورة جديدة" subtitle="حدّد العميل والبند والمبالغ المستحقة" icon={Receipt}
+        onBack={() => setAdding(false)} onSubmit={add} submitLabel="إنشاء الفاتورة">
+        <FormSection title="بيانات الفاتورة">
+          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+          <SelectField label="القضية المرتبطة" value={form.caseRef} onChange={(v) => setForm({ ...form, caseRef: v })} options={caseTitles} placeholder="اختر القضية" />
+          <div className="sm:col-span-2"><SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" /></div>
+        </FormSection>
+        <FormSection title="المبالغ والتواريخ">
+          <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+          <Field label="الضريبة (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.tax} onChange={(e) => setForm({ ...form, tax: e.target.value })} /></Field>
+          <Field label="تاريخ الإصدار"><input className={fieldCls} placeholder="6 يونيو 2026" value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} /></Field>
+          <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
+          <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
+        </FormSection>
+        <div>
+          <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+          <Field label="ملاحظات الفاتورة"><textarea rows={3} className={fieldCls} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+        </div>
+      </FormPage>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
@@ -881,7 +907,7 @@ function Invoices() {
         <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Receipt className="h-5 w-5 text-gold" /> الفواتير</h2>
         <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الفواتير..." filter={filter} setFilter={setFilter}
           options={[{ value: "all", label: "كل الحالات" }, { value: "مدفوعة", label: "مدفوعة" }, { value: "معلقة", label: "معلقة" }, { value: "متأخرة", label: "متأخرة" }]}
-          onAdd={() => setOpen(true)} addLabel="إنشاء فاتورة" />
+          onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
             <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4">
@@ -895,20 +921,6 @@ function Invoices() {
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
       </div>
-      {open && (
-        <Modal title="إنشاء فاتورة" onClose={() => setOpen(false)}>
-          <form onSubmit={add} className="space-y-4">
-            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
-            <SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" />
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
-              <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
-            </div>
-            <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء الفاتورة</button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 }
