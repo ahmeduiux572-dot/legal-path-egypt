@@ -92,6 +92,7 @@ type SectionId =
   | "sessions"
   | "consultations"
   | "invoices"
+  | "documents"
   | "wallet"
   | "ai";
 
@@ -100,12 +101,68 @@ const nav: { id: SectionId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "profile", label: "الملف الشخصي", icon: UserCircle },
   { id: "cases", label: "القضايا", icon: Briefcase },
   { id: "clients", label: "العملاء", icon: Users },
-  { id: "sessions", label: "الجلسات", icon: CalendarDays },
+  { id: "sessions", label: "الجلسات والتذكيرات", icon: CalendarDays },
   { id: "consultations", label: "الاستشارات", icon: MessageSquare },
   { id: "invoices", label: "الفواتير", icon: Receipt },
+  { id: "documents", label: "المستندات", icon: FileText },
   { id: "wallet", label: "المحفظة", icon: Wallet },
   { id: "ai", label: "الذكاء الاصطناعي القانوني", icon: Sparkles },
 ];
+
+/* ---------- Cross-section navigation ---------- */
+type NavRequest = { section: SectionId; id: string; nonce: number };
+const DashNavContext = createContext<{
+  go: (section: SectionId, id: string) => void;
+  request: NavRequest | null;
+}>({ go: () => {}, request: null });
+function useDashNav() {
+  return useContext(DashNavContext);
+}
+
+/* Open a document/attachment in a new tab as a styled preview */
+function openDocument(name: string) {
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(`<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${name}</title>
+  <style>
+    body{margin:0;background:#0d1526;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;justify-content:center;padding:32px}
+    .page{background:#fff;color:#1a2238;width:100%;max-width:794px;min-height:1000px;border-radius:6px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:64px}
+    .brand{color:#c9a24d;font-weight:800;letter-spacing:1px;font-size:14px;margin-bottom:40px}
+    h1{font-size:22px;border-bottom:2px solid #c9a24d;padding-bottom:14px;margin:0 0 28px}
+    p{line-height:2;color:#3a4358}
+    .ph{height:14px;background:#eef0f4;border-radius:4px;margin:14px 0}
+    .ph.s{width:60%}.ph.m{width:85%}
+    .stamp{margin-top:60px;display:inline-block;border:2px dashed #c9a24d;color:#c9a24d;padding:10px 18px;border-radius:8px;font-weight:700}
+  </style></head><body><div class="page">
+    <div class="brand">منصة محامٍ — مستند قانوني</div>
+    <h1>${name}</h1>
+    <p>هذا عرض توضيحي للمستند داخل المنصة. في النسخة المتصلة بالخادم سيتم تحميل الملف الأصلي المرفوع وعرضه هنا بصيغته الكاملة.</p>
+    <div class="ph m"></div><div class="ph"></div><div class="ph s"></div>
+    <div class="ph m"></div><div class="ph"></div><div class="ph s"></div>
+    <div class="stamp">معتمد — منصة محامٍ</div>
+  </div></body></html>`);
+  w.document.close();
+}
+
+/* Reusable list of clickable document attachments */
+function DocFiles({ files }: { files: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {files.map((f, i) => (
+        <li key={`${f}-${i}`}>
+          <button type="button" onClick={() => openDocument(f)}
+            className="flex w-full items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75 transition-colors hover:border-gold hover:text-gold">
+            <FileText className="h-4 w-4 shrink-0 text-gold" />
+            <span className="truncate">{f}</span>
+            <Eye className="mr-auto h-3.5 w-3.5 shrink-0 opacity-60" />
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const card = "rounded-2xl border border-white/10 bg-navy-card/60 p-6";
 const fieldCls =
