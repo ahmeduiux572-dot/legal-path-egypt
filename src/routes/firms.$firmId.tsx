@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { MapPin, Users, Briefcase, CalendarDays } from "lucide-react";
+import { MapPin, Users, Briefcase, CalendarDays, BadgeCheck } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import { BookingDialog } from "@/components/BookingDialog";
 import { ReviewsSection } from "@/components/ReviewsSection";
