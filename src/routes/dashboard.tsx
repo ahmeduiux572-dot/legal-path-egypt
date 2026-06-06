@@ -772,19 +772,21 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ client: "", amount: "", status: "معلقة" });
+  const emptyForm = { client: "", item: "", amount: "", dueDate: "", status: "معلقة" };
+  const [form, setForm] = useState(emptyForm);
+  const clientNames = dashClients.map((c) => c.name);
 
   const filtered = items.filter((i) =>
     (filter === "all" || i.status === filter) &&
-    (i.number.includes(search) || i.client.includes(search))
+    (i.number.includes(search) || i.client.includes(search) || (i.item ?? "").includes(search))
   );
   const total = items.reduce((s, i) => s + i.amount, 0);
   const paid = items.filter((i) => i.status === "مدفوعة").reduce((s, i) => s + i.amount, 0);
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     const n = `INV-${2044 + items.length}`;
-    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"] }, ...p]);
-    setForm({ client: "", amount: "", status: "معلقة" });
+    setItems((p) => [{ id: `i${Date.now()}`, number: n, client: form.client, amount: Number(form.amount), date: "6 يونيو 2026", status: form.status as DashInvoice["status"], item: form.item || undefined, dueDate: form.dueDate || undefined }, ...p]);
+    setForm(emptyForm);
     setOpen(false);
   };
   return (
@@ -815,14 +817,14 @@ function Invoices() {
       {open && (
         <Modal title="إنشاء فاتورة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
-            <Field label="المبلغ (ج.م)"><input type="number" className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
-            <Field label="الحالة">
-              <select className={fieldCls} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option className="bg-navy-deep">معلقة</option><option className="bg-navy-deep">مدفوعة</option><option className="bg-navy-deep">متأخرة</option>
-              </select>
-            </Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء</button>
+            <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+            <SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+              <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
+            </div>
+            <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["معلقة", "مدفوعة", "متأخرة"]} placeholder="اختر الحالة" />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إنشاء الفاتورة</button>
           </form>
         </Modal>
       )}
