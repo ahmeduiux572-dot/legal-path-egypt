@@ -237,14 +237,17 @@ export interface DashConsultation {
   channel: "أونلاين" | "مكتب" | "هاتف";
   status: "قادمة" | "مكتملة" | "ملغاة";
   price: number;
+  duration?: string;
+  caseRef?: string;
+  notes?: string;
 }
 
 export const dashConsultations: DashConsultation[] = [
-  { id: "co1", client: "أحمد سمير", subject: "استشارة نفقة وحضانة", date: "8 يونيو 2026", time: "04:30 م", channel: "أونلاين", status: "قادمة", price: 500 },
-  { id: "co2", client: "منى عبد الله", subject: "مراجعة عقد إيجار", date: "10 يونيو 2026", time: "11:00 ص", channel: "مكتب", status: "قادمة", price: 700 },
-  { id: "co3", client: "كريم حسن", subject: "نزاع تجاري", date: "3 يونيو 2026", time: "01:00 م", channel: "هاتف", status: "مكتملة", price: 600 },
-  { id: "co4", client: "شركة النور", subject: "تأسيس شركة", date: "1 يونيو 2026", time: "10:00 ص", channel: "مكتب", status: "مكتملة", price: 1200 },
-  { id: "co5", client: "مؤسسة الأمل", subject: "حماية علامة تجارية", date: "28 مايو 2026", time: "12:00 م", channel: "أونلاين", status: "ملغاة", price: 800 },
+  { id: "co1", client: "أحمد سمير", subject: "استشارة نفقة وحضانة", date: "8 يونيو 2026", time: "04:30 م", channel: "أونلاين", status: "قادمة", price: 500, duration: "45 دقيقة", caseRef: "نزاع نفقة وحضانة", notes: "مناقشة خطوات رفع دعوى النفقة والمستندات المطلوبة." },
+  { id: "co2", client: "منى عبد الله", subject: "مراجعة عقد إيجار", date: "10 يونيو 2026", time: "11:00 ص", channel: "مكتب", status: "قادمة", price: 700, duration: "30 دقيقة", caseRef: "دعوى إيجار", notes: "مراجعة بنود عقد إيجار جديد قبل التوقيع." },
+  { id: "co3", client: "كريم حسن", subject: "نزاع تجاري", date: "3 يونيو 2026", time: "01:00 م", channel: "هاتف", status: "مكتملة", price: 600, duration: "20 دقيقة", notes: "تم توضيح الموقف القانوني وإحالة الموضوع لقسم القضايا." },
+  { id: "co4", client: "شركة النور", subject: "تأسيس شركة", date: "1 يونيو 2026", time: "10:00 ص", channel: "مكتب", status: "مكتملة", price: 1200, duration: "60 دقيقة", caseRef: "صياغة عقد شراكة", notes: "استشارة حول الشكل القانوني الأنسب للشركة والإجراءات." },
+  { id: "co5", client: "مؤسسة الأمل", subject: "حماية علامة تجارية", date: "28 مايو 2026", time: "12:00 م", channel: "أونلاين", status: "ملغاة", price: 800, duration: "40 دقيقة", caseRef: "نزاع علامة تجارية", notes: "أُلغيت بناءً على طلب العميل وأُعيد الجدولة لاحقاً." },
 ];
 
 export interface AIConversation {
