@@ -1,1 +1,0 @@
-import{j as r}from"./index-CzEipat3.js";import{S as l}from"./star-DN4PeMKJ.js";function m({value:t,size:a=16}){return r.jsx("div",{className:"flex items-center gap-0.5","aria-label":`التقييم ${t} من 5`,children:[1,2,3,4,5].map(e=>r.jsx(l,{style:{width:a,height:a},className:e<=Math.round(t)?"fill-gold text-gold":"fill-muted text-muted"},e))})}export{m as S};
