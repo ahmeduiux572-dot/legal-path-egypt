@@ -199,6 +199,9 @@ function DashboardPage() {
   const go = (s: SectionId, id: string) => {
     setSection(s);
     setRequest({ section: s, id, nonce: Date.now() });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
   };
 
   const notifications = useMemo(() => {
