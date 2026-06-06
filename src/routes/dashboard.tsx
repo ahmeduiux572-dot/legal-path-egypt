@@ -876,8 +876,17 @@ function Clients() {
   if (viewing) {
     const c = viewing;
     const relatedCases = dashCases.filter((cs) => cs.client === c.name);
+    const relatedSessions = dashSessions.filter((s) => s.client === c.name);
+    const relatedInvoices = dashInvoices.filter((iv) => iv.client === c.name);
+    const relatedConsultations = dashConsultations.filter((co) => co.client === c.name);
+    const totalBilled = relatedInvoices.reduce((sum, iv) => sum + iv.amount, 0);
     return (
       <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewingId(null)}>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">القضايا</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedCases.length}</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">الجلسات</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedSessions.length}</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{totalBilled.toLocaleString()} ج.م</p></div>
+        </div>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
           <DetailItem label="هاتف بديل" value={c.altPhone} />
@@ -910,6 +919,12 @@ function Clients() {
             </div>
           </div>
         )}
+        <RelatedSection title="جلسات العميل" icon={CalendarDays}
+          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+        <RelatedSection title="فواتير العميل" icon={Receipt}
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+        <RelatedSection title="استشارات العميل" icon={MessageSquare}
+          items={relatedConsultations.map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
