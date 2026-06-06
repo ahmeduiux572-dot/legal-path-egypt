@@ -608,11 +608,27 @@ function Cases() {
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [viewing, setViewing] = useState<DashCase | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, DashComment[]>>({});
+  const [timelines, setTimelines] = useState<Record<string, DashTLEvent[]>>({});
   const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", degree: "", status: "نشطة", priority: "عادية", nextDate: "", startDate: "", progress: "0", opponent: "", opponentLawyer: "", claimAmount: "", description: "" };
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
   const clientNames = dashClients.map((c) => c.name);
+  const viewing = items.find((c) => c.id === viewingId) ?? null;
+
+  const baseTimeline = (c: DashCase): DashTLEvent[] => [
+    { id: "b1", title: "تم إنشاء القضية", date: c.startDate ?? "—" },
+    ...(c.nextDate && c.nextDate !== "—" ? [{ id: "b2", title: "الجلسة القادمة", date: c.nextDate }] : []),
+    { id: "b3", title: `الحالة الحالية: ${c.status}`, date: "الآن" },
+  ];
+  const getTimeline = (c: DashCase) => timelines[c.id] ?? baseTimeline(c);
+  const addComment = (id: string, text: string) =>
+    setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
+  const changeStatus = (c: DashCase, status: string) => {
+    setItems((p) => p.map((it) => (it.id === c.id ? { ...it, status: status as DashCase["status"] } : it)));
+    setTimelines((p) => ({ ...p, [c.id]: [...(p[c.id] ?? baseTimeline(c)), { id: `tl${Date.now()}`, title: `تم تغيير الحالة إلى ${status}`, date: "الآن" }] }));
+  };
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
@@ -683,7 +699,8 @@ function Cases() {
   if (viewing) {
     const c = viewing;
     return (
-      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} status={c.status} onBack={() => setViewing(null)}>
+      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} onBack={() => setViewingId(null)}
+        actions={<StatusChanger value={c.status} options={["نشطة", "قيد المراجعة", "مغلقة"]} onChange={(v) => changeStatus(c, v)} />}>
         <div className={card}>
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="font-semibold text-cream">نسبة الإنجاز</span>
@@ -724,6 +741,8 @@ function Cases() {
             )}
           </div>
         )}
+        <TimelinePanel events={getTimeline(c)} />
+        <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
   }
@@ -738,9 +757,9 @@ function Cases() {
         onAdd={() => setAdding(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
-          <button key={c.id} type="button" onClick={() => setViewing(c)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
+          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="font-bold text-cream">{c.title}</p>
                 <p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p>
                 <p className="mt-1 flex flex-wrap items-center gap-3 text-xs text-cream/45">
@@ -749,14 +768,17 @@ function Cases() {
                   {c.files && c.files.length > 0 && <span className="flex items-center gap-1"><Paperclip className="h-3 w-3 text-gold" />{c.files.length} ملف</span>}
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+              <div className="flex items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                <ViewButton onClick={() => setViewingId(c.id)} />
+              </div>
             </div>
             <div className="mt-4 flex items-center gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-gold" style={{ width: `${c.progress}%` }} /></div>
               <span className="text-xs text-cream/55">{c.progress}%</span>
               <span className="flex items-center gap-1 text-xs text-cream/55"><CalendarDays className="h-3.5 w-3.5 text-gold" /> {c.nextDate}</span>
             </div>
-          </button>
+          </div>
         ))}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
