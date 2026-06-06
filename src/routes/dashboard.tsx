@@ -114,6 +114,8 @@ const statusColor: Record<string, string> = {
   "قادمة": "bg-gold/15 text-gold",
   "مكتملة": "bg-emerald-500/15 text-emerald-400",
   "ملغاة": "bg-red-500/15 text-red-400",
+  "منتهية": "bg-emerald-500/15 text-emerald-400",
+  "مؤجلة": "bg-orange-500/15 text-orange-400",
 };
 
 function DashboardPage() {
