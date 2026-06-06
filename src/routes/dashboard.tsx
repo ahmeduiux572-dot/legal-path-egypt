@@ -1957,6 +1957,13 @@ function LegalAI() {
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([greeting]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const askAi = useServerFn(askLegalAi);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, loading]);
 
   const loadConv = (id: string) => {
     const conv = aiConversations.find((c) => c.id === id);
@@ -1964,15 +1971,23 @@ function LegalAI() {
   };
   const newChat = () => { setActiveConv(null); setMessages([greeting]); };
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const q = text.trim();
-    if (!q) return;
-    setMessages((m) => [
-      ...m,
-      { role: "user", text: q },
-      { role: "ai", text: "هذا رد توضيحي من المساعد القانوني الذكي. سيتم ربط الذكاء الاصطناعي القانوني لتقديم إجابات دقيقة ومسوّدات قانونية مبنية على بيانات قضاياك." },
-    ]);
+    if (!q || loading) return;
+    const history = [...messages, { role: "user" as const, text: q }];
+    setMessages(history);
     setInput("");
+    setLoading(true);
+    try {
+      // Send only the recent turns to keep token usage low.
+      const payload = history.filter((m) => m.text !== greeting.text).slice(-8);
+      const res = await askAi({ data: { messages: payload } });
+      setMessages((m) => [...m, { role: "ai", text: res.reply }]);
+    } catch {
+      setMessages((m) => [...m, { role: "ai", text: "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1994,21 +2009,28 @@ function LegalAI() {
 
       <div className={`${card} flex h-[600px] flex-col lg:col-span-3`}>
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><Sparkles className="h-5 w-5 text-gold" /> الذكاء الاصطناعي القانوني</h2>
-        <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pr-1">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === "user" ? "bg-gradient-gold text-navy" : "border border-white/10 bg-navy-deep/60 text-cream/85"}`}>{m.text}</div>
+              <div className={`max-w-[80%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === "user" ? "bg-gradient-gold text-navy" : "border border-white/10 bg-navy-deep/60 text-cream/85"}`}>{m.text}</div>
             </div>
           ))}
+          {loading && (
+            <div className="flex justify-end">
+              <div className="flex max-w-[80%] items-center gap-2 rounded-2xl border border-white/10 bg-navy-deep/60 px-4 py-3 text-sm text-cream/60">
+                <Sparkles className="h-4 w-4 animate-pulse text-gold" /> يحلّل سؤالك القانوني...
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {suggestions.map((s) => (
-            <button key={s} onClick={() => send(s)} className="rounded-full border border-gold/30 px-3 py-1.5 text-xs text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold">{s}</button>
+            <button key={s} onClick={() => send(s)} disabled={loading} className="rounded-full border border-gold/30 px-3 py-1.5 text-xs text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold disabled:opacity-50">{s}</button>
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="اكتب سؤالك القانوني..." className={`${fieldCls} flex-1 py-3`} />
-          <button type="submit" className="flex items-center gap-2 rounded-lg bg-gradient-gold px-5 py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"><Send className="h-4 w-4" /> إرسال</button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} disabled={loading} placeholder="اكتب سؤالك القانوني..." className={`${fieldCls} flex-1 py-3`} />
+          <button type="submit" disabled={loading} className="flex items-center gap-2 rounded-lg bg-gradient-gold px-5 py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 disabled:opacity-50"><Send className="h-4 w-4" /> إرسال</button>
         </form>
       </div>
     </div>
