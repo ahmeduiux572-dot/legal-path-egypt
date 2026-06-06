@@ -107,6 +107,13 @@ export const invoiceItems = [
   "مراجعة مستندات",
 ];
 
+export const caseDegrees = [
+  "أول درجة",
+  "استئناف",
+  "نقض",
+  "تنفيذ",
+];
+
 export interface WalletTx {
   id: string;
   label: string;
