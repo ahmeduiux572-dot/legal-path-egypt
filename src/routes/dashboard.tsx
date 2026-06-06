@@ -608,6 +608,54 @@ function Cases() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    return (
+      <DetailPage title={c.title} subtitle={`${c.client} — ${c.type}`} icon={Briefcase} status={c.status} onBack={() => setViewing(null)}>
+        <div className={card}>
+          <div className="mb-2 flex items-center justify-between text-sm">
+            <span className="font-semibold text-cream">نسبة الإنجاز</span>
+            <span className="text-cream/55">{c.progress}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-gold" style={{ width: `${c.progress}%` }} /></div>
+        </div>
+        <DetailGrid title="بيانات أساسية">
+          <DetailItem label="رقم القضية" value={c.caseNumber} />
+          <DetailItem label="نوع القضية" value={c.type} />
+          <DetailItem label="العميل" value={c.client} />
+          <DetailItem label="درجة التقاضي" value={c.degree} />
+          <DetailItem label="الأولوية" value={c.priority} />
+          <DetailItem label="الحالة" value={c.status} />
+        </DetailGrid>
+        <DetailGrid title="المحكمة والجدول">
+          <DetailItem label="المحكمة" value={c.court} />
+          <DetailItem label="تاريخ البدء" value={c.startDate} />
+          <DetailItem label="الجلسة القادمة" value={c.nextDate} />
+        </DetailGrid>
+        {(c.opponent || c.opponentLawyer || c.claimAmount) && (
+          <DetailGrid title="الطرف الآخر">
+            <DetailItem label="اسم الخصم" value={c.opponent} />
+            <DetailItem label="محامي الخصم" value={c.opponentLawyer} />
+            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${c.claimAmount.toLocaleString()} ج.م` : undefined} />
+          </DetailGrid>
+        )}
+        {(c.description || (c.files && c.files.length > 0)) && (
+          <div className={card}>
+            <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
+            {c.description && <p className="mb-4 text-sm leading-relaxed text-cream/85">{c.description}</p>}
+            {c.files && c.files.length > 0 && (
+              <ul className="space-y-2">
+                {c.files.map((f, i) => (
+                  <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Briefcase className="h-5 w-5 text-gold" /> القضايا</h2>
@@ -618,7 +666,7 @@ function Cases() {
         onAdd={() => setAdding(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
-          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+          <button key={c.id} type="button" onClick={() => setViewing(c)} className="w-full rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-bold text-cream">{c.title}</p>
@@ -636,7 +684,7 @@ function Cases() {
               <span className="text-xs text-cream/55">{c.progress}%</span>
               <span className="flex items-center gap-1 text-xs text-cream/55"><CalendarDays className="h-3.5 w-3.5 text-gold" /> {c.nextDate}</span>
             </div>
-          </div>
+          </button>
         ))}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
