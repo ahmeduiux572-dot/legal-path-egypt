@@ -23,7 +23,6 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import { StarRating } from "@/components/StarRating";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
 import {
