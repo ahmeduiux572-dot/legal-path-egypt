@@ -1622,6 +1622,72 @@ function Invoices() {
 /* ---------- Wallet ---------- */
 const walletMethods = ["فودافون كاش", "أورنج كاش", "اتصالات كاش", "إنستا باي"];
 function WalletPanel() {
+  return <WalletPanelImpl />;
+}
+
+/* ---------- Documents ---------- */
+type DocSourceKind = "case" | "client";
+interface DocRow { id: string; name: string; sourceName: string; sourceKind: DocSourceKind; sourceId: string; }
+function Documents() {
+  const { go } = useDashNav();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+
+  const rows: DocRow[] = [
+    ...dashCases.flatMap((c) => (c.files ?? []).map((f, i) => ({ id: `case-${c.id}-${i}`, name: f, sourceName: c.title, sourceKind: "case" as DocSourceKind, sourceId: c.id }))),
+    ...dashClients.flatMap((cl) => (cl.files ?? []).map((f, i) => ({ id: `client-${cl.id}-${i}`, name: f, sourceName: cl.name, sourceKind: "client" as DocSourceKind, sourceId: cl.id }))),
+  ];
+  const filtered = rows.filter((r) =>
+    (filter === "all" || r.sourceKind === filter) &&
+    (r.name.includes(search) || r.sourceName.includes(search))
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي المستندات</p><p className="mt-2 text-2xl font-extrabold text-cream">{rows.length}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات القضايا</p><p className="mt-2 text-2xl font-extrabold text-gold">{rows.filter((r) => r.sourceKind === "case").length}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات العملاء</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{rows.filter((r) => r.sourceKind === "client").length}</p></div>
+      </div>
+      <div className={card}>
+        <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><FileText className="h-5 w-5 text-gold" /> المستندات</h2>
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث في المستندات..." className={`${fieldCls} pr-9`} />
+          </div>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`${fieldCls} sm:w-44`}>
+            <option value="all" className="bg-navy-deep">كل المصادر</option>
+            <option value="case" className="bg-navy-deep">مستندات القضايا</option>
+            <option value="client" className="bg-navy-deep">مستندات العملاء</option>
+          </select>
+        </div>
+        <div className="space-y-3">
+          {filtered.map((r) => (
+            <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+              <button type="button" onClick={() => openDocument(r.name)} className="flex min-w-0 items-center gap-3 text-start">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold/15 text-gold"><FileText className="h-5 w-5" /></span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-cream">{r.name}</span>
+                  <span className="mt-0.5 block text-xs text-cream/55">{r.sourceKind === "case" ? "قضية" : "عميل"}: {r.sourceName}</span>
+                </span>
+              </button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => openDocument(r.name)} className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"><Eye className="h-4 w-4" /> فتح</button>
+                <button type="button" onClick={() => go(r.sourceKind === "case" ? "cases" : "clients", r.sourceId)} className="flex h-9 items-center gap-1.5 rounded-lg border border-white/15 px-3 text-xs font-semibold text-cream/80 transition-colors hover:border-gold hover:text-gold">
+                  {r.sourceKind === "case" ? <Briefcase className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />} المصدر
+                </button>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد مستندات.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WalletPanelImpl() {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState(walletMethods[0]);
