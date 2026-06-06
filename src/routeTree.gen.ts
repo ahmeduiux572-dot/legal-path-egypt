@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawyersIndexRouteImport } from './routes/lawyers.index'
 import { Route as LawyersLawyerIdRouteImport } from './routes/lawyers.$lawyerId'
 import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -76,6 +77,11 @@ const FirmsFirmIdRoute = FirmsFirmIdRouteImport.update({
   path: '/firms/$firmId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/api/chat': typeof ApiChatRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/lawyers/': typeof LawyersIndexRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/api/chat': typeof ApiChatRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/lawyers': typeof LawyersIndexRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/api/chat': typeof ApiChatRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/lawyers/': typeof LawyersIndexRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/api/chat'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
     | '/lawyers/'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/api/chat'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
     | '/lawyers'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/api/chat'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
     | '/lawyers/'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TemplatesRoute: typeof TemplatesRoute
+  ApiChatRoute: typeof ApiChatRoute
   FirmsFirmIdRoute: typeof FirmsFirmIdRoute
   LawyersLawyerIdRoute: typeof LawyersLawyerIdRoute
   LawyersIndexRoute: typeof LawyersIndexRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FirmsFirmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TemplatesRoute: TemplatesRoute,
+  ApiChatRoute: ApiChatRoute,
   FirmsFirmIdRoute: FirmsFirmIdRoute,
   LawyersLawyerIdRoute: LawyersLawyerIdRoute,
   LawyersIndexRoute: LawyersIndexRoute,
@@ -271,3 +292,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
