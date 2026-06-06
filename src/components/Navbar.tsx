@@ -9,6 +9,7 @@ const links = [
   { to: "/cases", label: "سوق القضايا" },
   { to: "/templates", label: "النماذج القانونية" },
   { to: "/ai", label: "المساعد الذكي" },
+  { to: "/dashboard", label: "لوحة التحكم" },
 ] as const;
 
 export function Navbar() {
