@@ -36,6 +36,9 @@ import {
   Gavel,
   Hash,
   ArrowRight,
+  Eye,
+  MessageCircle,
+  History,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
