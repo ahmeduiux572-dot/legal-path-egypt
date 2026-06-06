@@ -777,8 +777,6 @@ function Cases() {
           items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
         <RelatedSection title="فواتير القضية" icon={Receipt}
           items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
-        <RelatedSection title="استشارات مرتبطة" icon={MessageSquare}
-          items={dashConsultations.filter((co) => co.caseRef === c.title).map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
