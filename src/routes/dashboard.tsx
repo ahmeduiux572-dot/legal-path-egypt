@@ -929,19 +929,13 @@ function Cases() {
           <div className={card}>
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
             {c.description && <p className="mb-4 text-sm leading-relaxed text-cream/85">{c.description}</p>}
-            {c.files && c.files.length > 0 && (
-              <ul className="space-y-2">
-                {c.files.map((f, i) => (
-                  <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
-                ))}
-              </ul>
-            )}
+            {c.files && c.files.length > 0 && <DocFiles files={c.files} />}
           </div>
         )}
         <RelatedSection title="جلسات القضية" icon={CalendarDays}
-          items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+          items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير القضية" icon={Receipt}
-          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
