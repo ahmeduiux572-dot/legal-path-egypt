@@ -536,6 +536,7 @@ function Cases() {
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashCase | null>(null);
   const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", degree: "", status: "نشطة", priority: "عادية", nextDate: "", startDate: "", progress: "0", opponent: "", opponentLawyer: "", claimAmount: "", description: "" };
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
