@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Wallet,
   CalendarClock,
@@ -10,9 +11,11 @@ import {
   XCircle,
   MapPin,
   Bell,
+  LogOut,
 } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import { lawyers, sampleReviews } from "@/data/lawyers";
+import { useAuth, logout } from "@/lib/auth";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -49,6 +52,20 @@ const caseRequests = [
 ];
 
 function DashboardPage() {
+  const user = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user === null) {
+      navigate({ to: "/login" });
+    }
+  }, [user, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/" });
+  };
+
   return (
     <div className="bg-navy">
       {/* Header */}
@@ -81,6 +98,12 @@ function DashboardPage() {
             >
               عرض ملفي العام
             </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 rounded-md border border-gold/50 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
+            >
+              <LogOut className="h-4 w-4 text-gold" /> تسجيل الخروج
+            </button>
           </div>
         </div>
       </section>
