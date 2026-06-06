@@ -1036,6 +1036,7 @@ function Invoices() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashInvoice | null>(null);
   const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -1079,6 +1080,38 @@ function Invoices() {
     );
   }
 
+  if (viewing) {
+    const inv = viewing;
+    const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
+    return (
+      <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} status={inv.status} onBack={() => setViewing(null)}>
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-cream/60">الإجمالي المستحق</span>
+            <span className="text-2xl font-extrabold text-gradient-gold">{(inv.amount + taxAmount).toLocaleString()} ج.م</span>
+          </div>
+        </div>
+        <DetailGrid title="بيانات الفاتورة">
+          <DetailItem label="العميل" value={inv.client} />
+          <DetailItem label="بند الفاتورة" value={inv.item} />
+          <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
+        </DetailGrid>
+        <DetailGrid title="المبالغ والتواريخ">
+          <DetailItem label="المبلغ" value={`${inv.amount.toLocaleString()} ج.م`} />
+          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${taxAmount.toLocaleString()} ج.م)` : undefined} />
+          <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
+          <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
+        </DetailGrid>
+        {inv.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{inv.notes}</p>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
@@ -1093,13 +1126,13 @@ function Invoices() {
           onAdd={() => setAdding(true)} addLabel="إنشاء فاتورة" />
         <div className="space-y-3">
           {filtered.map((inv) => (
-            <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4">
+            <button key={inv.id} type="button" onClick={() => setViewing(inv)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
                 <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
               </div>
-            </div>
+            </button>
           ))}
           {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
         </div>
