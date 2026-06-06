@@ -46,7 +46,7 @@ import {
   MonitorUp,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
-import { useAuth, logout } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import {
   dashCases,
   dashClients,
