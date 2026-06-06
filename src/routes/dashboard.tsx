@@ -564,7 +564,7 @@ function Sessions() {
         </div>
       </div>
       {open && (
-        <Modal title="إضافة جلsة" onClose={() => setOpen(false)}>
+        <Modal title="إضافة جلسة" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
             <Field label="عنوان الجلسة"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
             <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
