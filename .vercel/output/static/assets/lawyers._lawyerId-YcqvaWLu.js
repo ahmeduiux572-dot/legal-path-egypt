@@ -1,0 +1,1 @@
+import{j as t,L as e}from"./index-CzEipat3.js";const o=()=>t.jsxs("div",{className:"bg-navy py-24 text-center text-cream",children:[t.jsx("p",{children:"لم يتم العثور على المحامي."}),t.jsx(e,{to:"/lawyers",className:"mt-4 inline-block text-gold",children:"العودة للقائمة"})]});export{o as notFoundComponent};
