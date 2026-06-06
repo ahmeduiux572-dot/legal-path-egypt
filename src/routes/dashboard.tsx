@@ -582,9 +582,9 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
   const clientInitial = consultation.client.trim().charAt(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-navy p-3 sm:p-5">
+    <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-gradient-navy p-3 sm:p-5">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+      <div className="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-bold text-cream">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
@@ -595,9 +595,9 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
       </div>
 
       {/* Video tiles */}
-      <div className="my-3 grid flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+      <div className="my-3 grid min-h-0 flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
         {/* Client tile (large) */}
-        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{clientInitial}</div>
           <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
@@ -605,7 +605,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
           </span>
         </div>
         {/* Lawyer tile */}
-        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
           {camOn ? (
             <img src={lawyer.image} alt={lawyer.name} className="h-full w-full object-cover" />
           ) : (
@@ -618,7 +618,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+      <div className="flex shrink-0 items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
         <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
           className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
           {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
