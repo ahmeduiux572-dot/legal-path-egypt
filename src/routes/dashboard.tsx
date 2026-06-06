@@ -984,6 +984,7 @@ function Cases() {
 /* ---------- Clients ---------- */
 function Clients() {
   const [items, setItems] = useState<DashClient[]>(dashClients);
+  const { go, request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -993,6 +994,7 @@ function Clients() {
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "clients") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
 
