@@ -432,30 +432,59 @@ function Cases() {
   const [items, setItems] = useState<DashCase[]>(dashCases);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", client: "", type: "" });
+  const emptyForm = { title: "", caseNumber: "", client: "", type: "", court: "", status: "نشطة", priority: "عادية", nextDate: "", progress: "0", description: "" };
+  const [form, setForm] = useState(emptyForm);
+  const [files, setFiles] = useState<string[]>([]);
+  const clientNames = dashClients.map((c) => c.name);
 
   const filtered = items.filter((c) =>
     (filter === "all" || c.status === filter) &&
-    (c.title.includes(search) || c.client.includes(search) || c.type.includes(search))
+    (typeFilter === "all" || c.type === typeFilter) &&
+    (c.title.includes(search) || c.client.includes(search) || c.type.includes(search) || (c.caseNumber ?? "").includes(search) || (c.court ?? "").includes(search))
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `c${Date.now()}`, title: form.title, client: form.client, type: form.type, status: "نشطة", nextDate: "—", progress: 0 }, ...p]);
-    setForm({ title: "", client: "", type: "" });
+    setItems((p) => [{
+      id: `c${Date.now()}`,
+      title: form.title,
+      client: form.client,
+      type: form.type,
+      status: form.status as DashCase["status"],
+      nextDate: form.nextDate || "—",
+      progress: Number(form.progress) || 0,
+      caseNumber: form.caseNumber || undefined,
+      court: form.court || undefined,
+      priority: form.priority as DashCase["priority"],
+      description: form.description || undefined,
+      files: files.length ? files : undefined,
+    }, ...p]);
+    setForm(emptyForm);
+    setFiles([]);
     setOpen(false);
   };
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Briefcase className="h-5 w-5 text-gold" /> القضايا</h2>
-      <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في القضايا..." filter={filter} setFilter={setFilter}
+      <Toolbar search={search} setSearch={setSearch} placeholder="ابحث بالعنوان أو العميل أو رقم القضية..." filter={filter} setFilter={setFilter}
         options={[{ value: "all", label: "كل الحالات" }, { value: "نشطة", label: "نشطة" }, { value: "قيد المراجعة", label: "قيد المراجعة" }, { value: "مغلقة", label: "مغلقة" }]}
+        filter2={typeFilter} setFilter2={setTypeFilter}
+        options2={[{ value: "all", label: "كل الأنواع" }, ...caseTypes.map((t) => ({ value: t, label: t }))]}
         onAdd={() => setOpen(true)} addLabel="إضافة قضية" />
       <div className="space-y-3">
         {filtered.map((c) => (
           <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div><p className="font-bold text-cream">{c.title}</p><p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p></div>
+              <div>
+                <p className="font-bold text-cream">{c.title}</p>
+                <p className="mt-0.5 text-sm text-cream/60">{c.client} — {c.type}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-3 text-xs text-cream/45">
+                  {c.caseNumber && <span className="flex items-center gap-1"><Hash className="h-3 w-3 text-gold" />{c.caseNumber}</span>}
+                  {c.court && <span className="flex items-center gap-1"><Gavel className="h-3 w-3 text-gold" />{c.court}</span>}
+                  {c.files && c.files.length > 0 && <span className="flex items-center gap-1"><Paperclip className="h-3 w-3 text-gold" />{c.files.length} ملف</span>}
+                </p>
+              </div>
               <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
             </div>
             <div className="mt-4 flex items-center gap-3">
@@ -470,10 +499,20 @@ function Cases() {
       {open && (
         <Modal title="إضافة قضية" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
-            <Field label="العميل"><input className={fieldCls} value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required /></Field>
-            <Field label="النوع"><input className={fieldCls} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Field label="عنوان القضية"><input className={fieldCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field></div>
+              <Field label="رقم القضية"><input className={fieldCls} placeholder="123/2026" value={form.caseNumber} onChange={(e) => setForm({ ...form, caseNumber: e.target.value })} /></Field>
+              <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={clientNames} placeholder="اختر العميل" required />
+              <SelectField label="نوع القضية" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={caseTypes} placeholder="اختر النوع" required />
+              <SelectField label="المحكمة" value={form.court} onChange={(v) => setForm({ ...form, court: v })} options={courts} placeholder="اختر المحكمة" />
+              <SelectField label="الحالة" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["نشطة", "قيد المراجعة", "مغلقة"]} placeholder="اختر الحالة" />
+              <SelectField label="الأولوية" value={form.priority} onChange={(v) => setForm({ ...form, priority: v })} options={["عادية", "متوسطة", "عاجلة"]} placeholder="اختر الأولوية" />
+              <Field label="تاريخ الجلسة القادمة"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} /></Field>
+              <Field label="نسبة الإنجاز (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.progress} onChange={(e) => setForm({ ...form, progress: e.target.value })} /></Field>
+            </div>
+            <Field label="وصف القضية"><textarea rows={3} className={fieldCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
+            <FileField label="ملفات ومستندات القضية" files={files} setFiles={setFiles} />
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة القضية</button>
           </form>
         </Modal>
       )}
