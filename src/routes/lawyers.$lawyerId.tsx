@@ -33,7 +33,8 @@ export const Route = createFileRoute("/lawyers/$lawyerId")({
 });
 
 function LawyerProfile() {
-  const { lawyer } = Route.useLoaderData();
+  const { lawyerId } = Route.useParams();
+  const lawyer = getLawyer(lawyerId)!;
 
   return (
     <div className="bg-cream">
