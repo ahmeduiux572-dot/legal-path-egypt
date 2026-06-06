@@ -179,12 +179,14 @@ export const dashClients: DashClient[] = [
     email: "mona@mail.com", cases: 1, since: "مارس 2025", type: "فرد", city: "الإسكندرية",
     nationalId: "29103154500218", address: "8 شارع فؤاد، محطة الرمل، الإسكندرية",
     notes: "تم إغلاق قضيتها بنجاح وقد توصي بمكتبنا لمعارفها.",
+    files: ["توكيل رسمي.pdf", "صورة البطاقة.pdf", "عقد الإيجار.pdf"],
   },
   {
     id: "u3", name: "كريم حسن", phone: "+20 102 345 6789", altPhone: "+20 100 555 6677",
     email: "karim@mail.com", cases: 3, since: "نوفمبر 2024", type: "فرد", city: "الجيزة",
     nationalId: "28912091800437", address: "45 شارع الهرم، الجيزة",
     notes: "لديه أكثر من قضية، يحتاج متابعة دورية لمواعيد الجلسات.",
+    files: ["توكيل رسمي.pdf", "صورة البطاقة.pdf", "تقرير طبي.pdf"],
   },
   {
     id: "u4", name: "شركة النور", phone: "+20 103 456 7890", altPhone: "+20 2 3760 1122",
@@ -198,6 +200,7 @@ export const dashClients: DashClient[] = [
     email: "contact@amal.com", cases: 1, since: "فبراير 2025", type: "شركة", city: "القاهرة",
     nationalId: "سجل تجاري 209914", address: "22 شارع مكرم عبيد، مدينة نصر، القاهرة",
     notes: "مؤسسة خيرية، يلزم التنسيق المسبق قبل أي جلسة.",
+    files: ["توكيل رسمي.pdf", "السجل التجاري.pdf", "البطاقة الضريبية.pdf"],
   },
 ];
 
