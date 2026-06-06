@@ -1073,11 +1073,7 @@ function Clients() {
         {c.files && c.files.length > 0 && (
           <div className={card}>
             <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Paperclip className="h-4 w-4" /> المرفقات <span className="text-cream/40">({c.files.length})</span></h3>
-            <ul className="space-y-2">
-              {c.files.map((f, i) => (
-                <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
-              ))}
-            </ul>
+            <DocFiles files={c.files} />
           </div>
         )}
         {relatedCases.length > 0 && (
@@ -1085,18 +1081,22 @@ function Clients() {
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
             <div className="space-y-3">
               {relatedCases.map((cs) => (
-                <div key={cs.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+                <div key={cs.id} onClick={() => go("cases", cs.id)} role="button"
+                  className="flex cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3 transition-colors hover:border-gold/40">
                   <div><p className="text-sm font-bold text-cream">{cs.title}</p><p className="mt-0.5 text-xs text-cream/60">{cs.type}</p></div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                    <Eye className="h-4 w-4 shrink-0 text-cream/50" />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
         <RelatedSection title="جلسات العميل" icon={CalendarDays}
-          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
-          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
