@@ -403,7 +403,7 @@ function RelatedSection({
   title, icon: Icon, items,
 }: {
   title: string; icon: typeof Briefcase;
-  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string }[];
+  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string; onClick?: () => void }[];
 }) {
   if (items.length === 0) return null;
   return (
@@ -411,7 +411,8 @@ function RelatedSection({
       <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Icon className="h-4 w-4" /> {title} <span className="text-cream/40">({items.length})</span></h3>
       <div className="space-y-3">
         {items.map((it) => (
-          <div key={it.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+          <div key={it.id} onClick={it.onClick} role={it.onClick ? "button" : undefined}
+            className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3 ${it.onClick ? "cursor-pointer transition-colors hover:border-gold/40" : ""}`}>
             <div className="min-w-0">
               <p className="text-sm font-bold text-cream">{it.primary}</p>
               {it.secondary && <p className="mt-0.5 text-xs text-cream/60">{it.secondary}</p>}
@@ -420,6 +421,7 @@ function RelatedSection({
             <div className="flex items-center gap-2">
               {it.amount && <span className="text-sm font-extrabold text-cream">{it.amount}</span>}
               {it.status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[it.status] ?? "bg-white/10 text-cream/60"}`}>{it.status}</span>}
+              {it.onClick && <Eye className="h-4 w-4 shrink-0 text-cream/50" />}
             </div>
           </div>
         ))}
