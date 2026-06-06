@@ -35,6 +35,7 @@ import {
   FileText,
   Gavel,
   Hash,
+  ArrowRight,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth, logout } from "@/lib/auth";
@@ -52,6 +53,7 @@ import {
   courts,
   sessionTypes,
   invoiceItems,
+  caseDegrees,
   type DashCase,
   type DashClient,
   type DashSession,
