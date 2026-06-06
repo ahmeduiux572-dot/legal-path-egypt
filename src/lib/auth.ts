@@ -11,7 +11,9 @@ const STORAGE_KEY = "muhamik_auth";
 const listeners = new Set<() => void>();
 
 let cache: AuthUser | null = null;
-let cacheRaw: string | null = null;
+// `undefined` is an "unset" sentinel that can never equal a real stored value
+// (which is always `string | null`), so emit() always forces a re-read.
+let cacheRaw: string | null | undefined = undefined;
 
 function read(): AuthUser | null {
   if (typeof window === "undefined") return null;
@@ -36,7 +38,7 @@ function read(): AuthUser | null {
 
 function emit() {
   // Invalidate the cache so the next read picks up the new value.
-  cacheRaw = null;
+  cacheRaw = undefined;
   listeners.forEach((l) => l());
 }
 
