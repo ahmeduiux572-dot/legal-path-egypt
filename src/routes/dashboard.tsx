@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -8,7 +8,6 @@ import {
   Receipt,
   Wallet,
   Sparkles,
-  LogOut,
   Bell,
   Clock,
   MapPin,
@@ -47,7 +46,7 @@ import {
   MonitorUp,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
-import { useAuth, logout } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import {
   dashCases,
   dashClients,
@@ -93,6 +92,7 @@ type SectionId =
   | "sessions"
   | "consultations"
   | "invoices"
+  | "documents"
   | "wallet"
   | "ai";
 
@@ -101,12 +101,68 @@ const nav: { id: SectionId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "profile", label: "الملف الشخصي", icon: UserCircle },
   { id: "cases", label: "القضايا", icon: Briefcase },
   { id: "clients", label: "العملاء", icon: Users },
-  { id: "sessions", label: "الجلسات", icon: CalendarDays },
+  { id: "sessions", label: "الجلسات والتذكيرات", icon: CalendarDays },
   { id: "consultations", label: "الاستشارات", icon: MessageSquare },
   { id: "invoices", label: "الفواتير", icon: Receipt },
+  { id: "documents", label: "المستندات", icon: FileText },
   { id: "wallet", label: "المحفظة", icon: Wallet },
   { id: "ai", label: "الذكاء الاصطناعي القانوني", icon: Sparkles },
 ];
+
+/* ---------- Cross-section navigation ---------- */
+type NavRequest = { section: SectionId; id: string; nonce: number };
+const DashNavContext = createContext<{
+  go: (section: SectionId, id: string) => void;
+  request: NavRequest | null;
+}>({ go: () => {}, request: null });
+function useDashNav() {
+  return useContext(DashNavContext);
+}
+
+/* Open a document/attachment in a new tab as a styled preview */
+function openDocument(name: string) {
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(`<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${name}</title>
+  <style>
+    body{margin:0;background:#0d1526;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;justify-content:center;padding:32px}
+    .page{background:#fff;color:#1a2238;width:100%;max-width:794px;min-height:1000px;border-radius:6px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:64px}
+    .brand{color:#c9a24d;font-weight:800;letter-spacing:1px;font-size:14px;margin-bottom:40px}
+    h1{font-size:22px;border-bottom:2px solid #c9a24d;padding-bottom:14px;margin:0 0 28px}
+    p{line-height:2;color:#3a4358}
+    .ph{height:14px;background:#eef0f4;border-radius:4px;margin:14px 0}
+    .ph.s{width:60%}.ph.m{width:85%}
+    .stamp{margin-top:60px;display:inline-block;border:2px dashed #c9a24d;color:#c9a24d;padding:10px 18px;border-radius:8px;font-weight:700}
+  </style></head><body><div class="page">
+    <div class="brand">منصة محامٍ — مستند قانوني</div>
+    <h1>${name}</h1>
+    <p>هذا عرض توضيحي للمستند داخل المنصة. في النسخة المتصلة بالخادم سيتم تحميل الملف الأصلي المرفوع وعرضه هنا بصيغته الكاملة.</p>
+    <div class="ph m"></div><div class="ph"></div><div class="ph s"></div>
+    <div class="ph m"></div><div class="ph"></div><div class="ph s"></div>
+    <div class="stamp">معتمد — منصة محامٍ</div>
+  </div></body></html>`);
+  w.document.close();
+}
+
+/* Reusable list of clickable document attachments */
+function DocFiles({ files }: { files: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {files.map((f, i) => (
+        <li key={`${f}-${i}`}>
+          <button type="button" onClick={() => openDocument(f)}
+            className="flex w-full items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75 transition-colors hover:border-gold hover:text-gold">
+            <FileText className="h-4 w-4 shrink-0 text-gold" />
+            <span className="truncate">{f}</span>
+            <Eye className="mr-auto h-3.5 w-3.5 shrink-0 opacity-60" />
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const card = "rounded-2xl border border-white/10 bg-navy-card/60 p-6";
 const fieldCls =
@@ -129,17 +185,19 @@ function DashboardPage() {
   const user = useAuth();
   const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>("overview");
+  const [request, setRequest] = useState<NavRequest | null>(null);
 
   useEffect(() => {
     if (user === null) navigate({ to: "/login" });
   }, [user, navigate]);
 
-  const handleLogout = () => {
-    logout();
-    navigate({ to: "/" });
+  const go = (s: SectionId, id: string) => {
+    setSection(s);
+    setRequest({ section: s, id, nonce: Date.now() });
   };
 
   return (
+   <DashNavContext.Provider value={{ go, request }}>
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center md:px-8">
@@ -156,9 +214,6 @@ function DashboardPage() {
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
               <Bell className="h-4 w-4 text-gold" /> الإشعارات
-            </button>
-            <button onClick={handleLogout} className="flex items-center gap-2 rounded-md border border-gold/50 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
-              <LogOut className="h-4 w-4 text-gold" /> تسجيل الخروج
             </button>
           </div>
         </div>
@@ -190,11 +245,13 @@ function DashboardPage() {
           {section === "sessions" && <Sessions />}
           {section === "consultations" && <Consultations />}
           {section === "invoices" && <Invoices />}
+          {section === "documents" && <Documents />}
           {section === "wallet" && <WalletPanel />}
           {section === "ai" && <LegalAI />}
         </div>
       </div>
     </div>
+   </DashNavContext.Provider>
   );
 }
 
@@ -329,6 +386,29 @@ function DetailGrid({ title, children }: { title: string; children: React.ReactN
   );
 }
 
+/* Linked case card with a "view case" action that navigates to the case detail */
+function LinkedCaseGrid({ linkedCase }: { linkedCase: DashCase }) {
+  const { go } = useDashNav();
+  return (
+    <div className={card}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-gold"><Briefcase className="h-4 w-4" /> القضية المرتبطة</h3>
+        <button onClick={() => go("cases", linkedCase.id)}
+          className="flex items-center gap-1.5 rounded-md bg-gold/15 px-3 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/25">
+          <Eye className="h-3.5 w-3.5" /> عرض القضية
+        </button>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <DetailItem label="عنوان القضية" value={linkedCase.title} />
+        <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+        <DetailItem label="نوع القضية" value={linkedCase.type} />
+        <DetailItem label="المحكمة" value={linkedCase.court} />
+        <DetailItem label="حالة القضية" value={linkedCase.status} />
+      </div>
+    </div>
+  );
+}
+
 /* A single label/value cell that renders only when a value exists */
 function DetailItem({ label, value, full }: { label: string; value?: string | number | null; full?: boolean }) {
   if (value === undefined || value === null || value === "" || value === "—") return null;
@@ -340,12 +420,13 @@ function DetailItem({ label, value, full }: { label: string; value?: string | nu
   );
 }
 
+/* Linked case card with a "view case" action that navigates to the case detail */
 /* A list of related records (sessions / invoices / consultations) shown in a detail page */
 function RelatedSection({
   title, icon: Icon, items,
 }: {
   title: string; icon: typeof Briefcase;
-  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string }[];
+  items: { id: string; primary: string; secondary?: string; meta?: string; status?: string; amount?: string; onClick?: () => void }[];
 }) {
   if (items.length === 0) return null;
   return (
@@ -353,7 +434,8 @@ function RelatedSection({
       <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Icon className="h-4 w-4" /> {title} <span className="text-cream/40">({items.length})</span></h3>
       <div className="space-y-3">
         {items.map((it) => (
-          <div key={it.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+          <div key={it.id} onClick={it.onClick} role={it.onClick ? "button" : undefined}
+            className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-3 ${it.onClick ? "cursor-pointer transition-colors hover:border-gold/40" : ""}`}>
             <div className="min-w-0">
               <p className="text-sm font-bold text-cream">{it.primary}</p>
               {it.secondary && <p className="mt-0.5 text-xs text-cream/60">{it.secondary}</p>}
@@ -362,6 +444,7 @@ function RelatedSection({
             <div className="flex items-center gap-2">
               {it.amount && <span className="text-sm font-extrabold text-cream">{it.amount}</span>}
               {it.status && <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[it.status] ?? "bg-white/10 text-cream/60"}`}>{it.status}</span>}
+              {it.onClick && <Eye className="h-4 w-4 shrink-0 text-cream/50" />}
             </div>
           </div>
         ))}
@@ -500,9 +583,9 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
   const clientInitial = consultation.client.trim().charAt(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-navy p-3 sm:p-5">
+    <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-gradient-navy p-3 sm:p-5">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+      <div className="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-bold text-cream">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
@@ -513,9 +596,9 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
       </div>
 
       {/* Video tiles */}
-      <div className="my-3 grid flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+      <div className="my-3 grid min-h-0 flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
         {/* Client tile (large) */}
-        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{clientInitial}</div>
           <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
@@ -523,7 +606,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
           </span>
         </div>
         {/* Lawyer tile */}
-        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
           {camOn ? (
             <img src={lawyer.image} alt={lawyer.name} className="h-full w-full object-cover" />
           ) : (
@@ -536,7 +619,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+      <div className="flex shrink-0 items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
         <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
           className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
           {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
@@ -716,6 +799,7 @@ function Info({ label, value }: { label: string; value: string }) {
 /* ---------- Cases ---------- */
 function Cases() {
   const [items, setItems] = useState<DashCase[]>(dashCases);
+  const { go, request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -728,6 +812,7 @@ function Cases() {
   const [files, setFiles] = useState<string[]>([]);
   const clientNames = dashClients.map((c) => c.name);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "cases") setViewingId(request.id); }, [request]);
 
   const baseTimeline = (c: DashCase): DashTLEvent[] => [
     { id: "b1", title: "تم إنشاء القضية", date: c.startDate ?? "—" },
@@ -844,19 +929,13 @@ function Cases() {
           <div className={card}>
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
             {c.description && <p className="mb-4 text-sm leading-relaxed text-cream/85">{c.description}</p>}
-            {c.files && c.files.length > 0 && (
-              <ul className="space-y-2">
-                {c.files.map((f, i) => (
-                  <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
-                ))}
-              </ul>
-            )}
+            {c.files && c.files.length > 0 && <DocFiles files={c.files} />}
           </div>
         )}
         <RelatedSection title="جلسات القضية" icon={CalendarDays}
-          items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+          items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير القضية" icon={Receipt}
-          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
@@ -905,6 +984,7 @@ function Cases() {
 /* ---------- Clients ---------- */
 function Clients() {
   const [items, setItems] = useState<DashClient[]>(dashClients);
+  const { go, request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -914,6 +994,7 @@ function Clients() {
   const [form, setForm] = useState(emptyForm);
   const [files, setFiles] = useState<string[]>([]);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "clients") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
 
@@ -992,11 +1073,7 @@ function Clients() {
         {c.files && c.files.length > 0 && (
           <div className={card}>
             <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Paperclip className="h-4 w-4" /> المرفقات <span className="text-cream/40">({c.files.length})</span></h3>
-            <ul className="space-y-2">
-              {c.files.map((f, i) => (
-                <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
-              ))}
-            </ul>
+            <DocFiles files={c.files} />
           </div>
         )}
         {relatedCases.length > 0 && (
@@ -1004,18 +1081,22 @@ function Clients() {
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
             <div className="space-y-3">
               {relatedCases.map((cs) => (
-                <div key={cs.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+                <div key={cs.id} onClick={() => go("cases", cs.id)} role="button"
+                  className="flex cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3 transition-colors hover:border-gold/40">
                   <div><p className="text-sm font-bold text-cream">{cs.title}</p><p className="mt-0.5 text-xs text-cream/60">{cs.type}</p></div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                    <Eye className="h-4 w-4 shrink-0 text-cream/50" />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
         <RelatedSection title="جلسات العميل" icon={CalendarDays}
-          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
+          items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
-          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -1053,6 +1134,7 @@ function Clients() {
 /* ---------- Sessions ---------- */
 function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -1067,6 +1149,7 @@ function Sessions() {
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
   const viewing = items.find((s) => s.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "sessions") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
@@ -1147,14 +1230,7 @@ function Sessions() {
           <DetailItem label="الوقت" value={s.time} />
           <DetailItem label="المكان" value={s.location} full />
         </DetailGrid>
-        {linkedCase && (
-          <DetailGrid title="بيانات القضية المرتبطة">
-            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-            <DetailItem label="نوع القضية" value={linkedCase.type} />
-            <DetailItem label="المحكمة" value={linkedCase.court} />
-            <DetailItem label="حالة القضية" value={linkedCase.status} />
-          </DetailGrid>
-        )}
+        {linkedCase && <LinkedCaseGrid linkedCase={linkedCase} />}
         {s.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
@@ -1189,8 +1265,16 @@ function Sessions() {
                 title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
                 className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
-                {sessions?.map((s) => <p key={s.id} className="mt-1 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`${s.title} - ${s.time}`}>{s.time} {s.title}</p>)}
-                {consultation && <p className="mt-1 flex items-center gap-1 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400"><MessageSquare className="h-2.5 w-2.5" /> استشارة</p>}
+                {sessions?.map((s) => (
+                  <p key={s.id} className="mt-1 flex items-center gap-0.5 truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold" title={`جلسة: ${s.title} - ${s.time}`}>
+                    <CalendarDays className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">جلسة: {s.title}</span>
+                  </p>
+                ))}
+                {consultation && (
+                  <p className="mt-1 flex items-center gap-0.5 truncate rounded bg-emerald-500/15 px-1 py-0.5 text-[10px] text-emerald-400" title={`استشارة: ${consultation.subject}`}>
+                    <MessageSquare className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">استشارة: {consultation.subject}</span>
+                  </p>
+                )}
               </button>
             );
           })}
@@ -1285,6 +1369,7 @@ function Sessions() {
 const channelIcon: Record<string, typeof Video> = { "أونلاين": Video, "مكتب": Building2, "هاتف": Phone };
 function Consultations() {
   const [items, setItems] = useState<DashConsultation[]>(dashConsultations);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -1294,6 +1379,7 @@ function Consultations() {
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "consultations") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
@@ -1353,14 +1439,7 @@ function Consultations() {
           <DetailItem label="الحالة" value={c.status} />
           <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
-        {linkedCase && (
-          <DetailGrid title="بيانات القضية المرتبطة">
-            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-            <DetailItem label="نوع القضية" value={linkedCase.type} />
-            <DetailItem label="المحكمة" value={linkedCase.court} />
-            <DetailItem label="حالة القضية" value={linkedCase.status} />
-          </DetailGrid>
-        )}
+        {linkedCase && <LinkedCaseGrid linkedCase={linkedCase} />}
         {c.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
@@ -1418,6 +1497,7 @@ function Consultations() {
 /* ---------- Invoices ---------- */
 function Invoices() {
   const [items, setItems] = useState<DashInvoice[]>(dashInvoices);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -1428,6 +1508,7 @@ function Invoices() {
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
   const viewing = items.find((i) => i.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "invoices") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
@@ -1496,14 +1577,7 @@ function Invoices() {
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
-        {linkedCase && (
-          <DetailGrid title="بيانات القضية المرتبطة">
-            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-            <DetailItem label="نوع القضية" value={linkedCase.type} />
-            <DetailItem label="المحكمة" value={linkedCase.court} />
-            <DetailItem label="حالة القضية" value={linkedCase.status} />
-          </DetailGrid>
-        )}
+        {linkedCase && <LinkedCaseGrid linkedCase={linkedCase} />}
         {inv.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
@@ -1548,6 +1622,72 @@ function Invoices() {
 /* ---------- Wallet ---------- */
 const walletMethods = ["فودافون كاش", "أورنج كاش", "اتصالات كاش", "إنستا باي"];
 function WalletPanel() {
+  return <WalletPanelImpl />;
+}
+
+/* ---------- Documents ---------- */
+type DocSourceKind = "case" | "client";
+interface DocRow { id: string; name: string; sourceName: string; sourceKind: DocSourceKind; sourceId: string; }
+function Documents() {
+  const { go } = useDashNav();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+
+  const rows: DocRow[] = [
+    ...dashCases.flatMap((c) => (c.files ?? []).map((f, i) => ({ id: `case-${c.id}-${i}`, name: f, sourceName: c.title, sourceKind: "case" as DocSourceKind, sourceId: c.id }))),
+    ...dashClients.flatMap((cl) => (cl.files ?? []).map((f, i) => ({ id: `client-${cl.id}-${i}`, name: f, sourceName: cl.name, sourceKind: "client" as DocSourceKind, sourceId: cl.id }))),
+  ];
+  const filtered = rows.filter((r) =>
+    (filter === "all" || r.sourceKind === filter) &&
+    (r.name.includes(search) || r.sourceName.includes(search))
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي المستندات</p><p className="mt-2 text-2xl font-extrabold text-cream">{rows.length}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات القضايا</p><p className="mt-2 text-2xl font-extrabold text-gold">{rows.filter((r) => r.sourceKind === "case").length}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستندات العملاء</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{rows.filter((r) => r.sourceKind === "client").length}</p></div>
+      </div>
+      <div className={card}>
+        <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><FileText className="h-5 w-5 text-gold" /> المستندات</h2>
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث في المستندات..." className={`${fieldCls} pr-9`} />
+          </div>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`${fieldCls} sm:w-44`}>
+            <option value="all" className="bg-navy-deep">كل المصادر</option>
+            <option value="case" className="bg-navy-deep">مستندات القضايا</option>
+            <option value="client" className="bg-navy-deep">مستندات العملاء</option>
+          </select>
+        </div>
+        <div className="space-y-3">
+          {filtered.map((r) => (
+            <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+              <button type="button" onClick={() => openDocument(r.name)} className="flex min-w-0 items-center gap-3 text-start">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold/15 text-gold"><FileText className="h-5 w-5" /></span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-cream">{r.name}</span>
+                  <span className="mt-0.5 block text-xs text-cream/55">{r.sourceKind === "case" ? "قضية" : "عميل"}: {r.sourceName}</span>
+                </span>
+              </button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => openDocument(r.name)} className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"><Eye className="h-4 w-4" /> فتح</button>
+                <button type="button" onClick={() => go(r.sourceKind === "case" ? "cases" : "clients", r.sourceId)} className="flex h-9 items-center gap-1.5 rounded-lg border border-white/15 px-3 text-xs font-semibold text-cream/80 transition-colors hover:border-gold hover:text-gold">
+                  {r.sourceKind === "case" ? <Briefcase className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />} المصدر
+                </button>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد مستندات.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WalletPanelImpl() {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState(walletMethods[0]);
