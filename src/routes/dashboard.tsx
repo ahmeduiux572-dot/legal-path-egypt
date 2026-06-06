@@ -534,16 +534,17 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", email: "" });
+  const emptyForm = { name: "", phone: "", email: "", type: "فرد", city: "", nationalId: "" };
+  const [form, setForm] = useState(emptyForm);
 
   const filtered = items.filter((c) =>
     (filter === "all" || (filter === "active" ? c.cases > 0 : c.cases === 0)) &&
-    (c.name.includes(search) || c.phone.includes(search) || c.email.includes(search))
+    (c.name.includes(search) || c.phone.includes(search) || c.email.includes(search) || (c.city ?? "").includes(search))
   );
   const add = (e: React.FormEvent) => {
     e.preventDefault();
-    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026" }, ...p]);
-    setForm({ name: "", phone: "", email: "" });
+    setItems((p) => [{ id: `u${Date.now()}`, name: form.name, phone: form.phone, email: form.email, cases: 0, since: "يونيو 2026", type: form.type as DashClient["type"], city: form.city || undefined, nationalId: form.nationalId || undefined }, ...p]);
+    setForm(emptyForm);
     setOpen(false);
   };
   return (
@@ -571,10 +572,15 @@ function Clients() {
       {open && (
         <Modal title="إضافة عميل" onClose={() => setOpen(false)}>
           <form onSubmit={add} className="space-y-4">
-            <Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
-            <Field label="الهاتف"><input className={fieldCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
-            <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
-            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة</button>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Field label="الاسم"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
+              <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
+              <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+              <Field label="الهاتف"><input type="tel" className={fieldCls} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></Field>
+              <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></Field>
+              <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
+            </div>
+            <button type="submit" className="w-full rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">إضافة العميل</button>
           </form>
         </Modal>
       )}
