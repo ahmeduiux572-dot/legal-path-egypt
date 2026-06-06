@@ -1294,6 +1294,7 @@ function Invoices() {
   if (viewing) {
     const inv = viewing;
     const taxAmount = inv.tax ? Math.round(inv.amount * inv.tax / 100) : 0;
+    const linkedCase = dashCases.find((cs) => cs.title === inv.caseRef);
     return (
       <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />}>
@@ -1315,6 +1316,14 @@ function Invoices() {
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
+        {linkedCase && (
+          <DetailGrid title="بيانات القضية المرتبطة">
+            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
+            <DetailItem label="نوع القضية" value={linkedCase.type} />
+            <DetailItem label="المحكمة" value={linkedCase.court} />
+            <DetailItem label="حالة القضية" value={linkedCase.status} />
+          </DetailGrid>
+        )}
         {inv.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
