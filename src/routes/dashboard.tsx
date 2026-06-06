@@ -236,6 +236,48 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
+/* Full-page form wrapper (replaces modals) */
+function FormPage({
+  title, subtitle, icon: Icon, onBack, onSubmit, submitLabel, children,
+}: {
+  title: string; subtitle?: string; icon: typeof Briefcase;
+  onBack: () => void; onSubmit: (e: React.FormEvent) => void; submitLabel: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-cream transition-colors hover:bg-white/5 hover:text-gold">
+          <ArrowRight className="h-5 w-5" />
+        </button>
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Icon className="h-5 w-5 text-gold" /> {title}</h2>
+          {subtitle && <p className="mt-0.5 text-sm text-cream/55">{subtitle}</p>}
+        </div>
+      </div>
+      <form onSubmit={onSubmit} className={card}>
+        <div className="space-y-6">{children}</div>
+        <div className="mt-8 flex gap-3">
+          <button type="button" onClick={onBack} className="flex-1 rounded-lg border border-white/15 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5 sm:flex-none sm:px-8">إلغاء</button>
+          <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:flex-none sm:px-10">
+            <Save className="h-4 w-4" /> {submitLabel}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* Section title inside a form page */
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">{title}</h3>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+    </div>
+  );
+}
+
 /* Reusable select with a placeholder option */
 function SelectField({
   label, value, onChange, options, placeholder, required,
