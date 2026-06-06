@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scale, GraduationCap, Building2, ShieldCheck, MessageSquare, Clock, ArrowLeft } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
+import { FirmCard } from "@/components/FirmCard";
 import { AdCarousel } from "@/components/AdCarousel";
 import { topRated, mostConsulted } from "@/data/lawyers";
+import { topFirms } from "@/data/firms";
 import heroLegal from "@/assets/hero-legal.jpg";
 import library from "@/assets/library.jpg";
 
@@ -122,6 +124,18 @@ function Index() {
 
       {/* Ad carousel */}
       <AdCarousel />
+
+      {/* Top law firms */}
+      <section className="bg-navy-deep pb-16 pt-16">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <SectionHeading light title="أشهر مكاتب المحاماة" subtitle="نخبة من أعرق مكاتب المحاماة في مصر والشرق الأوسط بخبرات ممتدة وفرق متخصصة." />
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {topFirms.map((f) => (
+              <FirmCard key={f.id} firm={f} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Top rated */}
       <section className="bg-navy pb-16">
