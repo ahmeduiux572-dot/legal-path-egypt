@@ -1497,6 +1497,7 @@ function Consultations() {
 /* ---------- Invoices ---------- */
 function Invoices() {
   const [items, setItems] = useState<DashInvoice[]>(dashInvoices);
+  const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
@@ -1507,6 +1508,7 @@ function Invoices() {
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
   const viewing = items.find((i) => i.id === viewingId) ?? null;
+  useEffect(() => { if (request?.section === "invoices") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
     setComments((p) => ({ ...p, [id]: [...(p[id] ?? []), { id: `cm${Date.now()}`, text, date: "الآن" }] }));
   const changeStatus = (id: string, status: string) =>
@@ -1575,14 +1577,7 @@ function Invoices() {
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
-        {linkedCase && (
-          <DetailGrid title="بيانات القضية المرتبطة">
-            <DetailItem label="رقم القضية" value={linkedCase.caseNumber} />
-            <DetailItem label="نوع القضية" value={linkedCase.type} />
-            <DetailItem label="المحكمة" value={linkedCase.court} />
-            <DetailItem label="حالة القضية" value={linkedCase.status} />
-          </DetailGrid>
-        )}
+        {linkedCase && <LinkedCaseGrid linkedCase={linkedCase} />}
         {inv.notes && (
           <div className={card}>
             <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
