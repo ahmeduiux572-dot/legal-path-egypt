@@ -1108,7 +1108,6 @@ function Consultations() {
 
   if (viewing) {
     const c = viewing;
-    const Icon = channelIcon[c.channel] ?? Video;
     return (
       <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
         actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
