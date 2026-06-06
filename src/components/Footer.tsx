@@ -74,14 +74,19 @@ export function Footer() {
         <div className="mt-12 border-t border-white/10 pt-6">
           <p className="mb-4 text-center text-sm text-cream/60">تابعنا عبر مواقع التواصل الاجتماعي</p>
           <div className="flex justify-center gap-3">
-            {[Twitter, Facebook, Linkedin, Instagram].map((Icon, i) => (
+            {[
+              { Icon: Facebook, color: "#1877F2", label: "Facebook" },
+              { Icon: Twitter, color: "#000000", label: "Twitter" },
+              { Icon: Linkedin, color: "#0A66C2", label: "LinkedIn" },
+              { Icon: Instagram, color: "#E4405F", label: "Instagram" },
+            ].map(({ Icon, color, label }) => (
               <a
-                key={i}
+                key={label}
                 href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-cream transition-colors hover:bg-gradient-gold hover:text-navy"
-                aria-label="social"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+                aria-label={label}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4" style={{ color }} />
               </a>
             ))}
           </div>
