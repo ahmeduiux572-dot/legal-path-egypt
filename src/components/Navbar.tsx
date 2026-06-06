@@ -76,12 +76,6 @@ export function Navbar() {
               >
                 انضم كمحامٍ
               </Link>
-              <Link
-                to="/lawyers"
-                className="rounded-md bg-gradient-gold px-4 py-2 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"
-              >
-                احجز استشارة
-              </Link>
             </>
           )}
         </div>
