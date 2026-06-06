@@ -19,6 +19,7 @@ export interface Firm {
   consultationPrice: number;
   about: string;
   lawyerIds: string[];
+  verified?: boolean;
 }
 
 const baseAbout =
@@ -94,6 +95,12 @@ export const firms: Firm[] = [
 export function getFirm(id: string): Firm | undefined {
   return firms.find((f) => f.id === id);
 }
+
+// Most firms are verified on the platform
+const unverifiedFirms = new Set(["almasader-law"]);
+firms.forEach((f) => {
+  f.verified = !unverifiedFirms.has(f.id);
+});
 
 export function getFirmLawyers(firm: Firm): Lawyer[] {
   return firm.lawyerIds
