@@ -1261,8 +1261,17 @@ function Consultations() {
     const c = viewing;
     const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
     return (
+      <>
+      {inCall && <VideoCall consultation={inCall} onClose={() => setInCall(null)} />}
       <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} onBack={() => setViewingId(null)}
-        actions={<StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />}>
+        actions={<div className="flex items-center gap-2">
+          {c.status !== "ملغاة" && (
+            <button onClick={() => setInCall(c)} className="flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+              <Video className="h-4 w-4" /> انضمام للمكالمة
+            </button>
+          )}
+          <StatusChanger value={c.status} options={["قادمة", "مكتملة", "ملغاة"]} onChange={(v) => changeStatus(c.id, v)} />
+        </div>}>
         <DetailGrid title="تفاصيل الاستشارة">
           <DetailItem label="العميل" value={c.client} />
           <DetailItem label="قناة التواصل" value={c.channel} />
@@ -1289,10 +1298,13 @@ function Consultations() {
         )}
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
+      </>
     );
   }
 
   return (
+    <>
+    {inCall && <VideoCall consultation={inCall} onClose={() => setInCall(null)} />}
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الاستشارات..." filter={filter} setFilter={setFilter}
@@ -1315,6 +1327,11 @@ function Consultations() {
               <div className="flex items-center gap-3">
                 <span className="font-extrabold text-cream">{c.price} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                {c.status !== "ملغاة" && (
+                  <button onClick={() => setInCall(c)} aria-label="انضمام للمكالمة" className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+                    <Video className="h-4 w-4" /> انضمام
+                  </button>
+                )}
                 <ViewButton onClick={() => setViewingId(c.id)} />
               </div>
             </div>
@@ -1323,6 +1340,7 @@ function Consultations() {
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
     </div>
+    </>
   );
 }
 
