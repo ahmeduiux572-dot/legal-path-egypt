@@ -989,6 +989,16 @@ function Clients() {
             <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
           </div>
         )}
+        {c.files && c.files.length > 0 && (
+          <div className={card}>
+            <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2 text-sm font-bold text-gold"><Paperclip className="h-4 w-4" /> المرفقات <span className="text-cream/40">({c.files.length})</span></h3>
+            <ul className="space-y-2">
+              {c.files.map((f, i) => (
+                <li key={`${f}-${i}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy-deep/50 px-3 py-2 text-sm text-cream/75"><FileText className="h-4 w-4 shrink-0 text-gold" /> {f}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         {relatedCases.length > 0 && (
           <div className={card}>
             <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
@@ -1006,8 +1016,6 @@ function Clients() {
           items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
           items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م` }))} />
-        <RelatedSection title="استشارات العميل" icon={MessageSquare}
-          items={relatedConsultations.map((co) => ({ id: co.id, primary: co.subject, secondary: `${co.date} — ${co.time}`, meta: co.channel, status: co.status, amount: `${co.price.toLocaleString()} ج.م` }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
