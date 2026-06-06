@@ -948,6 +948,7 @@ function Consultations() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashConsultation | null>(null);
   const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
   const [form, setForm] = useState(emptyForm);
 
@@ -980,6 +981,22 @@ function Consultations() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    return (
+      <DetailPage title={c.subject} subtitle={c.client} icon={MessageSquare} status={c.status} onBack={() => setViewing(null)}>
+        <DetailGrid title="تفاصيل الاستشارة">
+          <DetailItem label="العميل" value={c.client} />
+          <DetailItem label="قناة التواصل" value={c.channel} />
+          <DetailItem label="التاريخ" value={c.date} />
+          <DetailItem label="الوقت" value={c.time} />
+          <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
+          <DetailItem label="الحالة" value={c.status} />
+        </DetailGrid>
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
@@ -990,7 +1007,7 @@ function Consultations() {
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
           return (
-            <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+            <button key={c.id} type="button" onClick={() => setViewing(c)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
               <div>
                 <p className="font-bold text-cream">{c.subject}</p>
                 <p className="mt-0.5 text-sm text-cream/60">{c.client}</p>
@@ -1004,7 +1021,7 @@ function Consultations() {
                 <span className="font-extrabold text-cream">{c.price} ج.م</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
               </div>
-            </div>
+            </button>
           );
         })}
         {filtered.length === 0 && <p className="py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
