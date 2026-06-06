@@ -53,7 +53,7 @@ function LawyerProfile() {
               <h2 className="text-lg font-bold text-navy">{lawyer.title}</h2>
             </div>
             <div className="flex items-center justify-between border-b border-border py-4">
-              <span className="text-2xl font-extrabold text-navy">${lawyer.price}</span>
+              <span className="text-2xl font-extrabold text-navy">{lawyer.price} ج.م</span>
               <span className="text-sm text-muted-foreground">سعر الاستشارة</span>
             </div>
             <div className="flex items-center justify-between border-b border-border py-4">
