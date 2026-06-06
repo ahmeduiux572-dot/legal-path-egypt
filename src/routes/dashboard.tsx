@@ -698,6 +698,7 @@ function Clients() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<DashClient | null>(null);
   const emptyForm = { name: "", phone: "", altPhone: "", email: "", type: "فرد", city: "", nationalId: "", address: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
 
@@ -736,6 +737,47 @@ function Clients() {
     );
   }
 
+  if (viewing) {
+    const c = viewing;
+    const relatedCases = dashCases.filter((cs) => cs.client === c.name);
+    return (
+      <DetailPage title={c.name} subtitle={c.type ? `${c.type}${c.city ? ` — ${c.city}` : ""}` : c.city} icon={Users} onBack={() => setViewing(null)}>
+        <DetailGrid title="بيانات التواصل">
+          <DetailItem label="الهاتف" value={c.phone} />
+          <DetailItem label="هاتف بديل" value={c.altPhone} />
+          <DetailItem label="البريد الإلكتروني" value={c.email} />
+          <DetailItem label="العنوان" value={c.address} full />
+        </DetailGrid>
+        <DetailGrid title="بيانات التعريف">
+          <DetailItem label="نوع العميل" value={c.type} />
+          <DetailItem label="المدينة" value={c.city} />
+          <DetailItem label={c.type === "شركة" ? "السجل التجاري" : "الرقم القومي"} value={c.nationalId} />
+          <DetailItem label="عدد القضايا" value={c.cases} />
+          <DetailItem label="عميل منذ" value={c.since} />
+        </DetailGrid>
+        {c.notes && (
+          <div className={card}>
+            <h3 className="mb-3 border-b border-white/10 pb-2 text-sm font-bold text-gold">ملاحظات</h3>
+            <p className="text-sm leading-relaxed text-cream/85">{c.notes}</p>
+          </div>
+        )}
+        {relatedCases.length > 0 && (
+          <div className={card}>
+            <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">قضايا العميل</h3>
+            <div className="space-y-3">
+              {relatedCases.map((cs) => (
+                <div key={cs.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+                  <div><p className="text-sm font-bold text-cream">{cs.title}</p><p className="mt-0.5 text-xs text-cream/60">{cs.type}</p></div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[cs.status]}`}>{cs.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </DetailPage>
+    );
+  }
+
   return (
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Users className="h-5 w-5 text-gold" /> العملاء</h2>
@@ -744,7 +786,7 @@ function Clients() {
         onAdd={() => setAdding(true)} addLabel="إضافة عميل" />
       <div className="grid gap-4 sm:grid-cols-2">
         {filtered.map((c) => (
-          <div key={c.id} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
+          <button key={c.id} type="button" onClick={() => setViewing(c)} className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-start transition-colors hover:border-gold/30">
             <div className="flex items-center justify-between">
               <p className="font-bold text-cream">{c.name}</p>
               <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold">{c.cases} قضية</span>
@@ -754,7 +796,7 @@ function Clients() {
               <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gold" /> {c.email}</p>
               <p className="text-xs text-cream/45">عميل منذ {c.since}</p>
             </div>
-          </div>
+          </button>
         ))}
         {filtered.length === 0 && <p className="col-span-full py-6 text-center text-sm text-cream/50">لا توجد نتائج.</p>}
       </div>
