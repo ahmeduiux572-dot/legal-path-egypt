@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
+import { FirmsExplorer } from "@/components/FirmsExplorer";
 import { lawyers, specialties, cities } from "@/data/lawyers";
 
 export const Route = createFileRoute("/lawyers/")({
@@ -46,6 +47,17 @@ function LawyersPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+        {/* Law firms */}
+        <div className="mb-14">
+          <SectionHeading light title="مكاتب المحاماة" subtitle="تصفّح أشهر مكاتب المحاماة وابحث عن المكتب المناسب حسب التخصص والمدينة." />
+          <div className="mt-10">
+            <FirmsExplorer />
+          </div>
+        </div>
+
+        <SectionHeading light title="المحامون" subtitle="ابحث عن المحامي المناسب حسب التخصص والتقييم والمدينة." />
+        <div className="h-8" />
+
         {/* Filters */}
         <div className="mb-10 grid gap-3 rounded-xl border border-white/10 bg-navy-card/50 p-4 md:grid-cols-4">
           <div className="relative md:col-span-2">
