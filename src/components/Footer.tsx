@@ -6,7 +6,7 @@ const columns = [
   {
     title: "المنصة",
     links: [
-      { label: "عن مُحَامٌ", to: "/" },
+      { label: "عن مُحامٍ", to: "/" },
       { label: "المحامون", to: "/lawyers" },
       { label: "سوق القضايا", to: "/cases" },
       { label: "النماذج القانونية", to: "/templates" },
@@ -91,7 +91,7 @@ export function Footer() {
             ))}
           </div>
           <p className="mt-6 text-center text-xs text-cream/45">
-            © {new Date().getFullYear()} مُحَامٌ. جميع الحقوق محفوظة.
+            © {new Date().getFullYear()} مُحامٍ. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>

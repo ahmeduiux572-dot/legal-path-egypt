@@ -33,7 +33,7 @@ function buildHtml(inv: DashInvoice) {
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<title>فاتورة ${esc(inv.number)} — مُحَامٌ</title>
+<title>فاتورة ${esc(inv.number)} — مُحامٍ</title>
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -102,7 +102,7 @@ function buildHtml(inv: DashInvoice) {
 <body>
   <div class="sheet">
     <div class="head">
-      <div class="brand">مُحَامٌ<span>.</span><small>المنصة القانونية الرقمية</small></div>
+      <div class="brand">مُحامٍ<span>.</span><small>المنصة القانونية الرقمية</small></div>
       <div class="doc-title">
         <h1>فاتورة</h1>
         <p>${esc(inv.number)}</p>
@@ -154,8 +154,8 @@ function buildHtml(inv: DashInvoice) {
     ${inv.notes ? `<div class="notes"><h3>ملاحظات</h3><p>${esc(inv.notes)}</p></div>` : ""}
 
     <div class="foot">
-      <div>شكراً لتعاملكم مع <span>مُحَامٌ</span></div>
-      <div>منصة مُحَامٌ — القانون والتكنولوجيا</div>
+      <div>شكراً لتعاملكم مع <span>مُحامٍ</span></div>
+      <div>منصة مُحامٍ — القانون والتكنولوجيا</div>
     </div>
   </div>
   <script>

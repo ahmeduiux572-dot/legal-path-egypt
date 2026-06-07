@@ -3,10 +3,10 @@ import logo from "@/assets/mohaam-logo.png";
 
 export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
   return (
-    <Link to="/" className="flex items-center" aria-label="مُحَامٌ MOHAAM">
+    <Link to="/" className="flex items-center" aria-label="مُحامٍ MOHAAM">
       <img
         src={logo}
-        alt="شعار منصة مُحَامٌ MOHAAM"
+        alt="شعار منصة مُحامٍ MOHAAM"
         className="h-16 w-auto object-contain md:h-20 lg:h-24"
       />
     </Link>

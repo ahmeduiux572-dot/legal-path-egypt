@@ -9,9 +9,9 @@ import { lawyers, specialties, cities } from "@/data/lawyers";
 export const Route = createFileRoute("/lawyers/")({
   head: () => ({
     meta: [
-      { title: "المحامون | مُحَامٌ" },
+      { title: "المحامون | مُحامٍ" },
       { name: "description", content: "تصفح قائمة المحامين والمستشارين القانونيين، ابحث وفلتر حسب التخصص والمدينة." },
-      { property: "og:title", content: "المحامون | مُحَامٌ" },
+      { property: "og:title", content: "المحامون | مُحامٍ" },
       { property: "og:description", content: "ابحث عن المحامي المناسب حسب التخصص والتقييم والمدينة." },
     ],
   }),
