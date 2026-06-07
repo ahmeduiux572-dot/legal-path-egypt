@@ -7,7 +7,7 @@ export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
       <img
         src={logo}
         alt="شعار منصة مُحَامٌ MOHAAM"
-        className="h-12 w-auto object-contain md:h-14"
+        className="h-16 w-auto object-contain md:h-20 lg:h-24"
       />
     </Link>
   );
