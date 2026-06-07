@@ -110,6 +110,7 @@ type SectionId =
   | "consultations"
   | "invoices"
   | "documents"
+  | "library"
   | "wallet"
   | "ai";
 
@@ -122,6 +123,7 @@ const nav: { id: SectionId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "consultations", label: "الاستشارات", icon: MessageSquare },
   { id: "invoices", label: "الفواتير", icon: Receipt },
   { id: "documents", label: "المستندات", icon: FileText },
+  { id: "library", label: "المكتبة القانونية", icon: BookOpen },
   { id: "wallet", label: "المحفظة", icon: Wallet },
   { id: "ai", label: "الذكاء الاصطناعي القانوني", icon: Sparkles },
 ];
