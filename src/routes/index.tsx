@@ -12,9 +12,9 @@ import library from "@/assets/library.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "مُحَامٌ | منصة قانونية رقمية في مصر والشرق الأوسط" },
-      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة مُحَامٌ." },
-      { property: "og:title", content: "مُحَامٌ | منصة قانونية رقمية" },
+      { title: "مُحامٍ | منصة قانونية رقمية في مصر والشرق الأوسط" },
+      { name: "description", content: "تواصل مع أفضل المحامين، احجز استشارة قانونية، تصفح سوق القضايا والنماذج القانونية على منصة مُحامٍ." },
+      { property: "og:title", content: "مُحامٍ | منصة قانونية رقمية" },
       { property: "og:description", content: "أول بنية رقمية للمحاماة في مصر والشرق الأوسط — استشارات قانونية موثوقة بسهولة وأمان." },
     ],
   }),
@@ -57,7 +57,7 @@ function Index() {
               منصة قانونية رقمية · مصر والشرق الأوسط
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-cream md:text-6xl">
-              مُحَامٌ
+              مُحامٍ
               <span className="block text-gradient-gold">أول بنية رقمية للمحاماة في مصر والشرق الأوسط</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/80">

@@ -12,7 +12,7 @@ const inputSchema = z.object({
 
 // Compact Egyptian-law system prompt. Kept short on purpose to minimise token
 // usage while still grounding the model in the main Egyptian legal sources.
-const SYSTEM_PROMPT = `أنت مساعد قانوني مصري خبير داخل منصة "مُحَامٌ". تجيب فقط وفق القانون المصري وتستند إلى المصادر التالية عند الحاجة:
+const SYSTEM_PROMPT = `أنت مساعد قانوني مصري خبير داخل منصة "مُحامٍ". تجيب فقط وفق القانون المصري وتستند إلى المصادر التالية عند الحاجة:
 - الدستور المصري 2014.
 - القانون المدني رقم 131 لسنة 1948.
 - قانون العقوبات رقم 58 لسنة 1937 وقانون الإجراءات الجنائية رقم 150 لسنة 1950.

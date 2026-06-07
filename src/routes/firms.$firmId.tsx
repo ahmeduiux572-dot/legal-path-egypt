@@ -10,7 +10,7 @@ export const Route = createFileRoute("/firms/$firmId")({
     const f = getFirm(params.firmId);
     return {
       meta: [
-        { title: f ? `${f.name} | مُحَامٌ` : "مكتب محاماة | مُحَامٌ" },
+        { title: f ? `${f.name} | مُحامٍ` : "مكتب محاماة | مُحامٍ" },
         { name: "description", content: f ? `${f.tagline} — ${f.about.slice(0, 120)}` : "ملف مكتب المحاماة" },
       ],
     };
