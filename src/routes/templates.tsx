@@ -54,13 +54,13 @@ function TemplatesPage() {
               <span className="mt-4 text-xs text-gold">{t.category} · {t.pages} صفحات</span>
               <h3 className="mt-1 text-base font-bold text-cream">{t.title}</h3>
               <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-cream/65">{t.description}</p>
-              <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
+              <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-lg font-extrabold text-gold">{t.price} ج.م</span>
                 <BuyTemplateDialog
                   title={t.title}
                   price={t.price}
                   trigger={
-                    <button className="inline-flex items-center gap-1.5 rounded-md bg-gradient-gold px-4 py-2 text-sm font-bold text-navy transition-transform hover:-translate-y-0.5">
+                    <button className="inline-flex items-center justify-center gap-1.5 rounded-md bg-gradient-gold px-4 py-2 text-sm font-bold text-navy transition-transform hover:-translate-y-0.5">
                       <Download className="h-4 w-4" />
                       شراء
                     </button>
