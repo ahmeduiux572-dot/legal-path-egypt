@@ -66,7 +66,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   key={item.to}
                   to={item.to}
                   onClick={() => mobile && setOpen(false)}
-                  className={`group relative flex items-center gap-3 rounded-lg px-3.5 py-2 text-sm font-medium transition-all ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all ${
                     active
                       ? "bg-gold/10 text-gold"
                       : "text-cream/60 hover:bg-white/[0.04] hover:text-cream"
