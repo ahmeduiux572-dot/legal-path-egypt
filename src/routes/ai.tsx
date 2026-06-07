@@ -145,10 +145,14 @@ function AiPage() {
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.from === "user" ? "justify-start" : "justify-end"}`}>
-                <div className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "bg-gradient-gold text-navy" : "bg-navy-deep text-cream/90"}`}>
-                  {m.text || (loading && i === messages.length - 1 ? (
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.from === "user" ? "whitespace-pre-wrap bg-gradient-gold text-navy" : "bg-navy-deep text-cream/90"}`}>
+                  {m.from === "user" ? (
+                    m.text
+                  ) : m.text ? (
+                    <ChatMarkdown text={m.text} />
+                  ) : loading && i === messages.length - 1 ? (
                     <Loader2 className="h-4 w-4 animate-spin text-gold" />
-                  ) : null)}
+                  ) : null}
                 </div>
               </div>
             ))}
