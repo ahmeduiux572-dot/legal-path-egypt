@@ -144,5 +144,18 @@ export function Navbar() {
         </div>
       )}
     </header>
+
+    {/* Trust Ticker */}
+    <div className="relative z-40 overflow-hidden border-b border-gold/20 bg-gradient-to-r from-navy-deep via-navy to-navy-deep py-1.5">
+      <div className="animate-marquee flex whitespace-nowrap">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <span key={i} className="mx-8 inline-flex items-center gap-2 text-xs font-medium text-gold/90">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+            سرية تامة وحماية كاملة لبيانات المحامي وعملائه — بياناتك آمنة 100%
+          </span>
+        ))}
+      </div>
+    </div>
+    </>
   );
 }
