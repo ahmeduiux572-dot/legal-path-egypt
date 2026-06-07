@@ -1,11 +1,109 @@
 import { useState, type ReactNode } from "react";
-import { Search, FileText, Download, X } from "lucide-react";
+import { Search, FileText, Download, X, ArrowRight } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+/* ---------- زر الرجوع ---------- */
+export function BackButton({ label = "رجوع" }: { label?: string }) {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => router.history.back()}
+      className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-cream/70 transition-colors hover:text-gold"
+    >
+      <ArrowRight className="h-4 w-4" /> {label}
+    </button>
+  );
+}
+
+/* ---------- تبويبات ---------- */
+export function Tabs({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: { value: string; label: string; count?: number }[];
+  active: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="mb-5 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-navy-card/50 p-1">
+      {tabs.map((t) => (
+        <button
+          key={t.value}
+          onClick={() => onChange(t.value)}
+          className={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+            active === t.value ? "bg-gold text-navy-deep" : "text-cream/70 hover:bg-white/5"
+          }`}
+        >
+          {t.label}
+          {t.count != null && <span className="mr-1.5 text-xs opacity-70">({t.count})</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- تحليل التواريخ العربية وفلترة المدى ---------- */
+export const arMonths = [
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+];
+
+export function parseArabicDate(s?: string): number | null {
+  if (!s) return null;
+  const m = s.match(/(\d{1,2})\s+(\S+)\s+(\d{4})/);
+  if (!m) return null;
+  const mon = arMonths.indexOf(m[2]);
+  if (mon < 0) return null;
+  return new Date(Number(m[3]), mon, Number(m[1])).getTime();
+}
+
+/** يرجع true إذا كان التاريخ ضمن المدى المحدد (الحدود بصيغة YYYY-MM-DD) */
+export function inDateRange(dateStr: string | undefined, from: string, to: string): boolean {
+  if (!from && !to) return true;
+  const ts = parseArabicDate(dateStr);
+  if (ts == null) return false;
+  if (from && ts < new Date(from).getTime()) return false;
+  if (to && ts > new Date(to).getTime() + 86_399_000) return false;
+  return true;
+}
+
+export function DateRangeFilter({
+  from,
+  to,
+  onFrom,
+  onTo,
+}: {
+  from: string;
+  to: string;
+  onFrom: (v: string) => void;
+  onTo: (v: string) => void;
+}) {
+  const cls =
+    "h-10 rounded-xl border border-white/10 bg-navy-card/60 px-3 text-sm text-cream outline-none transition-colors focus:border-gold/40";
+  return (
+    <div className="flex items-center gap-2">
+      <input type="date" value={from} onChange={(e) => onFrom(e.target.value)} className={cls} aria-label="من تاريخ" />
+      <span className="text-sm text-cream/50">إلى</span>
+      <input type="date" value={to} onChange={(e) => onTo(e.target.value)} className={cls} aria-label="إلى تاريخ" />
+      {(from || to) && (
+        <button
+          onClick={() => { onFrom(""); onTo(""); }}
+          className="text-cream/50 transition-colors hover:text-gold"
+          aria-label="مسح التاريخ"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function PageHeader({
   title,
