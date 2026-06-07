@@ -41,7 +41,7 @@ export function FirmsExplorer() {
       {filtered.length === 0 ? (
         <p className="py-16 text-center text-cream/60">لا توجد مكاتب مطابقة لبحثك.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
           {filtered.map((f) => (<FirmCard key={f.id} firm={f} />))}
         </div>
       )}

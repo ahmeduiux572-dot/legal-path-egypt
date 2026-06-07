@@ -41,7 +41,7 @@ function CasesPage() {
           />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
           {cases.map((c) => (
             <div key={c.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-6 transition-all hover:-translate-y-1 hover:border-gold/40">
               <div className="flex items-center justify-between">
