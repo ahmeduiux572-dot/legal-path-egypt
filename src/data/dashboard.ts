@@ -52,6 +52,8 @@ export interface DashReminder {
   text: string;
   due: string;
   urgent: boolean;
+  day?: number;
+  time?: string;
 }
 
 export interface DashInvoice {

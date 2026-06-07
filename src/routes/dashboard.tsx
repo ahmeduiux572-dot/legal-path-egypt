@@ -356,7 +356,7 @@ function Toolbar({
   search: string; setSearch: (v: string) => void; placeholder: string;
   filter?: string; setFilter?: (v: string) => void; options?: { value: string; label: string }[];
   filter2?: string; setFilter2?: (v: string) => void; options2?: { value: string; label: string }[];
-  onAdd: () => void; addLabel: string;
+  onAdd?: () => void; addLabel?: string;
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -378,9 +378,11 @@ function Toolbar({
           ))}
         </select>
       )}
-      <button onClick={onAdd} className="flex items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
-        <Plus className="h-4 w-4" /> {addLabel}
-      </button>
+      {onAdd && (
+        <button onClick={onAdd} className="flex items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+          <Plus className="h-4 w-4" /> {addLabel}
+        </button>
+      )}
     </div>
   );
 }
@@ -1292,7 +1294,7 @@ function Clients() {
 /* ---------- Sessions ---------- */
 function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
-  const { request } = useDashNav();
+  const { request, go } = useDashNav();
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -1300,8 +1302,10 @@ function Sessions() {
   const [reminders, setReminders] = useState<DashReminder[]>(dashReminders);
   const [reminderModal, setReminderModal] = useState<{ day: number } | null>(null);
   const [reminderText, setReminderText] = useState("");
+  const [reminderTime, setReminderTime] = useState("");
   const [reminderUrgent, setReminderUrgent] = useState(false);
-  const [consultationModal, setConsultationModal] = useState<DashConsultation | null>(null);
+  const [dayModal, setDayModal] = useState<{ day: number } | null>(null);
+  const [reminderView, setReminderView] = useState<DashReminder | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -1325,19 +1329,29 @@ function Sessions() {
     const m = co.date.match(/\d+/);
     if (m) { const d = Number(m[0]); if (!consultationByDay.has(d)) consultationByDay.set(d, co); }
   });
+  const reminderByDay = new Map<number, DashReminder[]>();
+  reminders.forEach((r) => { if (r.day) { const a = reminderByDay.get(r.day) ?? []; a.push(r); reminderByDay.set(r.day, a); } });
   const today = 6;
 
-  const handleDayClick = (day: number) => {
-    const co = consultationByDay.get(day);
-    if (co) { setConsultationModal(co); return; }
+  const handleDayClick = (day: number) => setDayModal({ day });
+  const openAddReminder = (day: number) => {
+    setDayModal(null);
     setReminderModal({ day });
     setReminderText("");
+    setReminderTime("");
     setReminderUrgent(false);
   };
   const addReminder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reminderModal || !reminderText.trim()) return;
-    setReminders((p) => [{ id: `r${Date.now()}`, text: reminderText.trim(), due: `${reminderModal.day} يونيو 2026`, urgent: reminderUrgent }, ...p]);
+    setReminders((p) => [{
+      id: `r${Date.now()}`,
+      text: reminderText.trim(),
+      due: `${reminderModal.day} يونيو 2026${reminderTime ? ` — ${reminderTime}` : ""}`,
+      urgent: reminderUrgent,
+      day: reminderModal.day,
+      time: reminderTime || undefined,
+    }, ...p]);
     setReminderModal(null);
   };
 
@@ -1417,10 +1431,11 @@ function Sessions() {
             if (day === null) return <div key={`e${i}`} />;
             const sessions = sessionByDay.get(day);
             const consultation = consultationByDay.get(day);
+            const dayReminders = reminderByDay.get(day);
             const isToday = day === today;
             return (
               <button key={day} type="button" onClick={() => handleDayClick(day)}
-                title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
+                title="عرض مواعيد اليوم"
                 className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
                 {sessions?.map((s) => (
@@ -1433,6 +1448,11 @@ function Sessions() {
                     <MessageSquare className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">استشارة: {consultation.subject}</span>
                   </p>
                 )}
+                {dayReminders?.map((r) => (
+                  <p key={r.id} className="mt-1 flex items-center gap-0.5 truncate rounded bg-orange-500/15 px-1 py-0.5 text-[10px] text-orange-400" title={`تنبيه: ${r.text}`}>
+                    <Bell className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">تنبيه: {r.text}</span>
+                  </p>
+                ))}
               </button>
             );
           })}
@@ -1467,55 +1487,103 @@ function Sessions() {
         </div>
         <div className={card}>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><Bell className="h-5 w-5 text-gold" /> التذكيرات</h2>
-          <p className="mb-3 text-xs text-cream/45">اضغط على أي يوم في التقويم لإضافة تذكير، أو على يوم به استشارة لعرض تفاصيلها.</p>
+          <p className="mb-3 text-xs text-cream/45">اضغط على أي يوم في التقويم لعرض جلساته واستشاراته وتنبيهاته أو لإضافة تنبيه جديد بموعده.</p>
           <div className="space-y-3">
             {reminders.map((r) => (
-              <div key={r.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-3">
+              <button key={r.id} type="button" onClick={() => setReminderView(r)} className="flex w-full items-start gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-3 text-right transition-colors hover:border-gold/30">
                 {r.urgent ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold" />}
                 <div><p className="text-sm text-cream">{r.text}</p><p className="mt-1 text-xs text-cream/50">{r.due}</p></div>
-              </div>
+              </button>
             ))}
+            {reminders.length === 0 && <p className="py-4 text-center text-sm text-cream/50">لا توجد تنبيهات.</p>}
           </div>
         </div>
       </div>
 
       {reminderModal && (
-        <Modal title={`إضافة تذكير — ${reminderModal.day} يونيو 2026`} onClose={() => setReminderModal(null)}>
+        <Modal title={`إضافة تنبيه — ${reminderModal.day} يونيو 2026`} onClose={() => setReminderModal(null)}>
           <form onSubmit={addReminder} className="space-y-4">
-            <Field label="نص التذكير"><textarea rows={3} className={fieldCls} value={reminderText} onChange={(e) => setReminderText(e.target.value)} placeholder="مثال: تسليم مذكرة دفاع..." required /></Field>
+            <Field label="نص التنبيه"><textarea rows={3} className={fieldCls} value={reminderText} onChange={(e) => setReminderText(e.target.value)} placeholder="مثال: تسليم مذكرة دفاع..." required /></Field>
+            <Field label="وقت التنبيه"><input type="time" className={fieldCls} value={reminderTime} onChange={(e) => setReminderTime(e.target.value)} required /></Field>
             <label className="flex cursor-pointer items-center gap-2 text-sm text-cream/80">
-              <input type="checkbox" checked={reminderUrgent} onChange={(e) => setReminderUrgent(e.target.checked)} className="h-4 w-4 accent-gold" /> تذكير عاجل
+              <input type="checkbox" checked={reminderUrgent} onChange={(e) => setReminderUrgent(e.target.checked)} className="h-4 w-4 accent-gold" /> تنبيه عاجل
             </label>
             <div className="flex gap-3">
               <button type="button" onClick={() => setReminderModal(null)} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream hover:bg-white/5">إلغاء</button>
-              <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold"><Plus className="h-4 w-4" /> إضافة التذكير</button>
+              <button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold"><Plus className="h-4 w-4" /> إضافة التنبيه</button>
             </div>
           </form>
         </Modal>
       )}
 
-      {consultationModal && (
-        <Modal title="تفاصيل الاستشارة" onClose={() => setConsultationModal(null)}>
+      {dayModal && (() => {
+        const day = dayModal.day;
+        const sess = sessionByDay.get(day) ?? [];
+        const co = consultationByDay.get(day);
+        const rems = reminderByDay.get(day) ?? [];
+        const empty = sess.length === 0 && !co && rems.length === 0;
+        return (
+          <Modal title={`مواعيد يوم ${day} يونيو 2026`} onClose={() => setDayModal(null)}>
+            <div className="space-y-4">
+              {empty && <p className="py-2 text-center text-sm text-cream/55">لا توجد مواعيد في هذا اليوم.</p>}
+              {sess.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-gold">الجلسات</p>
+                  {sess.map((s) => (
+                    <button key={s.id} type="button" onClick={() => { setDayModal(null); setViewingId(s.id); }}
+                      className="flex w-full items-center gap-3 rounded-xl border border-gold/30 bg-gold/5 p-3 text-right transition-colors hover:border-gold">
+                      <CalendarDays className="h-4 w-4 shrink-0 text-gold" />
+                      <span className="flex-1"><span className="block text-sm font-semibold text-cream">{s.title}</span><span className="text-xs text-cream/55">{s.client} — {s.time}</span></span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-gold" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {co && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-emerald-400">الاستشارات</p>
+                  <button type="button" onClick={() => { setDayModal(null); go("consultations", co.id); }}
+                    className="flex w-full items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-right transition-colors hover:border-emerald-400">
+                    <MessageSquare className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <span className="flex-1"><span className="block text-sm font-semibold text-cream">{co.subject}</span><span className="text-xs text-cream/55">{co.client} — {co.time}</span></span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-emerald-400" />
+                  </button>
+                </div>
+              )}
+              {rems.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-orange-400">التنبيهات</p>
+                  {rems.map((r) => (
+                    <button key={r.id} type="button" onClick={() => { setDayModal(null); setReminderView(r); }}
+                      className="flex w-full items-center gap-3 rounded-xl border border-orange-500/30 bg-orange-500/5 p-3 text-right transition-colors hover:border-orange-400">
+                      <Bell className="h-4 w-4 shrink-0 text-orange-400" />
+                      <span className="flex-1"><span className="block text-sm font-semibold text-cream">{r.text}</span>{r.time && <span className="text-xs text-cream/55">{r.time}</span>}</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-orange-400" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button type="button" onClick={() => openAddReminder(day)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-gold py-2.5 text-sm font-bold text-navy shadow-gold">
+                <Plus className="h-4 w-4" /> إضافة تنبيه لهذا اليوم
+              </button>
+            </div>
+          </Modal>
+        );
+      })()}
+
+      {reminderView && (
+        <Modal title="تفاصيل التنبيه" onClose={() => setReminderView(null)}>
           <div className="space-y-3">
-            <div>
-              <p className="text-lg font-bold text-cream">{consultationModal.subject}</p>
-              <p className="mt-0.5 text-sm text-cream/60">{consultationModal.client}</p>
+            <div className="flex items-center gap-2">
+              {reminderView.urgent ? <AlertCircle className="h-5 w-5 text-red-400" /> : <Bell className="h-5 w-5 text-gold" />}
+              <p className="text-lg font-bold text-cream">{reminderView.text}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Info label="التاريخ" value={consultationModal.date} />
-              <Info label="الوقت" value={consultationModal.time} />
-              <Info label="القناة" value={consultationModal.channel} />
-              <Info label="الحالة" value={consultationModal.status} />
-              {consultationModal.duration && <Info label="المدة" value={consultationModal.duration} />}
-              <Info label="السعر" value={`${consultationModal.price.toLocaleString()} ج.م`} />
+              <Info label="الموعد" value={reminderView.due} />
+              {reminderView.time && <Info label="الوقت" value={reminderView.time} />}
+              <Info label="الأولوية" value={reminderView.urgent ? "عاجل" : "عادي"} />
             </div>
-            {consultationModal.caseRef && <Info label="القضية المرتبطة" value={consultationModal.caseRef} />}
-            {consultationModal.notes && (
-              <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4">
-                <p className="text-xs text-cream/50">ملاحظات</p>
-                <p className="mt-1 text-sm leading-relaxed text-cream/85">{consultationModal.notes}</p>
-              </div>
-            )}
           </div>
         </Modal>
       )}
@@ -1530,12 +1598,9 @@ function Consultations() {
   const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const [inCall, setInCall] = useState<DashConsultation | null>(null);
-  const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
-  const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
   useEffect(() => { if (request?.section === "consultations") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
@@ -1547,31 +1612,6 @@ function Consultations() {
     (filter === "all" || c.status === filter) &&
     (c.client.includes(search) || c.subject.includes(search))
   );
-  const add = (e: React.FormEvent) => {
-    e.preventDefault();
-    setItems((p) => [{ id: `co${Date.now()}`, client: form.client, subject: form.subject, date: form.date, time: form.time, channel: form.channel as DashConsultation["channel"], status: "قادمة", price: Number(form.price) }, ...p]);
-    setForm(emptyForm);
-    setAdding(false);
-  };
-
-  if (adding) {
-    return (
-      <FormPage title="إضافة استشارة جديدة" subtitle="حدّد موعد الاستشارة وقناة التواصل" icon={MessageSquare}
-        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ الاستشارة">
-        <FormSection title="بيانات الاستشارة">
-          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
-          <SelectField label="القناة" value={form.channel} onChange={(v) => setForm({ ...form, channel: v })} options={["أونلاين", "مكتب", "هاتف"]} placeholder="اختر القناة" />
-          <div className="sm:col-span-2"><Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field></div>
-        </FormSection>
-        <FormSection title="الموعد والسعر">
-          <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
-          <Field label="الوقت"><input className={fieldCls} placeholder="11:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
-          <Field label="السعر (ج.م)"><input type="number" min={0} className={fieldCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></Field>
-        </FormSection>
-      </FormPage>
-    );
-  }
-
   if (viewing) {
     const c = viewing;
     const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
@@ -1616,8 +1656,7 @@ function Consultations() {
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الاستشارات..." filter={filter} setFilter={setFilter}
-        options={[{ value: "all", label: "كل الحالات" }, { value: "قادمة", label: "قادمة" }, { value: "مكتملة", label: "مكتملة" }, { value: "ملغاة", label: "ملغاة" }]}
-        onAdd={() => setAdding(true)} addLabel="إضافة استشارة" />
+        options={[{ value: "all", label: "كل الحالات" }, { value: "قادمة", label: "قادمة" }, { value: "مكتملة", label: "مكتملة" }, { value: "ملغاة", label: "ملغاة" }]} />
       <div className="space-y-3">
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
