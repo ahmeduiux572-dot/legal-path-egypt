@@ -125,6 +125,15 @@ export function Navbar() {
                     <LayoutDashboard className="h-4 w-4" /> لوحة التحكم
                   </Link>
                 )}
+                {!isLawyer && (
+                  <Link
+                    to="/account"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2 text-center text-sm font-semibold text-cream"
+                  >
+                    <UserCircle className="h-4 w-4" /> حسابي
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center justify-center gap-2 rounded-md border border-gold/50 px-4 py-2 text-center text-sm font-semibold text-cream"
