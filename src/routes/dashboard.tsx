@@ -356,7 +356,7 @@ function Toolbar({
   search: string; setSearch: (v: string) => void; placeholder: string;
   filter?: string; setFilter?: (v: string) => void; options?: { value: string; label: string }[];
   filter2?: string; setFilter2?: (v: string) => void; options2?: { value: string; label: string }[];
-  onAdd: () => void; addLabel: string;
+  onAdd?: () => void; addLabel?: string;
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -378,9 +378,11 @@ function Toolbar({
           ))}
         </select>
       )}
-      <button onClick={onAdd} className="flex items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
-        <Plus className="h-4 w-4" /> {addLabel}
-      </button>
+      {onAdd && (
+        <button onClick={onAdd} className="flex items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+          <Plus className="h-4 w-4" /> {addLabel}
+        </button>
+      )}
     </div>
   );
 }
