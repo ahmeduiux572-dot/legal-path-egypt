@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye } from "lucide-react";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton,
-  AdminDialog, Field, FieldGrid, type Column,
+  DateRangeFilter, inDateRange, type Column,
 } from "@/components/admin/parts";
 import { subscriptions, subscriptionsMRR, type Subscription } from "@/data/admin";
 
@@ -12,18 +12,21 @@ const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
 const tone = (s: Subscription["status"]) => (s === "نشط" ? "green" : s === "قيد التجديد" ? "blue" : "red");
 
 function SubscriptionsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("الكل");
-  const [selected, setSelected] = useState<Subscription | null>(null);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
   const filtered = useMemo(
     () =>
       subscriptions.filter(
         (s) =>
           (status === "الكل" || s.status === status) &&
+          inDateRange(s.startDate, from, to) &&
           (s.subscriber.includes(search) || s.plan.includes(search)),
       ),
-    [search, status],
+    [search, status, from, to],
   );
 
   const cols: Column<Subscription>[] = [
@@ -32,14 +35,11 @@ function SubscriptionsPage() {
     { key: "price", label: "القيمة", render: (r) => `${fmt(r.price)} ج.م` },
     { key: "startDate", label: "البداية" },
     { key: "renewDate", label: "التجديد" },
-    {
-      key: "status", label: "الحالة",
-      render: (r) => <Badge tone={tone(r.status)}>{r.status}</Badge>,
-    },
+    { key: "status", label: "الحالة", render: (r) => <Badge tone={tone(r.status)}>{r.status}</Badge> },
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/subscription/$subId", params: { subId: r.id } })}>
           <Eye className="h-4 w-4" /> التفاصيل
         </ActionButton>
       ),
@@ -66,26 +66,10 @@ function SubscriptionsPage() {
             { value: "منتهٍ", label: "منتهٍ" },
           ] },
         ]}
-      />
+      >
+        <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
+      </Toolbar>
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (
-        <AdminDialog
-          open={Boolean(selected)}
-          onOpenChange={(v) => !v && setSelected(null)}
-          title={`اشتراك: ${selected.subscriber}`}
-          className="sm:max-w-lg"
-        >
-          <FieldGrid>
-            <Field label="المشترك" value={selected.subscriber} />
-            <Field label="الباقة" value={<Badge tone="gold">{selected.plan}</Badge>} />
-            <Field label="القيمة" value={`${fmt(selected.price)} ج.م`} />
-            <Field label="تاريخ البداية" value={selected.startDate} />
-            <Field label="تاريخ التجديد" value={selected.renewDate} />
-            <Field label="الحالة" value={<Badge tone={tone(selected.status)}>{selected.status}</Badge>} />
-          </FieldGrid>
-        </AdminDialog>
-      )}
     </>
   );
 }
