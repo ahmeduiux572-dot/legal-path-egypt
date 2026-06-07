@@ -1294,7 +1294,7 @@ function Clients() {
 /* ---------- Sessions ---------- */
 function Sessions() {
   const [items, setItems] = useState<DashSession[]>(dashSessions);
-  const { request } = useDashNav();
+  const { request, go } = useDashNav();
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -1302,8 +1302,10 @@ function Sessions() {
   const [reminders, setReminders] = useState<DashReminder[]>(dashReminders);
   const [reminderModal, setReminderModal] = useState<{ day: number } | null>(null);
   const [reminderText, setReminderText] = useState("");
+  const [reminderTime, setReminderTime] = useState("");
   const [reminderUrgent, setReminderUrgent] = useState(false);
-  const [consultationModal, setConsultationModal] = useState<DashConsultation | null>(null);
+  const [dayModal, setDayModal] = useState<{ day: number } | null>(null);
+  const [reminderView, setReminderView] = useState<DashReminder | null>(null);
   const emptyForm = { title: "", type: "", client: "", caseRef: "", day: "", time: "", location: "", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
@@ -1327,19 +1329,29 @@ function Sessions() {
     const m = co.date.match(/\d+/);
     if (m) { const d = Number(m[0]); if (!consultationByDay.has(d)) consultationByDay.set(d, co); }
   });
+  const reminderByDay = new Map<number, DashReminder[]>();
+  reminders.forEach((r) => { if (r.day) { const a = reminderByDay.get(r.day) ?? []; a.push(r); reminderByDay.set(r.day, a); } });
   const today = 6;
 
-  const handleDayClick = (day: number) => {
-    const co = consultationByDay.get(day);
-    if (co) { setConsultationModal(co); return; }
+  const handleDayClick = (day: number) => setDayModal({ day });
+  const openAddReminder = (day: number) => {
+    setDayModal(null);
     setReminderModal({ day });
     setReminderText("");
+    setReminderTime("");
     setReminderUrgent(false);
   };
   const addReminder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reminderModal || !reminderText.trim()) return;
-    setReminders((p) => [{ id: `r${Date.now()}`, text: reminderText.trim(), due: `${reminderModal.day} يونيو 2026`, urgent: reminderUrgent }, ...p]);
+    setReminders((p) => [{
+      id: `r${Date.now()}`,
+      text: reminderText.trim(),
+      due: `${reminderModal.day} يونيو 2026${reminderTime ? ` — ${reminderTime}` : ""}`,
+      urgent: reminderUrgent,
+      day: reminderModal.day,
+      time: reminderTime || undefined,
+    }, ...p]);
     setReminderModal(null);
   };
 
