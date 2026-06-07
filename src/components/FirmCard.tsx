@@ -23,7 +23,7 @@ export function FirmCard({ firm }: { firm: Firm }) {
           {firm.specialty}
         </span>
       </div>
-      <div className="flex flex-1 flex-col p-5 text-center">
+      <div className="flex flex-1 flex-col p-3 text-center sm:p-5">
         <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
           {firm.name}
           {firm.verified && (

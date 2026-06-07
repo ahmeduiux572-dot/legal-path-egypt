@@ -129,7 +129,7 @@ function Index() {
       <section className="bg-navy-deep pb-16 pt-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="أشهر مكاتب المحاماة" subtitle="نخبة من أعرق مكاتب المحاماة في مصر والشرق الأوسط بخبرات ممتدة وفرق متخصصة." />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             {topFirms.map((f) => (
               <FirmCard key={f.id} firm={f} />
             ))}
@@ -141,7 +141,7 @@ function Index() {
       <section className="bg-navy py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="المحامون الأكثر تقييماً" subtitle="نخبة من المحامين الحاصلين على أعلى تقييمات من عملائنا." />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
             {topRated.map((l) => (
               <LawyerCard key={l.id} lawyer={l} />
             ))}
@@ -153,7 +153,7 @@ function Index() {
       <section className="bg-navy-deep py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <SectionHeading light title="المحامون الأكثر استشارة" subtitle="الأكثر طلباً من العملاء على المنصة." />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
             {mostConsulted.map((l) => (
               <LawyerCard key={l.id} lawyer={l} />
             ))}

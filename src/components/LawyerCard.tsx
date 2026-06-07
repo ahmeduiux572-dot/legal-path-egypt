@@ -20,7 +20,7 @@ export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
           className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
         />
       </div>
-      <div className="flex flex-1 flex-col p-5 text-center">
+      <div className="flex flex-1 flex-col p-3 text-center sm:p-5">
         <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
           {lawyer.name}
           {lawyer.verified && (

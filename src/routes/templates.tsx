@@ -45,22 +45,22 @@ function TemplatesPage() {
           />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {templates.map((t) => (
-            <div key={t.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-6 transition-all hover:-translate-y-1 hover:border-gold/40">
+            <div key={t.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-4 transition-all hover:-translate-y-1 hover:border-gold/40 sm:p-6">
               <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-gold">
                 <FileText className="h-6 w-6 text-navy" />
               </span>
               <span className="mt-4 text-xs text-gold">{t.category} · {t.pages} صفحات</span>
               <h3 className="mt-1 text-base font-bold text-cream">{t.title}</h3>
               <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-cream/65">{t.description}</p>
-              <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
+              <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-lg font-extrabold text-gold">{t.price} ج.م</span>
                 <BuyTemplateDialog
                   title={t.title}
                   price={t.price}
                   trigger={
-                    <button className="inline-flex items-center gap-1.5 rounded-md bg-gradient-gold px-4 py-2 text-sm font-bold text-navy transition-transform hover:-translate-y-0.5">
+                    <button className="inline-flex items-center justify-center gap-1.5 rounded-md bg-gradient-gold px-4 py-2 text-sm font-bold text-navy transition-transform hover:-translate-y-0.5">
                       <Download className="h-4 w-4" />
                       شراء
                     </button>
