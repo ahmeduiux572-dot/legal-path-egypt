@@ -25,7 +25,7 @@ export function FilterSelect({
       >
         <span className="flex items-center gap-2 truncate">
           {Icon && <Icon className="h-4 w-4 shrink-0 text-gold/80" />}
-          <SelectPrimitive.Value />
+          <span className="truncate">{labels?.[value] ?? value}</span>
         </span>
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 shrink-0 text-cream/50 transition-transform data-[state=open]:rotate-180" />
