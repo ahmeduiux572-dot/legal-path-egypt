@@ -354,6 +354,7 @@ function DashboardPage() {
           {section === "consultations" && <Consultations />}
           {section === "invoices" && <Invoices />}
           {section === "documents" && <Documents />}
+          {section === "library" && <Library />}
           {section === "wallet" && <WalletPanel />}
           {section === "ai" && <LegalAI />}
         </div>
