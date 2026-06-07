@@ -6,7 +6,7 @@ import {
   AdminDialog, Labeled, TextInput, SelectInput, type Column,
 } from "@/components/admin/parts";
 import {
-  permissionGroups, permissionLabel, rolePermissionLabels, ALL_PERMISSIONS, type JobRole,
+  permissionGroups, rolePermissionLabels, ALL_PERMISSIONS, type JobRole,
 } from "@/data/permissions";
 import {
   useAdminStore, saveRole, deleteRole, saveStaff, deleteStaff, newId,
