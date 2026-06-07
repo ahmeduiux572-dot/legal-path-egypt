@@ -2,35 +2,36 @@ import { Link } from "@tanstack/react-router";
 
 export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
   const wordColor = variant === "dark" ? "text-navy" : "text-gradient-gold";
-  const markShell = variant === "dark" ? "border-navy/20 bg-secondary" : "border-gold/45 bg-navy-card/80";
+  const markShell =
+    variant === "dark"
+      ? "border-navy/20 bg-secondary"
+      : "border-gold/30 bg-gradient-to-br from-gold/15 to-transparent";
 
   return (
-    <Link to="/" className="group flex items-center gap-3" aria-label="مُحامٍ">
-      <span className={`relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border shadow-gold transition-transform duration-300 group-hover:-translate-y-0.5 md:h-12 md:w-12 ${markShell}`}>
-        <span className="absolute inset-x-2 top-2 h-px bg-gradient-gold" />
+    <Link to="/" className="group flex items-center gap-3" aria-label="مُحامٍ" dir="rtl">
+      <span className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border shadow-lg shadow-black/20 transition-transform duration-300 group-hover:-translate-y-0.5 md:h-11 md:w-11 ${markShell}`}>
         <svg
-          viewBox="0 0 64 64"
+          viewBox="0 0 24 24"
           role="img"
           aria-hidden="true"
-          className="relative h-8 w-8 text-gold md:h-9 md:w-9"
+          className="relative h-6 w-6 text-gold md:h-[1.65rem] md:w-[1.65rem]"
           fill="none"
           stroke="currentColor"
+          strokeWidth="1.2"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M32 13v34" strokeWidth="3" />
-          <path d="M20 20h24" strokeWidth="3" />
-          <path d="M17 49h30" strokeWidth="3" />
-          <path d="M22 20 13 37h18L22 20Z" strokeWidth="2.4" />
-          <path d="M42 20 33 37h18L42 20Z" strokeWidth="2.4" />
-          <path d="M13 37c2 3 5 4.5 9 4.5s7-1.5 9-4.5" strokeWidth="2.4" />
-          <path d="M33 37c2 3 5 4.5 9 4.5s7-1.5 9-4.5" strokeWidth="2.4" />
+          <path d="M12 7v14" />
+          <path d="M5 7h14" />
+          <path d="M5 7l-2 5h4l-2-5z" fill="currentColor" opacity="0.45" />
+          <path d="M3 12c0 1.5 1 2.5 2 2.5s2-1 2-2.5" />
+          <path d="M19 7l-2 5h4l-2-5z" fill="currentColor" opacity="0.45" />
+          <path d="M17 12c0 1.5 1 2.5 2 2.5s2-1 2-2.5" />
+          <path d="M9 21h6" />
         </svg>
       </span>
-      <span className="flex min-w-0 items-center leading-none">
-        <span className={`font-logo text-[2rem] font-normal tracking-normal ${wordColor} md:text-[2.35rem]`}>
-          مُحامٍ
-        </span>
+      <span className={`font-logo text-2xl font-bold tracking-tight ${wordColor} md:text-[1.75rem]`}>
+        مُحامٍ
       </span>
     </Link>
   );
