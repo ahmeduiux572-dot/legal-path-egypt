@@ -20,10 +20,12 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawyersIndexRouteImport } from './routes/lawyers.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as LawyersLawyerIdRouteImport } from './routes/lawyers.$lawyerId'
 import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
 import { Route as ApiLegalRouteImport } from './routes/api/legal'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminLawyersRouteImport } from './routes/admin.lawyers'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -80,6 +82,11 @@ const LawyersIndexRoute = LawyersIndexRouteImport.update({
   path: '/lawyers/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LawyersLawyerIdRoute = LawyersLawyerIdRouteImport.update({
   id: '/lawyers/$lawyerId',
   path: '/lawyers/$lawyerId',
@@ -100,11 +107,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLawyersRoute = AdminLawyersRouteImport.update({
+  id: '/lawyers',
+  path: '/lawyers',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
@@ -112,16 +124,17 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
   '/ai': typeof AiRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
@@ -129,17 +142,19 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin': typeof AdminIndexRoute
   '/lawyers': typeof LawyersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
@@ -147,10 +162,12 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
 }
 export interface FileRouteTypes {
@@ -166,16 +183,17 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin/'
     | '/lawyers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
-    | '/admin'
     | '/ai'
     | '/cases'
     | '/dashboard'
@@ -183,10 +201,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin'
     | '/lawyers'
   id:
     | '__root__'
@@ -200,17 +220,19 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin/'
     | '/lawyers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AiRoute: typeof AiRoute
   CasesRoute: typeof CasesRoute
   DashboardRoute: typeof DashboardRoute
@@ -304,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LawyersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lawyers/$lawyerId': {
       id: '/lawyers/$lawyerId'
       path: '/lawyers/$lawyerId'
@@ -332,13 +361,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/lawyers': {
+      id: '/admin/lawyers'
+      path: '/lawyers'
+      fullPath: '/admin/lawyers'
+      preLoaderRoute: typeof AdminLawyersRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminLawyersRoute: typeof AdminLawyersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLawyersRoute: AdminLawyersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AiRoute: AiRoute,
   CasesRoute: CasesRoute,
   DashboardRoute: DashboardRoute,
