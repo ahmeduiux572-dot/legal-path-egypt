@@ -79,14 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "محام | منصة قانونية رقمية" },
+      { title: "مُحَامٌ | منصة قانونية رقمية" },
       {
         name: "description",
         content:
-          "محام منصة قانونية رقمية تربط العملاء بأفضل المحامين في مصر والشرق الأوسط: استشارات، حجز، سوق قضايا ونماذج قانونية.",
+          "مُحَامٌ منصة قانونية رقمية تربط العملاء بأفضل المحامين في مصر والشرق الأوسط: استشارات، حجز، سوق قضايا ونماذج قانونية.",
       },
-      { name: "author", content: "محام" },
-      { property: "og:title", content: "محام | منصة قانونية رقمية" },
+      { name: "author", content: "مُحَامٌ" },
+      { property: "og:title", content: "مُحَامٌ | منصة قانونية رقمية" },
       {
         property: "og:description",
         content: "تواصل مع أفضل المحامين واحجز استشارتك القانونية بسهولة وأمان.",
@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "محام | منصة قانونية رقمية" },
+      { name: "twitter:title", content: "مُحَامٌ | منصة قانونية رقمية" },
       { name: "description", content: "Lovable Generated Project" },
       { property: "og:description", content: "Lovable Generated Project" },
       { name: "twitter:description", content: "Lovable Generated Project" },
