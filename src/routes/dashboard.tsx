@@ -1756,7 +1756,18 @@ function Invoices() {
     const linkedCase = dashCases.find((cs) => cs.title === inv.caseRef);
     return (
       <DetailPage title={inv.number} subtitle={inv.client} icon={Receipt} onBack={() => setViewingId(null)}
-        actions={<StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />}>
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => generateInvoicePdf(inv)}
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2 text-sm font-bold text-navy-deep shadow-gold transition-transform hover:scale-[1.02]"
+            >
+              <ArrowDownToLine className="h-4 w-4" /> تحميل / إرسال PDF
+            </button>
+            <StatusChanger value={inv.status} options={["معلقة", "مدفوعة", "متأخرة"]} onChange={(v) => changeStatus(inv.id, v)} />
+          </div>
+        }>
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-cream/60">الإجمالي المستحق</span>
