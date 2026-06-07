@@ -16,13 +16,25 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as AiRouteImport } from './routes/ai'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawyersIndexRouteImport } from './routes/lawyers.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as LawyersLawyerIdRouteImport } from './routes/lawyers.$lawyerId'
 import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
 import { Route as ApiLegalRouteImport } from './routes/api/legal'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
+import { Route as AdminStaffRouteImport } from './routes/admin.staff'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminRevenueRouteImport } from './routes/admin.revenue'
+import { Route as AdminPlansRouteImport } from './routes/admin.plans'
+import { Route as AdminLawyersRouteImport } from './routes/admin.lawyers'
+import { Route as AdminFirmsRouteImport } from './routes/admin.firms'
+import { Route as AdminConsultationsRouteImport } from './routes/admin.consultations'
+import { Route as AdminClientsRouteImport } from './routes/admin.clients'
+import { Route as AdminCasesRouteImport } from './routes/admin.cases'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -59,6 +71,11 @@ const AiRoute = AiRouteImport.update({
   path: '/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -73,6 +90,11 @@ const LawyersIndexRoute = LawyersIndexRouteImport.update({
   id: '/lawyers/',
   path: '/lawyers/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const LawyersLawyerIdRoute = LawyersLawyerIdRouteImport.update({
   id: '/lawyers/$lawyerId',
@@ -94,10 +116,61 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStaffRoute = AdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRevenueRoute = AdminRevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPlansRoute = AdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLawyersRoute = AdminLawyersRouteImport.update({
+  id: '/lawyers',
+  path: '/lawyers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFirmsRoute = AdminFirmsRouteImport.update({
+  id: '/firms',
+  path: '/firms',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConsultationsRoute = AdminConsultationsRouteImport.update({
+  id: '/consultations',
+  path: '/consultations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClientsRoute = AdminClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCasesRoute = AdminCasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
@@ -105,10 +178,21 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -121,16 +205,28 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin': typeof AdminIndexRoute
   '/lawyers': typeof LawyersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
@@ -138,10 +234,21 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
+  '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
 }
 export interface FileRouteTypes {
@@ -149,6 +256,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/admin'
     | '/ai'
     | '/cases'
     | '/dashboard'
@@ -156,10 +264,21 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
+    | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/revenue'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin/'
     | '/lawyers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -172,15 +291,27 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
+    | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/revenue'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin'
     | '/lawyers'
   id:
     | '__root__'
     | '/'
     | '/account'
+    | '/admin'
     | '/ai'
     | '/cases'
     | '/dashboard'
@@ -188,16 +319,28 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
+    | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/revenue'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
     | '/lawyers/$lawyerId'
+    | '/admin/'
     | '/lawyers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AiRoute: typeof AiRoute
   CasesRoute: typeof CasesRoute
   DashboardRoute: typeof DashboardRoute
@@ -263,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account': {
       id: '/account'
       path: '/account'
@@ -283,6 +433,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lawyers/'
       preLoaderRoute: typeof LawyersIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/lawyers/$lawyerId': {
       id: '/lawyers/$lawyerId'
@@ -312,12 +469,113 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/subscriptions': {
+      id: '/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AdminSubscriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/staff': {
+      id: '/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AdminStaffRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/revenue': {
+      id: '/admin/revenue'
+      path: '/revenue'
+      fullPath: '/admin/revenue'
+      preLoaderRoute: typeof AdminRevenueRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/plans': {
+      id: '/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AdminPlansRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/lawyers': {
+      id: '/admin/lawyers'
+      path: '/lawyers'
+      fullPath: '/admin/lawyers'
+      preLoaderRoute: typeof AdminLawyersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/firms': {
+      id: '/admin/firms'
+      path: '/firms'
+      fullPath: '/admin/firms'
+      preLoaderRoute: typeof AdminFirmsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/consultations': {
+      id: '/admin/consultations'
+      path: '/consultations'
+      fullPath: '/admin/consultations'
+      preLoaderRoute: typeof AdminConsultationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clients': {
+      id: '/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AdminClientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cases': {
+      id: '/admin/cases'
+      path: '/cases'
+      fullPath: '/admin/cases'
+      preLoaderRoute: typeof AdminCasesRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminCasesRoute: typeof AdminCasesRoute
+  AdminClientsRoute: typeof AdminClientsRoute
+  AdminConsultationsRoute: typeof AdminConsultationsRoute
+  AdminFirmsRoute: typeof AdminFirmsRoute
+  AdminLawyersRoute: typeof AdminLawyersRoute
+  AdminPlansRoute: typeof AdminPlansRoute
+  AdminRevenueRoute: typeof AdminRevenueRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminStaffRoute: typeof AdminStaffRoute
+  AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCasesRoute: AdminCasesRoute,
+  AdminClientsRoute: AdminClientsRoute,
+  AdminConsultationsRoute: AdminConsultationsRoute,
+  AdminFirmsRoute: AdminFirmsRoute,
+  AdminLawyersRoute: AdminLawyersRoute,
+  AdminPlansRoute: AdminPlansRoute,
+  AdminRevenueRoute: AdminRevenueRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminStaffRoute: AdminStaffRoute,
+  AdminSubscriptionsRoute: AdminSubscriptionsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  AdminRoute: AdminRouteWithChildren,
   AiRoute: AiRoute,
   CasesRoute: CasesRoute,
   DashboardRoute: DashboardRoute,
