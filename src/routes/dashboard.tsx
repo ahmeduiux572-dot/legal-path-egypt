@@ -247,22 +247,22 @@ function DashboardPage() {
    <DashNavContext.Provider value={{ go, request }}>
     <div className="bg-navy">
       <section className="bg-gradient-navy">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center md:px-8">
-          <div className="flex items-center gap-4">
-            <img src={lawyer.image} alt={lawyer.name} width={64} height={64} className="h-16 w-16 rounded-2xl border border-gold/30 object-cover" />
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-8 md:flex-row md:items-center md:gap-6 md:px-8 md:py-10">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img src={lawyer.image} alt={lawyer.name} width={64} height={64} className="h-14 w-14 rounded-2xl border border-gold/30 object-cover sm:h-16 sm:w-16" />
             <div>
               <p className="text-sm text-cream/60">مرحباً بعودتك</p>
-              <h1 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">{lawyer.name}</h1>
+              <h1 className="text-xl font-extrabold text-gradient-gold sm:text-2xl md:text-3xl">{lawyer.name}</h1>
               <p className="mt-1 flex items-center gap-2 text-sm text-cream/65">
                 <MapPin className="h-4 w-4 text-gold" /> {lawyer.city} — {lawyer.title}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex w-full items-center gap-2 md:w-auto">
+            <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setNotifOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5 md:w-auto"
               >
                 <span className="relative">
                   <Bell className="h-4 w-4 text-gold" />
@@ -277,7 +277,7 @@ function DashboardPage() {
               {notifOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute left-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-white/10 bg-navy-card shadow-2xl">
+                  <div className="absolute left-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/10 bg-navy-card shadow-2xl">
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                       <span className="flex items-center gap-2 text-sm font-bold text-cream">
                         <Bell className="h-4 w-4 text-gold" /> الإشعارات
@@ -327,18 +327,18 @@ function DashboardPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl gap-8 px-4 py-10 md:px-8 lg:flex">
-        <aside className="mb-8 lg:mb-0 lg:w-64 lg:shrink-0">
-          <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-navy-card/60 p-2 lg:flex-col lg:overflow-visible">
+      <div className="mx-auto max-w-7xl gap-8 px-4 py-6 md:px-8 md:py-10 lg:flex">
+        <aside className="sticky top-0 z-30 -mx-4 mb-6 bg-navy/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-navy/80 md:-mx-8 md:px-8 lg:static lg:mx-0 lg:mb-0 lg:w-64 lg:shrink-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+          <nav className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-navy-card/60 p-2 lg:flex-col lg:overflow-visible">
             {nav.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setSection(n.id)}
-                className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                className={`flex shrink-0 snap-start items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors lg:py-3 ${
                   section === n.id ? "bg-gradient-gold text-navy shadow-gold" : "text-cream/75 hover:bg-white/5 hover:text-gold"
                 }`}
               >
-                <n.icon className="h-4 w-4" />
+                <n.icon className="h-4 w-4 shrink-0" />
                 <span className="whitespace-nowrap">{n.label}</span>
               </button>
             ))}
