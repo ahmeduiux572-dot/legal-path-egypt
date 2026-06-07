@@ -2096,13 +2096,25 @@ function Library() {
             onClick={() => setOpenBook(book)}
             className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-navy-card/60 text-right transition-all hover:-translate-y-1 hover:border-gold/40 hover:shadow-card"
           >
-            <div className="relative flex h-40 items-center justify-center p-5" style={{ background: book.cover }}>
-              <div className="absolute inset-0 pattern-grid opacity-30" />
-              <div className="relative flex h-full w-16 flex-col justify-between rounded-md border border-gold/30 bg-black/10 p-2 shadow-lg">
-                <BookOpen className="mx-auto h-6 w-6 text-gold" />
-                <span className="block text-center text-[10px] font-bold leading-tight text-cream/80">{book.category}</span>
-              </div>
-              <span className="absolute right-3 top-3 rounded-full bg-black/30 px-2 py-0.5 text-[10px] font-semibold text-cream/85 backdrop-blur">
+            <div className="relative flex h-44 flex-col items-center justify-center overflow-hidden border-b border-gold/20 bg-gradient-navy p-5 text-center">
+              <div className="absolute inset-0 pattern-grid opacity-20" />
+              {/* إطار مفرّغ أنيق */}
+              <div className="pointer-events-none absolute inset-3 rounded-lg border border-gold/25" />
+              <div className="pointer-events-none absolute inset-[14px] rounded-md border border-gold/10" />
+              {/* اسم المنصة بخط مفرّغ */}
+              <span
+                className="relative font-logo text-4xl font-extrabold leading-none tracking-tight text-transparent"
+                style={{ WebkitTextStroke: "1.1px oklch(0.76 0.1 80)" }}
+              >
+                محامٍ
+              </span>
+              <span className="relative mt-1.5 text-[9px] font-semibold uppercase tracking-[0.3em] text-gold/70">
+                المكتبة القانونية
+              </span>
+              <span className="relative mx-auto mt-3 line-clamp-2 max-w-[85%] text-sm font-bold text-cream/90">
+                {book.title}
+              </span>
+              <span className="absolute right-3 top-3 rounded-full border border-gold/20 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-cream/85 backdrop-blur">
                 {book.year}
               </span>
             </div>
