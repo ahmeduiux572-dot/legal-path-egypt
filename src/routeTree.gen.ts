@@ -25,6 +25,8 @@ import { Route as LawyersLawyerIdRouteImport } from './routes/lawyers.$lawyerId'
 import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
 import { Route as ApiLegalRouteImport } from './routes/api/legal'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
+import { Route as AdminPlansRouteImport } from './routes/admin.plans'
 import { Route as AdminLawyersRouteImport } from './routes/admin.lawyers'
 import { Route as AdminFirmsRouteImport } from './routes/admin.firms'
 import { Route as AdminConsultationsRouteImport } from './routes/admin.consultations'
@@ -111,6 +113,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPlansRoute = AdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLawyersRoute = AdminLawyersRouteImport.update({
   id: '/lawyers',
   path: '/lawyers',
@@ -153,6 +165,8 @@ export interface FileRoutesByFullPath {
   '/admin/consultations': typeof AdminConsultationsRoute
   '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -175,6 +189,8 @@ export interface FileRoutesByTo {
   '/admin/consultations': typeof AdminConsultationsRoute
   '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -199,6 +215,8 @@ export interface FileRoutesById {
   '/admin/consultations': typeof AdminConsultationsRoute
   '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
+  '/admin/plans': typeof AdminPlansRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -224,6 +242,8 @@ export interface FileRouteTypes {
     | '/admin/consultations'
     | '/admin/firms'
     | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -246,6 +266,8 @@ export interface FileRouteTypes {
     | '/admin/consultations'
     | '/admin/firms'
     | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -269,6 +291,8 @@ export interface FileRouteTypes {
     | '/admin/consultations'
     | '/admin/firms'
     | '/admin/lawyers'
+    | '/admin/plans'
+    | '/admin/subscriptions'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -409,6 +433,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/subscriptions': {
+      id: '/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AdminSubscriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/plans': {
+      id: '/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AdminPlansRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/lawyers': {
       id: '/admin/lawyers'
       path: '/lawyers'
@@ -453,6 +491,8 @@ interface AdminRouteChildren {
   AdminConsultationsRoute: typeof AdminConsultationsRoute
   AdminFirmsRoute: typeof AdminFirmsRoute
   AdminLawyersRoute: typeof AdminLawyersRoute
+  AdminPlansRoute: typeof AdminPlansRoute
+  AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -462,6 +502,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminConsultationsRoute: AdminConsultationsRoute,
   AdminFirmsRoute: AdminFirmsRoute,
   AdminLawyersRoute: AdminLawyersRoute,
+  AdminPlansRoute: AdminPlansRoute,
+  AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
