@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye } from "lucide-react";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton,
-  AdminDialog, Field, FieldGrid, type Column,
+  DateRangeFilter, inDateRange, type Column,
 } from "@/components/admin/parts";
 import { dashConsultations, type DashConsultation } from "@/data/dashboard";
 import { lawyers } from "@/data/lawyers";
@@ -21,10 +21,12 @@ const tone = (s: DashConsultation["status"]) =>
   s === "مكتملة" ? "green" : s === "قادمة" ? "blue" : "red";
 
 function ConsultationsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [channel, setChannel] = useState("all");
-  const [selected, setSelected] = useState<DashConsultation | null>(null);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
   const filtered = useMemo(
     () =>
@@ -32,9 +34,10 @@ function ConsultationsPage() {
         (c) =>
           (status === "all" || c.status === status) &&
           (channel === "all" || c.channel === channel) &&
+          inDateRange(c.date, from, to) &&
           (c.client.includes(search) || c.subject.includes(search)),
       ),
-    [search, status, channel],
+    [search, status, channel, from, to],
   );
 
   const cols: Column<DashConsultation>[] = [
@@ -48,7 +51,7 @@ function ConsultationsPage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/consultation/$consultationId", params: { consultationId: r.id } })}>
           <Eye className="h-4 w-4" /> التفاصيل
         </ActionButton>
       ),
@@ -79,29 +82,10 @@ function ConsultationsPage() {
             { value: "مكتب", label: "مكتب" }, { value: "هاتف", label: "هاتف" },
           ] },
         ]}
-      />
+      >
+        <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
+      </Toolbar>
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (
-        <AdminDialog open onOpenChange={(v) => !v && setSelected(null)} title="تفاصيل الاستشارة">
-          <FieldGrid>
-            <Field label="العميل" value={selected.client} />
-            <Field label="الموضوع" value={selected.subject} />
-            <Field label="المحامي المعيّن" value={assignedLawyer(selected.id).name} />
-            <Field label="القناة" value={selected.channel} />
-            <Field label="التاريخ" value={`${selected.date} - ${selected.time}`} />
-            <Field label="المدة" value={selected.duration ?? "—"} />
-            <Field label="السعر" value={`${fmt(selected.price)} ج.م`} />
-            <Field label="القضية المرتبطة" value={selected.caseRef ?? "—"} />
-            <Field label="الحالة" value={<Badge tone={tone(selected.status)}>{selected.status}</Badge>} />
-          </FieldGrid>
-          {selected.notes && (
-            <p className="mt-4 rounded-2xl border border-white/10 bg-navy-card/40 p-4 text-sm text-cream/75">
-              {selected.notes}
-            </p>
-          )}
-        </AdminDialog>
-      )}
     </>
   );
 }
