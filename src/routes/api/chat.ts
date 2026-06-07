@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 const SYSTEM_PROMPT = `أنت مساعد قانوني ذكي على منصة "مُحامٍ" القانونية الرقمية في مصر والشرق الأوسط.
 مهمتك تقديم إجابات قانونية مبدئية واضحة ومبسطة باللغة العربية لأغراض التوعية القانونية.
 قواعد مهمة:
@@ -11,6 +17,7 @@ const SYSTEM_PROMPT = `أنت مساعد قانوني ذكي على منصة "م
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
+      OPTIONS: async () => new Response(null, { status: 204, headers: corsHeaders }),
       POST: async ({ request }) => {
         try {
           const { messages } = (await request.json()) as {
@@ -21,14 +28,14 @@ export const Route = createFileRoute("/api/chat")({
           if (!LOVABLE_API_KEY) {
             return new Response(
               JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
-              { status: 500, headers: { "Content-Type": "application/json" } },
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
             );
           }
 
           if (!Array.isArray(messages) || messages.length === 0) {
             return new Response(
               JSON.stringify({ error: "messages are required" }),
-              { status: 400, headers: { "Content-Type": "application/json" } },
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
             );
           }
 
@@ -67,7 +74,7 @@ export const Route = createFileRoute("/api/chat")({
                 JSON.stringify({
                   error: "تم تجاوز حد الطلبات، يرجى المحاولة بعد قليل.",
                 }),
-                { status: 429, headers: { "Content-Type": "application/json" } },
+                { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
               );
             }
             if (response.status === 402) {
@@ -75,19 +82,20 @@ export const Route = createFileRoute("/api/chat")({
                 JSON.stringify({
                   error: "انتهى الرصيد المتاح، يرجى إضافة رصيد لمواصلة الاستخدام.",
                 }),
-                { status: 402, headers: { "Content-Type": "application/json" } },
+                { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
               );
             }
             const t = await response.text();
             console.error("AI gateway error:", response.status, t);
             return new Response(
               JSON.stringify({ error: "حدث خطأ في المساعد الذكي." }),
-              { status: 500, headers: { "Content-Type": "application/json" } },
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
             );
           }
 
           return new Response(response.body, {
             headers: {
+              ...corsHeaders,
               "Content-Type": "text/event-stream",
               "Cache-Control": "no-cache",
               Connection: "keep-alive",
@@ -99,7 +107,7 @@ export const Route = createFileRoute("/api/chat")({
             JSON.stringify({
               error: e instanceof Error ? e.message : "Unknown error",
             }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
       },

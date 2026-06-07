@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import {
   LayoutDashboard,
   Briefcase,
@@ -56,7 +55,7 @@ import {
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
-import { askLegalAi } from "@/lib/legal-ai.functions";
+import { aiUrl } from "@/lib/ai-endpoint";
 import {
   dashCases,
   dashClients,
@@ -2423,7 +2422,6 @@ function LegalAI() {
   const [messages, setMessages] = useState<ChatMsg[]>([greeting]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const askAi = useServerFn(askLegalAi);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -2446,8 +2444,16 @@ function LegalAI() {
     try {
       // Send only the recent turns to keep token usage low.
       const payload = history.filter((m) => m.text !== greeting.text).slice(-8);
-      const res = await askAi({ data: { messages: payload } });
-      setMessages((m) => [...m, { role: "ai", text: res.reply }]);
+      const resp = await fetch(aiUrl("/api/legal"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: payload }),
+      });
+      const res = (await resp.json()) as { reply?: string };
+      setMessages((m) => [
+        ...m,
+        { role: "ai", text: res.reply || "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." },
+      ]);
     } catch {
       setMessages((m) => [...m, { role: "ai", text: "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." }]);
     } finally {

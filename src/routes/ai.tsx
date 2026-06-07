@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Send, Sparkles, Loader2 } from "lucide-react";
+import { aiUrl } from "@/lib/ai-endpoint";
 
 export const Route = createFileRoute("/ai")({
   head: () => ({
@@ -66,7 +67,7 @@ function AiPage() {
     };
 
     try {
-      const resp = await fetch("/api/chat", {
+      const resp = await fetch(aiUrl("/api/chat"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: apiMessages }),
