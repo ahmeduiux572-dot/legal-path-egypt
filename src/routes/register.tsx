@@ -10,10 +10,10 @@ import { login } from "@/lib/auth";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب | محام" },
-      { name: "description", content: "أنشئ حسابك على منصة محام كعميل لطلب الاستشارات، أو كمحامٍ لاستقبال العملاء." },
-      { property: "og:title", content: "إنشاء حساب | محام" },
-      { property: "og:description", content: "انضم إلى منصة محام كعميل أو كمحامٍ." },
+      { title: "إنشاء حساب | مُحامٍ" },
+      { name: "description", content: "أنشئ حسابك على منصة مُحامٍ كعميل لطلب الاستشارات، أو كمحامٍ لاستقبال العملاء." },
+      { property: "og:title", content: "إنشاء حساب | مُحامٍ" },
+      { property: "og:description", content: "انضم إلى منصة مُحامٍ كعميل أو كمحامٍ." },
     ],
   }),
   component: RegisterPage,
