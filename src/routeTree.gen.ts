@@ -25,6 +25,7 @@ import { Route as LawyersLawyerIdRouteImport } from './routes/lawyers.$lawyerId'
 import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
 import { Route as ApiLegalRouteImport } from './routes/api/legal'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
@@ -35,6 +36,7 @@ import { Route as AdminFirmsRouteImport } from './routes/admin.firms'
 import { Route as AdminConsultationsRouteImport } from './routes/admin.consultations'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
+import { Route as AdminWithdrawalWithdrawalIdRouteImport } from './routes/admin.withdrawal.$withdrawalId'
 import { Route as AdminSubscriptionSubIdRouteImport } from './routes/admin.subscription.$subId'
 import { Route as AdminStaffFormStaffIdRouteImport } from './routes/admin.staff-form.$staffId'
 import { Route as AdminRoleFormRoleIdRouteImport } from './routes/admin.role-form.$roleId'
@@ -128,6 +130,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
   id: '/subscriptions',
   path: '/subscriptions',
@@ -178,6 +185,12 @@ const AdminCasesRoute = AdminCasesRouteImport.update({
   path: '/cases',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminWithdrawalWithdrawalIdRoute =
+  AdminWithdrawalWithdrawalIdRouteImport.update({
+    id: '/withdrawal/$withdrawalId',
+    path: '/withdrawal/$withdrawalId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminSubscriptionSubIdRoute = AdminSubscriptionSubIdRouteImport.update({
   id: '/subscription/$subId',
   path: '/subscription/$subId',
@@ -262,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -280,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
   '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
+  '/admin/withdrawal/$withdrawalId': typeof AdminWithdrawalWithdrawalIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -301,6 +316,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -319,6 +335,7 @@ export interface FileRoutesByTo {
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
   '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
+  '/admin/withdrawal/$withdrawalId': typeof AdminWithdrawalWithdrawalIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -342,6 +359,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
   '/firms/$firmId': typeof FirmsFirmIdRoute
@@ -360,6 +378,7 @@ export interface FileRoutesById {
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
   '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
+  '/admin/withdrawal/$withdrawalId': typeof AdminWithdrawalWithdrawalIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -384,6 +403,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/subscriptions'
+    | '/admin/withdrawals'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -402,6 +422,7 @@ export interface FileRouteTypes {
     | '/admin/role-form/$roleId'
     | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
+    | '/admin/withdrawal/$withdrawalId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -423,6 +444,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/subscriptions'
+    | '/admin/withdrawals'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -441,6 +463,7 @@ export interface FileRouteTypes {
     | '/admin/role-form/$roleId'
     | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
+    | '/admin/withdrawal/$withdrawalId'
   id:
     | '__root__'
     | '/'
@@ -463,6 +486,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/subscriptions'
+    | '/admin/withdrawals'
     | '/api/chat'
     | '/api/legal'
     | '/firms/$firmId'
@@ -481,6 +505,7 @@ export interface FileRouteTypes {
     | '/admin/role-form/$roleId'
     | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
+    | '/admin/withdrawal/$withdrawalId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -615,6 +640,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/withdrawals': {
+      id: '/admin/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/admin/withdrawals'
+      preLoaderRoute: typeof AdminWithdrawalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/subscriptions': {
       id: '/admin/subscriptions'
       path: '/subscriptions'
@@ -683,6 +715,13 @@ declare module '@tanstack/react-router' {
       path: '/cases'
       fullPath: '/admin/cases'
       preLoaderRoute: typeof AdminCasesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/withdrawal/$withdrawalId': {
+      id: '/admin/withdrawal/$withdrawalId'
+      path: '/withdrawal/$withdrawalId'
+      fullPath: '/admin/withdrawal/$withdrawalId'
+      preLoaderRoute: typeof AdminWithdrawalWithdrawalIdRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/subscription/$subId': {
@@ -783,6 +822,7 @@ interface AdminRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStaffRoute: typeof AdminStaffRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
+  AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCaseCaseIdRoute: typeof AdminCaseCaseIdRoute
   AdminClientProfileClientIdRoute: typeof AdminClientProfileClientIdRoute
@@ -796,6 +836,7 @@ interface AdminRouteChildren {
   AdminRoleFormRoleIdRoute: typeof AdminRoleFormRoleIdRoute
   AdminStaffFormStaffIdRoute: typeof AdminStaffFormStaffIdRoute
   AdminSubscriptionSubIdRoute: typeof AdminSubscriptionSubIdRoute
+  AdminWithdrawalWithdrawalIdRoute: typeof AdminWithdrawalWithdrawalIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -809,6 +850,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStaffRoute: AdminStaffRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
+  AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminCaseCaseIdRoute: AdminCaseCaseIdRoute,
   AdminClientProfileClientIdRoute: AdminClientProfileClientIdRoute,
@@ -822,6 +864,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminRoleFormRoleIdRoute: AdminRoleFormRoleIdRoute,
   AdminStaffFormStaffIdRoute: AdminStaffFormStaffIdRoute,
   AdminSubscriptionSubIdRoute: AdminSubscriptionSubIdRoute,
+  AdminWithdrawalWithdrawalIdRoute: AdminWithdrawalWithdrawalIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -846,3 +889,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
