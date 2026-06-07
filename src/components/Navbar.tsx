@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuth, logout } from "@/lib/auth";
 
@@ -25,6 +25,7 @@ export function Navbar() {
   };
 
   return (
+    <>
     <header className="sticky top-0 z-50 border-b border-white/10 bg-navy-deep/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
         <Logo />
@@ -144,5 +145,18 @@ export function Navbar() {
         </div>
       )}
     </header>
+
+    {/* Trust Ticker */}
+    <div className="relative z-40 overflow-hidden border-b border-gold/20 bg-gradient-to-r from-navy-deep via-navy to-navy-deep py-1.5">
+      <div className="animate-marquee flex whitespace-nowrap">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <span key={i} className="mx-8 inline-flex items-center gap-2 text-xs font-medium text-gold/90">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+            سرية تامة وحماية كاملة لبيانات المحامي وعملائه — بياناتك آمنة 100%
+          </span>
+        ))}
+      </div>
+    </div>
+    </>
   );
 }
