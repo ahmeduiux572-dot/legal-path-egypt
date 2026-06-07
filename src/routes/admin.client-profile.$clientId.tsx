@@ -6,7 +6,7 @@ import {
 import { dashClients } from "@/data/dashboard";
 import { useAdminStore, isBlocked, toggleBlock } from "@/lib/admin-store";
 
-export const Route = createFileRoute("/admin/client/$clientId")({ component: ClientDetail });
+export const Route = createFileRoute("/admin/client-profile/$clientId")({ component: ClientDetail });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
 
 function ClientDetail() {
