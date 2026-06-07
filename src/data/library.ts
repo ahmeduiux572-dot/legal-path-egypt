@@ -37,6 +37,8 @@ export type LibraryBook = {
   cover: string;
   tags: string[];
   chapters: LibraryChapter[];
+  /** مصدر مجاني خارجي لقراءة النص الكامل (Public Domain / حر) */
+  source?: { label: string; url: string };
 };
 
 export const libraryCategories = [
@@ -47,6 +49,9 @@ export const libraryCategories = [
   "تجاري",
   "عمل",
   "أحوال شخصية",
+  "ملكية فكرية",
+  "فقه وقضاء",
+  "تاريخ القانون",
 ] as const;
 
 const covers = {
