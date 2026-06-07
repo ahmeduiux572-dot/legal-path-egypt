@@ -22,8 +22,6 @@ function hash(id: string): number {
   return h;
 }
 
-const months = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو"];
-
 export function profileWalletBalance(idLike: { id: string; consultations?: number; cases?: number }): number {
   const base = (idLike.consultations ?? idLike.cases ?? 100) * 35;
   return base + (hash(idLike.id) % 9000);
