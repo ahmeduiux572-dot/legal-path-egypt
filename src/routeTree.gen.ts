@@ -36,7 +36,10 @@ import { Route as AdminConsultationsRouteImport } from './routes/admin.consultat
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
 import { Route as AdminLawyerLawyerIdRouteImport } from './routes/admin.lawyer.$lawyerId'
+import { Route as AdminLawyerAppAppIdRouteImport } from './routes/admin.lawyer-app.$appId'
 import { Route as AdminFirmFirmIdRouteImport } from './routes/admin.firm.$firmId'
+import { Route as AdminFirmAppAppIdRouteImport } from './routes/admin.firm-app.$appId'
+import { Route as AdminConsultationConsultationIdRouteImport } from './routes/admin.consultation.$consultationId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -173,11 +176,27 @@ const AdminLawyerLawyerIdRoute = AdminLawyerLawyerIdRouteImport.update({
   path: '/lawyer/$lawyerId',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLawyerAppAppIdRoute = AdminLawyerAppAppIdRouteImport.update({
+  id: '/lawyer-app/$appId',
+  path: '/lawyer-app/$appId',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFirmFirmIdRoute = AdminFirmFirmIdRouteImport.update({
   id: '/firm/$firmId',
   path: '/firm/$firmId',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFirmAppAppIdRoute = AdminFirmAppAppIdRouteImport.update({
+  id: '/firm-app/$appId',
+  path: '/firm-app/$appId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConsultationConsultationIdRoute =
+  AdminConsultationConsultationIdRouteImport.update({
+    id: '/consultation/$consultationId',
+    path: '/consultation/$consultationId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -206,7 +225,10 @@ export interface FileRoutesByFullPath {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
 }
 export interface FileRoutesByTo {
@@ -235,7 +257,10 @@ export interface FileRoutesByTo {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin': typeof AdminIndexRoute
   '/lawyers': typeof LawyersIndexRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
 }
 export interface FileRoutesById {
@@ -266,7 +291,10 @@ export interface FileRoutesById {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
 }
 export interface FileRouteTypes {
@@ -298,7 +326,10 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin/'
     | '/lawyers/'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -327,7 +358,10 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin'
     | '/lawyers'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
   id:
     | '__root__'
@@ -357,7 +391,10 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin/'
     | '/lawyers/'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
   fileRoutesById: FileRoutesById
 }
@@ -570,11 +607,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLawyerLawyerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/lawyer-app/$appId': {
+      id: '/admin/lawyer-app/$appId'
+      path: '/lawyer-app/$appId'
+      fullPath: '/admin/lawyer-app/$appId'
+      preLoaderRoute: typeof AdminLawyerAppAppIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/firm/$firmId': {
       id: '/admin/firm/$firmId'
       path: '/firm/$firmId'
       fullPath: '/admin/firm/$firmId'
       preLoaderRoute: typeof AdminFirmFirmIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/firm-app/$appId': {
+      id: '/admin/firm-app/$appId'
+      path: '/firm-app/$appId'
+      fullPath: '/admin/firm-app/$appId'
+      preLoaderRoute: typeof AdminFirmAppAppIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/consultation/$consultationId': {
+      id: '/admin/consultation/$consultationId'
+      path: '/consultation/$consultationId'
+      fullPath: '/admin/consultation/$consultationId'
+      preLoaderRoute: typeof AdminConsultationConsultationIdRouteImport
       parentRoute: typeof AdminRoute
     }
   }
@@ -592,7 +650,10 @@ interface AdminRouteChildren {
   AdminStaffRoute: typeof AdminStaffRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminConsultationConsultationIdRoute: typeof AdminConsultationConsultationIdRoute
+  AdminFirmAppAppIdRoute: typeof AdminFirmAppAppIdRoute
   AdminFirmFirmIdRoute: typeof AdminFirmFirmIdRoute
+  AdminLawyerAppAppIdRoute: typeof AdminLawyerAppAppIdRoute
   AdminLawyerLawyerIdRoute: typeof AdminLawyerLawyerIdRoute
 }
 
@@ -608,7 +669,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminStaffRoute: AdminStaffRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminConsultationConsultationIdRoute: AdminConsultationConsultationIdRoute,
+  AdminFirmAppAppIdRoute: AdminFirmAppAppIdRoute,
   AdminFirmFirmIdRoute: AdminFirmFirmIdRoute,
+  AdminLawyerAppAppIdRoute: AdminLawyerAppAppIdRoute,
   AdminLawyerLawyerIdRoute: AdminLawyerLawyerIdRoute,
 }
 
@@ -634,3 +698,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
