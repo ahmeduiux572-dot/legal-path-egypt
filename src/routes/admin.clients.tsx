@@ -44,7 +44,7 @@ function ClientsPage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/client/$clientId", params: { clientId: r.id } })}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/client-profile/$clientId", params: { clientId: r.id } })}>
           <Eye className="h-4 w-4" /> عرض الملف
         </ActionButton>
       ),
