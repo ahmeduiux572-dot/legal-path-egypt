@@ -8,8 +8,9 @@
 // AI requests to the stable Lovable deployment (which has the key) whenever we
 // are NOT already running on a *.lovable.app host or local dev.
 
-// Stable Lovable URL for this project (immutable, won't change on rename).
-const FALLBACK_AI_BASE = "https://project--01454a72-c1b8-433d-b96b-ea7652cb2695.lovable.app";
+// Published Lovable URL for this project (this is the host that actually has
+// LOVABLE_API_KEY and serves the AI endpoints publicly).
+const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
 
 export function aiUrl(path: string): string {
   // During SSR keep it relative (same origin) — SSR on Lovable has the key.
