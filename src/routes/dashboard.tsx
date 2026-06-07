@@ -1618,8 +1618,7 @@ function Consultations() {
     <div className={card}>
       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><MessageSquare className="h-5 w-5 text-gold" /> الاستشارات</h2>
       <Toolbar search={search} setSearch={setSearch} placeholder="ابحث في الاستشارات..." filter={filter} setFilter={setFilter}
-        options={[{ value: "all", label: "كل الحالات" }, { value: "قادمة", label: "قادمة" }, { value: "مكتملة", label: "مكتملة" }, { value: "ملغاة", label: "ملغاة" }]}
-        onAdd={() => setAdding(true)} addLabel="إضافة استشارة" />
+        options={[{ value: "all", label: "كل الحالات" }, { value: "قادمة", label: "قادمة" }, { value: "مكتملة", label: "مكتملة" }, { value: "ملغاة", label: "ملغاة" }]} />
       <div className="space-y-3">
         {filtered.map((c) => {
           const Icon = channelIcon[c.channel] ?? Video;
