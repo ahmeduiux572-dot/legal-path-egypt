@@ -259,7 +259,7 @@ function DashboardPage() {
             </div>
           </div>
           <div className="flex w-full items-center gap-2 md:w-auto">
-            <div className="relative">
+            <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setNotifOpen((v) => !v)}
                 className="flex w-full items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5 md:w-auto"
