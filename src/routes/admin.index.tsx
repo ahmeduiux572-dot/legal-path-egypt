@@ -1,9 +1,12 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
 import { Scale, Building2, Users, MessagesSquare, Gavel, Wallet } from "lucide-react";
-import { PageHeader, StatCard, DataTable, Badge, type Column } from "@/components/admin/parts";
+import {
+  PageHeader, StatCard, DataTable, Badge, DateRangeFilter, inDateRange, type Column,
+} from "@/components/admin/parts";
 import { lawyers, topRated } from "@/data/lawyers";
 import { firms } from "@/data/firms";
 import { cases } from "@/data/content";
@@ -15,6 +18,14 @@ export const Route = createFileRoute("/admin/")({ component: Overview });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
 
 function Overview() {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  const filteredConsultations = useMemo(
+    () => dashConsultations.filter((c) => inDateRange(c.date, from, to)),
+    [from, to],
+  );
+
   const consultCols: Column<(typeof dashConsultations)[number]>[] = [
     { key: "client", label: "العميل" },
     { key: "subject", label: "الموضوع" },
@@ -32,7 +43,11 @@ function Overview() {
 
   return (
     <>
-      <PageHeader title="نظرة عامة" subtitle="ملخص أداء منصة مُحامٍ" />
+      <PageHeader
+        title="نظرة عامة"
+        subtitle="ملخص أداء منصة مُحامٍ"
+        action={<DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />}
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard label="المحامون" value={fmt(lawyers.length)} icon={<Scale className="h-5 w-5" />} />
@@ -75,7 +90,7 @@ function Overview() {
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <h2 className="mb-3 text-lg font-bold text-cream">أحدث الاستشارات</h2>
-          <DataTable columns={consultCols} rows={dashConsultations} />
+          <DataTable columns={consultCols} rows={filteredConsultations} empty="لا توجد استشارات في هذه الفترة" />
         </div>
         <div>
           <h2 className="mb-3 text-lg font-bold text-cream">الأعلى تقييماً</h2>
