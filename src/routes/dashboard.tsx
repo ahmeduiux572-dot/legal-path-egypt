@@ -1431,10 +1431,11 @@ function Sessions() {
             if (day === null) return <div key={`e${i}`} />;
             const sessions = sessionByDay.get(day);
             const consultation = consultationByDay.get(day);
+            const dayReminders = reminderByDay.get(day);
             const isToday = day === today;
             return (
               <button key={day} type="button" onClick={() => handleDayClick(day)}
-                title={consultation ? "عرض الاستشارة" : "إضافة تذكير"}
+                title="عرض مواعيد اليوم"
                 className={`min-h-16 rounded-lg border p-1.5 text-start transition-colors hover:border-gold ${sessions ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy-deep/40"} ${isToday ? "ring-1 ring-gold" : ""}`}>
                 <span className={`text-xs font-bold ${isToday ? "text-gold" : "text-cream/70"}`}>{day}</span>
                 {sessions?.map((s) => (
@@ -1447,6 +1448,11 @@ function Sessions() {
                     <MessageSquare className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">استشارة: {consultation.subject}</span>
                   </p>
                 )}
+                {dayReminders?.map((r) => (
+                  <p key={r.id} className="mt-1 flex items-center gap-0.5 truncate rounded bg-orange-500/15 px-1 py-0.5 text-[10px] text-orange-400" title={`تنبيه: ${r.text}`}>
+                    <Bell className="h-2.5 w-2.5 shrink-0" /> <span className="truncate">تنبيه: {r.text}</span>
+                  </p>
+                ))}
               </button>
             );
           })}
