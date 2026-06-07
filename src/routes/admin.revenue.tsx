@@ -1,15 +1,35 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Eye } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
-import { PageHeader, DataTable, Badge, StatCard, type Column } from "@/components/admin/parts";
+import {
+  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton,
+  AdminDialog, Field, FieldGrid, type Column,
+} from "@/components/admin/parts";
 import { revenueByMonth, subscriptionsMRR, invoicesTotal, consultationsRevenue } from "@/data/admin";
 import { dashInvoices, type DashInvoice } from "@/data/dashboard";
 
 export const Route = createFileRoute("/admin/revenue")({ component: RevenuePage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
+const tone = (s: DashInvoice["status"]) => (s === "مدفوعة" ? "green" : s === "معلقة" ? "blue" : "red");
 
 function RevenuePage() {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("الكل");
+  const [selected, setSelected] = useState<DashInvoice | null>(null);
+
+  const filtered = useMemo(
+    () =>
+      dashInvoices.filter(
+        (i) =>
+          (status === "الكل" || i.status === status) &&
+          (i.client.includes(search) || i.number.includes(search) || (i.item ?? "").includes(search)),
+      ),
+    [search, status],
+  );
+
   const cols: Column<DashInvoice>[] = [
     { key: "number", label: "رقم الفاتورة", render: (r) => <span dir="ltr" className="font-semibold text-cream">{r.number}</span> },
     { key: "client", label: "العميل" },
@@ -18,8 +38,14 @@ function RevenuePage() {
     { key: "date", label: "التاريخ" },
     {
       key: "status", label: "الحالة",
+      render: (r) => <Badge tone={tone(r.status)}>{r.status}</Badge>,
+    },
+    {
+      key: "actions", label: "",
       render: (r) => (
-        <Badge tone={r.status === "مدفوعة" ? "green" : r.status === "معلقة" ? "blue" : "red"}>{r.status}</Badge>
+        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+          <Eye className="h-4 w-4" /> التفاصيل
+        </ActionButton>
       ),
     },
   ];
@@ -57,7 +83,42 @@ function RevenuePage() {
       </div>
 
       <h2 className="mb-3 text-lg font-bold text-cream">أحدث الفواتير</h2>
-      <DataTable columns={cols} rows={dashInvoices} />
+      <Toolbar
+        search={search}
+        onSearch={setSearch}
+        placeholder="ابحث برقم الفاتورة أو العميل..."
+        filters={[
+          { value: status, onChange: setStatus, options: [
+            { value: "الكل", label: "كل الحالات" },
+            { value: "مدفوعة", label: "مدفوعة" },
+            { value: "معلقة", label: "معلقة" },
+            { value: "متأخرة", label: "متأخرة" },
+          ] },
+        ]}
+      />
+      <DataTable columns={cols} rows={filtered} />
+
+      {selected && (
+        <AdminDialog
+          open={Boolean(selected)}
+          onOpenChange={(v) => !v && setSelected(null)}
+          title={<span dir="ltr">فاتورة {selected.number}</span>}
+          className="sm:max-w-lg"
+        >
+          <FieldGrid>
+            <Field label="رقم الفاتورة" value={<span dir="ltr">{selected.number}</span>} />
+            <Field label="العميل" value={selected.client} />
+            <Field label="البند" value={selected.item ?? "—"} />
+            {selected.caseRef && <Field label="مرجع القضية" value={selected.caseRef} />}
+            <Field label="المبلغ" value={`${fmt(selected.amount)} ج.م`} />
+            {selected.tax != null && <Field label="الضريبة" value={`${selected.tax}%`} />}
+            <Field label="تاريخ الإصدار" value={selected.issueDate ?? selected.date} />
+            {selected.dueDate && <Field label="تاريخ الاستحقاق" value={selected.dueDate} />}
+            <Field label="الحالة" value={<Badge tone={tone(selected.status)}>{selected.status}</Badge>} />
+            {selected.notes && <Field label="ملاحظات" value={<span className="text-cream/70">{selected.notes}</span>} />}
+          </FieldGrid>
+        </AdminDialog>
+      )}
     </>
   );
 }
