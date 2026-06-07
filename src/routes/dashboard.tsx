@@ -2318,7 +2318,7 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
   );
 }
 
-function WalletPanelImplLegacy() {
+function WalletPanelImpl() {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState(walletMethods[0]);
