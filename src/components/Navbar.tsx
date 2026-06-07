@@ -56,6 +56,15 @@ export function Navbar() {
                   <LayoutDashboard className="h-4 w-4" /> لوحة التحكم
                 </Link>
               )}
+              {!isLawyer && (
+                <Link
+                  to="/account"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-cream/80 transition-colors hover:text-gold"
+                  activeProps={{ className: "text-gold" }}
+                >
+                  <UserCircle className="h-4 w-4" /> حسابي
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 rounded-md border border-gold/50 px-4 py-2 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
