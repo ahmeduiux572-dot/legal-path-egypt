@@ -242,12 +242,14 @@ function Field({
 
 function Consultations() {
   const [filter, setFilter] = useState("all");
+  const [call, setCall] = useState<ClientConsultation | null>(null);
   const list = useMemo(
     () => clientConsultations.filter((c) => filter === "all" || c.status === filter),
     [filter],
   );
   return (
     <div className="space-y-5">
+      {call && <VideoCall consultation={call} onClose={() => setCall(null)} />}
       <div className="flex flex-wrap gap-2">
         {[
           { v: "all", l: "الكل" },
@@ -293,6 +295,14 @@ function Consultations() {
                   <span className="flex items-center gap-1.5 font-bold text-gold">{c.price.toLocaleString()} ج.م</span>
                 </div>
                 {c.notes && <p className="mt-3 rounded-lg bg-navy-deep/50 p-3 text-sm text-cream/70">{c.notes}</p>}
+                {c.status === "قادمة" && (
+                  <button
+                    onClick={() => setCall(c)}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:w-auto"
+                  >
+                    <Video className="h-4 w-4" /> انضمام للاستشارة
+                  </button>
+                )}
               </div>
             );
           })}
@@ -302,70 +312,73 @@ function Consultations() {
   );
 }
 
-function Cases() {
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-cream">قضاياي المنشورة</h2>
-        <Link
-          to="/cases"
-          className="flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"
-        >
-          <Plus className="h-4 w-4" /> انشر قضية
-        </Link>
-      </div>
-      {clientCases.length === 0 ? (
-        <div className={`${card} text-center text-sm text-cream/60`}>لم تنشر أي قضية بعد</div>
-      ) : (
-        <div className="grid gap-4">
-          {clientCases.map((c) => (
-            <div key={c.id} className={card}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-base font-bold text-cream">{c.title}</h3>
-                  <p className="mt-1 text-sm text-cream/60">{c.category} • {c.budget}</p>
-                </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusColor[c.status]}`}>{c.status}</span>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-cream/70">
-                <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-gold" /> {c.date}</span>
-                <span className="flex items-center gap-1.5"><Star className="h-4 w-4 text-gold" /> {c.proposals} عرض من المحامين</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+/* ---------- In-platform video call ---------- */
+function VideoCall({ consultation, onClose }: { consultation: ClientConsultation; onClose: () => void }) {
+  const [seconds, setSeconds] = useState(0);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  const lawyerInitial = consultation.lawyer.trim().charAt(0);
+  const youInitial = clientProfile.name.trim().charAt(0);
 
-function Invoices() {
   return (
-    <div className="space-y-5">
-      <h2 className="text-lg font-bold text-cream">الفواتير</h2>
-      {clientInvoices.length === 0 ? (
-        <div className={`${card} text-center text-sm text-cream/60`}>لا توجد فواتير</div>
-      ) : (
-        <div className="grid gap-4">
-          {clientInvoices.map((i) => (
-            <div key={i.id} className={`${card} flex items-center justify-between gap-3`}>
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold/15 text-gold">
-                  <Receipt className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-cream">{i.number} — {i.item}</p>
-                  <p className="mt-0.5 text-xs text-cream/60">{i.lawyer} • {i.date}</p>
-                </div>
-              </div>
-              <div className="text-left">
-                <p className="text-base font-extrabold text-gold">{i.amount.toLocaleString()} ج.م</p>
-                <span className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${statusColor[i.status]}`}>{i.status}</span>
-              </div>
-            </div>
-          ))}
+    <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-gradient-navy p-3 sm:p-5">
+      <div className="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-sm font-bold text-cream">
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
+          </p>
+          <p className="mt-0.5 truncate text-xs text-cream/55">{consultation.subject} — {consultation.lawyer}</p>
         </div>
-      )}
+        <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-sm font-bold text-gold">{mm}:{ss}</span>
+      </div>
+
+      <div className="my-3 grid min-h-0 flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+        {/* Lawyer tile (large) */}
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{lawyerInitial}</div>
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> {consultation.lawyer} (المحامي)
+          </span>
+        </div>
+        {/* Client tile */}
+        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+          {camOn ? (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{youInitial}</div>
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-cream/70"><VideoOff className="h-8 w-8" /></div>
+          )}
+          <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
+            {micOn ? <Mic className="h-3 w-3 text-emerald-400" /> : <MicOff className="h-3 w-3 text-red-400" />} {clientProfile.name} (أنت)
+          </span>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+        <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setCamOn((v) => !v)} aria-label="الكاميرا"
+          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${camOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+        </button>
+        <button onClick={() => setSharing((v) => !v)} aria-label="مشاركة الشاشة"
+          className={`hidden h-12 w-12 items-center justify-center rounded-full transition-colors sm:flex ${sharing ? "bg-gold/20 text-gold" : "bg-white/10 text-cream hover:bg-white/15"}`}>
+          <MonitorUp className="h-5 w-5" />
+        </button>
+        <button onClick={onClose} aria-label="إنهاء المكالمة"
+          className="flex h-12 items-center justify-center gap-2 rounded-full bg-red-500 px-6 text-sm font-bold text-white transition-colors hover:bg-red-600">
+          <PhoneOff className="h-5 w-5" /> إنهاء
+        </button>
+      </div>
     </div>
   );
 }
