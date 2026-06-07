@@ -163,10 +163,12 @@ export function DataTable<T extends { id: string }>({
   columns,
   rows,
   empty = "لا توجد بيانات",
+  onRowClick,
 }: {
   columns: Column<T>[];
   rows: T[];
   empty?: string;
+  onRowClick?: (row: T) => void;
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-navy-card/50 shadow-lg">
@@ -195,7 +197,10 @@ export function DataTable<T extends { id: string }>({
               rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.04]"
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  className={`border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.04] ${
+                    onRowClick ? "cursor-pointer" : ""
+                  }`}
                 >
                   {columns.map((c) => (
                     <td key={c.key} className={`px-4 py-3.5 text-cream/85 ${c.className ?? ""}`}>
