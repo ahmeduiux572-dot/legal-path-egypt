@@ -1532,12 +1532,9 @@ function Consultations() {
   const { request } = useDashNav();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
   const [inCall, setInCall] = useState<DashConsultation | null>(null);
-  const emptyForm = { client: "", subject: "", date: "", time: "", channel: "أونلاين", price: "" };
-  const [form, setForm] = useState(emptyForm);
   const viewing = items.find((c) => c.id === viewingId) ?? null;
   useEffect(() => { if (request?.section === "consultations") setViewingId(request.id); }, [request]);
   const addComment = (id: string, text: string) =>
@@ -1549,31 +1546,6 @@ function Consultations() {
     (filter === "all" || c.status === filter) &&
     (c.client.includes(search) || c.subject.includes(search))
   );
-  const add = (e: React.FormEvent) => {
-    e.preventDefault();
-    setItems((p) => [{ id: `co${Date.now()}`, client: form.client, subject: form.subject, date: form.date, time: form.time, channel: form.channel as DashConsultation["channel"], status: "قادمة", price: Number(form.price) }, ...p]);
-    setForm(emptyForm);
-    setAdding(false);
-  };
-
-  if (adding) {
-    return (
-      <FormPage title="إضافة استشارة جديدة" subtitle="حدّد موعد الاستشارة وقناة التواصل" icon={MessageSquare}
-        onBack={() => setAdding(false)} onSubmit={add} submitLabel="حفظ الاستشارة">
-        <FormSection title="بيانات الاستشارة">
-          <SelectField label="العميل" value={form.client} onChange={(v) => setForm({ ...form, client: v })} options={dashClients.map((c) => c.name)} placeholder="اختر العميل" required />
-          <SelectField label="القناة" value={form.channel} onChange={(v) => setForm({ ...form, channel: v })} options={["أونلاين", "مكتب", "هاتف"]} placeholder="اختر القناة" />
-          <div className="sm:col-span-2"><Field label="الموضوع"><input className={fieldCls} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required /></Field></div>
-        </FormSection>
-        <FormSection title="الموعد والسعر">
-          <Field label="التاريخ"><input className={fieldCls} placeholder="10 يونيو 2026" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></Field>
-          <Field label="الوقت"><input className={fieldCls} placeholder="11:00 ص" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></Field>
-          <Field label="السعر (ج.م)"><input type="number" min={0} className={fieldCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></Field>
-        </FormSection>
-      </FormPage>
-    );
-  }
-
   if (viewing) {
     const c = viewing;
     const linkedCase = dashCases.find((cs) => cs.title === c.caseRef);
