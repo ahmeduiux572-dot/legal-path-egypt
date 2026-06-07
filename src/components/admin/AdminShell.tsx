@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Scale, Building2, MessagesSquare, Gavel, Users,
-  Package, CreditCard, Wallet, Briefcase, Settings, LogOut, Menu, X, ExternalLink,
+  Package, CreditCard, Wallet, ArrowDownToLine, Briefcase, Settings, LogOut, Menu, X, ExternalLink,
 } from "lucide-react";
 import { adminLogout } from "@/lib/admin-auth";
 
@@ -16,6 +16,7 @@ export const adminNav = [
   { to: "/admin/plans", label: "الباقات", icon: Package },
   { to: "/admin/subscriptions", label: "الاشتراكات", icon: CreditCard },
   { to: "/admin/revenue", label: "الإيرادات", icon: Wallet },
+  { to: "/admin/withdrawals", label: "طلبات السحب", icon: ArrowDownToLine },
   { to: "/admin/staff", label: "الموظفون والوظائف", icon: Briefcase },
   { to: "/admin/settings", label: "الإعدادات", icon: Settings },
 ] as const;

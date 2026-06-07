@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, ClipboardCheck } from "lucide-react";
 import {
-  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, SectionTitle, type Column,
+  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, Tabs,
+  DateRangeFilter, inDateRange, type Column,
 } from "@/components/admin/parts";
 import { firms, firmSpecialties, firmCities, type Firm } from "@/data/firms";
 import { firmApplications, type FirmApplication } from "@/data/applications";
@@ -17,9 +18,13 @@ const appLabel = { pending: "قيد المراجعة", approved: "مقبول", r
 function FirmsPage() {
   const store = useAdminStore();
   const navigate = useNavigate();
+  const [tab, setTab] = useState("registered");
   const [search, setSearch] = useState("");
   const [spec, setSpec] = useState("كل التخصصات");
   const [city, setCity] = useState("كل المدن");
+  const [appSearch, setAppSearch] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
   const filtered = useMemo(
     () =>
@@ -30,6 +35,16 @@ function FirmsPage() {
           (f.name.includes(search) || f.tagline.includes(search)),
       ),
     [search, spec, city],
+  );
+
+  const filteredApps = useMemo(
+    () =>
+      firmApplications.filter(
+        (a) =>
+          inDateRange(a.submittedAt, from, to) &&
+          (a.name.includes(appSearch) || a.tagline.includes(appSearch) || a.email.includes(appSearch)),
+      ),
+    [appSearch, from, to],
   );
 
   const pendingCount = firmApplications.filter((a) => appStatus(store, a.id) === "pending").length;
@@ -106,20 +121,36 @@ function FirmsPage() {
         <StatCard label="إجمالي القضايا" value={fmt(firms.reduce((s, f) => s + f.cases, 0))} />
       </div>
 
-      <SectionTitle>طلبات التسجيل الجديدة</SectionTitle>
-      <DataTable columns={appCols} rows={firmApplications} empty="لا توجد طلبات" />
-
-      <SectionTitle>المكاتب المسجّلة</SectionTitle>
-      <Toolbar
-        search={search}
-        onSearch={setSearch}
-        placeholder="ابحث باسم المكتب..."
-        filters={[
-          { value: spec, onChange: setSpec, options: firmSpecialties.map((s) => ({ value: s, label: s })) },
-          { value: city, onChange: setCity, options: firmCities.map((c) => ({ value: c, label: c })) },
+      <Tabs
+        active={tab}
+        onChange={setTab}
+        tabs={[
+          { value: "registered", label: "المكاتب المسجّلة", count: firms.length },
+          { value: "applications", label: "طلبات التسجيل", count: firmApplications.length },
         ]}
       />
-      <DataTable columns={cols} rows={filtered} />
+
+      {tab === "registered" ? (
+        <>
+          <Toolbar
+            search={search}
+            onSearch={setSearch}
+            placeholder="ابحث باسم المكتب..."
+            filters={[
+              { value: spec, onChange: setSpec, options: firmSpecialties.map((s) => ({ value: s, label: s })) },
+              { value: city, onChange: setCity, options: firmCities.map((c) => ({ value: c, label: c })) },
+            ]}
+          />
+          <DataTable columns={cols} rows={filtered} />
+        </>
+      ) : (
+        <>
+          <Toolbar search={appSearch} onSearch={setAppSearch} placeholder="ابحث في الطلبات...">
+            <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
+          </Toolbar>
+          <DataTable columns={appCols} rows={filteredApps} empty="لا توجد طلبات" />
+        </>
+      )}
     </>
   );
 }
