@@ -152,10 +152,9 @@ function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
   const upcoming = clientConsultations.filter((c) => c.status === "قادمة");
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <StatCard icon={MessageSquare} label="إجمالي الاستشارات" value={clientConsultations.length} />
-        <StatCard icon={Briefcase} label="قضاياي النشطة" value={clientCases.length} />
-        <StatCard icon={Receipt} label="فواتير معلقة" value={clientInvoices.filter((i) => i.status === "معلقة").length} />
+        <StatCard icon={CalendarDays} label="استشارات قادمة" value={clientConsultations.filter((c) => c.status === "قادمة").length} />
       </div>
 
       <div className={card}>
