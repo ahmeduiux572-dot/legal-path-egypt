@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton,
-  AdminDialog, Field, FieldGrid, type Column,
+  DateRangeFilter, inDateRange, type Column,
 } from "@/components/admin/parts";
 import { revenueByMonth, subscriptionsMRR, invoicesTotal, consultationsRevenue } from "@/data/admin";
 import { dashInvoices, type DashInvoice } from "@/data/dashboard";
@@ -16,18 +16,21 @@ const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
 const tone = (s: DashInvoice["status"]) => (s === "مدفوعة" ? "green" : s === "معلقة" ? "blue" : "red");
 
 function RevenuePage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("الكل");
-  const [selected, setSelected] = useState<DashInvoice | null>(null);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
   const filtered = useMemo(
     () =>
       dashInvoices.filter(
         (i) =>
           (status === "الكل" || i.status === status) &&
+          inDateRange(i.date, from, to) &&
           (i.client.includes(search) || i.number.includes(search) || (i.item ?? "").includes(search)),
       ),
-    [search, status],
+    [search, status, from, to],
   );
 
   const cols: Column<DashInvoice>[] = [
@@ -43,7 +46,7 @@ function RevenuePage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/invoice/$invoiceId", params: { invoiceId: r.id } })}>
           <Eye className="h-4 w-4" /> التفاصيل
         </ActionButton>
       ),
@@ -95,30 +98,10 @@ function RevenuePage() {
             { value: "متأخرة", label: "متأخرة" },
           ] },
         ]}
-      />
+      >
+        <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
+      </Toolbar>
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (
-        <AdminDialog
-          open={Boolean(selected)}
-          onOpenChange={(v) => !v && setSelected(null)}
-          title={<span dir="ltr">فاتورة {selected.number}</span>}
-          className="sm:max-w-lg"
-        >
-          <FieldGrid>
-            <Field label="رقم الفاتورة" value={<span dir="ltr">{selected.number}</span>} />
-            <Field label="العميل" value={selected.client} />
-            <Field label="البند" value={selected.item ?? "—"} />
-            {selected.caseRef && <Field label="مرجع القضية" value={selected.caseRef} />}
-            <Field label="المبلغ" value={`${fmt(selected.amount)} ج.م`} />
-            {selected.tax != null && <Field label="الضريبة" value={`${selected.tax}%`} />}
-            <Field label="تاريخ الإصدار" value={selected.issueDate ?? selected.date} />
-            {selected.dueDate && <Field label="تاريخ الاستحقاق" value={selected.dueDate} />}
-            <Field label="الحالة" value={<Badge tone={tone(selected.status)}>{selected.status}</Badge>} />
-            {selected.notes && <Field label="ملاحظات" value={<span className="text-cream/70">{selected.notes}</span>} />}
-          </FieldGrid>
-        </AdminDialog>
-      )}
     </>
   );
 }
