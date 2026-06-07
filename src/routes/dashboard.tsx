@@ -2213,6 +2213,16 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
           >
             <List className="h-4 w-4" /> الفهرس
           </button>
+          {book.source && (
+            <a
+              href={book.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-400/10"
+            >
+              <ExternalLink className="h-4 w-4" /> النص الكامل المجاني
+            </a>
+          )}
           <div className="flex items-center rounded-lg border border-white/15">
             <button type="button" onClick={() => setFontSize((s) => Math.max(14, s - 1))} className="px-2.5 py-2 text-cream/70 hover:text-gold"><Minus className="h-4 w-4" /></button>
             <span className="px-1 text-xs font-bold text-cream/60">حجم الخط</span>
