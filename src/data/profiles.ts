@@ -1,6 +1,8 @@
 import type { Lawyer } from "./lawyers";
 import type { Firm } from "./firms";
 import { subscriptions, type Subscription } from "./admin";
+import { dashConsultations, type DashConsultation } from "./dashboard";
+import { withdrawalsFor, type Withdrawal } from "./withdrawals";
 
 /* بيانات مشتقة (تجريبية) لملف كل محامٍ/مكتب لعرضها في لوحة الإدارة */
 
@@ -11,22 +13,8 @@ export interface WalletTxn {
   amount: number; // موجب = إيداع، سالب = سحب
 }
 
-export interface WithdrawalRequest {
-  id: string;
-  amount: number;
-  method: string;
-  date: string;
-  status: "قيد المراجعة" | "منفذ" | "مرفوض";
-}
-
-export interface ProfileConsultation {
-  id: string;
-  client: string;
-  subject: string;
-  date: string;
-  price: number;
-  status: "مكتملة" | "قادمة" | "ملغاة";
-}
+export type WithdrawalRequest = Withdrawal;
+export type ProfileConsultation = DashConsultation;
 
 function hash(id: string): number {
   let h = 0;
@@ -35,8 +23,6 @@ function hash(id: string): number {
 }
 
 const months = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو"];
-const clientsPool = ["أحمد سمير", "منى عبد الله", "كريم حسن", "شركة النور", "مؤسسة الأمل", "سارة منيب", "خالد فؤاد"];
-const subjectsPool = ["استشارة عقد", "نزاع تجاري", "قضية أسرة", "مراجعة مستندات", "تعويض إصابة", "تأسيس شركة"];
 
 export function profileWalletBalance(idLike: { id: string; consultations?: number; cases?: number }): number {
   const base = (idLike.consultations ?? idLike.cases ?? 100) * 35;
@@ -53,31 +39,16 @@ export function profileWallet(idLike: { id: string }): WalletTxn[] {
   ];
 }
 
-const wStatuses: WithdrawalRequest["status"][] = ["قيد المراجعة", "منفذ", "مرفوض"];
 export function profileWithdrawals(idLike: { id: string }): WithdrawalRequest[] {
-  const h = hash(idLike.id);
-  const count = (h % 3) + 1;
-  return Array.from({ length: count }, (_, i) => ({
-    id: `${idLike.id}-wd${i + 1}`,
-    amount: 2000 + ((h + i * 7) % 8) * 1000,
-    method: ["تحويل بنكي", "محفظة إلكترونية", "فودافون كاش"][(h + i) % 3],
-    date: `${((h + i * 3) % 27) + 1} ${months[(h + i) % months.length]} 2026`,
-    status: wStatuses[(h + i) % wStatuses.length],
-  }));
+  return withdrawalsFor(idLike.id);
 }
 
-const cStatuses: ProfileConsultation["status"][] = ["مكتملة", "قادمة", "ملغاة"];
 export function profileConsultations(idLike: { id: string; consultations?: number }): ProfileConsultation[] {
   const h = hash(idLike.id);
-  const count = 4;
-  return Array.from({ length: count }, (_, i) => ({
-    id: `${idLike.id}-c${i + 1}`,
-    client: clientsPool[(h + i) % clientsPool.length],
-    subject: subjectsPool[(h + i * 2) % subjectsPool.length],
-    date: `${((h + i * 4) % 27) + 1} ${months[(h + i) % months.length]} 2026`,
-    price: 500 + ((h + i) % 6) * 250,
-    status: cStatuses[(h + i) % cStatuses.length],
-  }));
+  const offset = h % dashConsultations.length;
+  return Array.from({ length: dashConsultations.length }, (_, i) =>
+    dashConsultations[(offset + i) % dashConsultations.length],
+  );
 }
 
 export function profileSubscription(name: string): Subscription | undefined {
