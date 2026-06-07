@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, ClipboardCheck } from "lucide-react";
 import {
-  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, SectionTitle, type Column,
+  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, Tabs,
+  DateRangeFilter, inDateRange, type Column,
 } from "@/components/admin/parts";
 import { lawyers, specialties, cities, type Lawyer } from "@/data/lawyers";
 import { lawyerApplications, type LawyerApplication } from "@/data/applications";
@@ -17,9 +18,13 @@ const appLabel = { pending: "قيد المراجعة", approved: "مقبول", r
 function LawyersPage() {
   const store = useAdminStore();
   const navigate = useNavigate();
+  const [tab, setTab] = useState("registered");
   const [search, setSearch] = useState("");
   const [spec, setSpec] = useState("كل التخصصات");
   const [city, setCity] = useState("كل المدن");
+  const [appSearch, setAppSearch] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
   const filtered = useMemo(
     () =>
@@ -30,6 +35,16 @@ function LawyersPage() {
           (l.name.includes(search) || l.title.includes(search) || l.email.includes(search)),
       ),
     [search, spec, city],
+  );
+
+  const filteredApps = useMemo(
+    () =>
+      lawyerApplications.filter(
+        (a) =>
+          inDateRange(a.submittedAt, from, to) &&
+          (a.name.includes(appSearch) || a.title.includes(appSearch) || a.email.includes(appSearch)),
+      ),
+    [appSearch, from, to],
   );
 
   const pendingCount = lawyerApplications.filter((a) => appStatus(store, a.id) === "pending").length;
@@ -106,20 +121,36 @@ function LawyersPage() {
         <StatCard label="متوسط التقييم" value={(lawyers.reduce((s, l) => s + l.rating, 0) / lawyers.length).toFixed(1)} />
       </div>
 
-      <SectionTitle>طلبات التسجيل الجديدة</SectionTitle>
-      <DataTable columns={appCols} rows={lawyerApplications} empty="لا توجد طلبات" />
-
-      <SectionTitle>المحامون المسجّلون</SectionTitle>
-      <Toolbar
-        search={search}
-        onSearch={setSearch}
-        placeholder="ابحث بالاسم أو البريد..."
-        filters={[
-          { value: spec, onChange: setSpec, options: specialties.map((s) => ({ value: s, label: s })) },
-          { value: city, onChange: setCity, options: cities.map((c) => ({ value: c, label: c })) },
+      <Tabs
+        active={tab}
+        onChange={setTab}
+        tabs={[
+          { value: "registered", label: "المحامون المسجّلون", count: lawyers.length },
+          { value: "applications", label: "طلبات التسجيل", count: lawyerApplications.length },
         ]}
       />
-      <DataTable columns={cols} rows={filtered} />
+
+      {tab === "registered" ? (
+        <>
+          <Toolbar
+            search={search}
+            onSearch={setSearch}
+            placeholder="ابحث بالاسم أو البريد..."
+            filters={[
+              { value: spec, onChange: setSpec, options: specialties.map((s) => ({ value: s, label: s })) },
+              { value: city, onChange: setCity, options: cities.map((c) => ({ value: c, label: c })) },
+            ]}
+          />
+          <DataTable columns={cols} rows={filtered} />
+        </>
+      ) : (
+        <>
+          <Toolbar search={appSearch} onSearch={setAppSearch} placeholder="ابحث في الطلبات...">
+            <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
+          </Toolbar>
+          <DataTable columns={appCols} rows={filteredApps} empty="لا توجد طلبات" />
+        </>
+      )}
     </>
   );
 }
