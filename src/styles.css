@@ -119,6 +119,7 @@
   --color-gold-soft: var(--gold-soft);
   --color-cream: var(--cream);
   --font-sans: "Tajawal", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-logo: "Aref Ruqaa Ink", "Cairo", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -191,6 +192,9 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  .font-logo {
+    font-family: var(--font-logo);
   }
   .shadow-card {
     box-shadow: var(--shadow-card);
