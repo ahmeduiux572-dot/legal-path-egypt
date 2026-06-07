@@ -2007,9 +2007,6 @@ function Documents() {
   );
 }
 
-function WalletPanelImpl() {
-}
-
 /* ============================ المكتبة القانونية ============================ */
 function Library() {
   const [search, setSearch] = useState("");
