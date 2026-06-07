@@ -53,6 +53,7 @@ import {
   Library as LibraryIcon,
   Minus,
   List,
+  ExternalLink,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
