@@ -35,8 +35,18 @@ import { Route as AdminFirmsRouteImport } from './routes/admin.firms'
 import { Route as AdminConsultationsRouteImport } from './routes/admin.consultations'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
+import { Route as AdminSubscriptionSubIdRouteImport } from './routes/admin.subscription.$subId'
+import { Route as AdminStaffFormStaffIdRouteImport } from './routes/admin.staff-form.$staffId'
+import { Route as AdminRoleFormRoleIdRouteImport } from './routes/admin.role-form.$roleId'
+import { Route as AdminPlanFormPlanIdRouteImport } from './routes/admin.plan-form.$planId'
 import { Route as AdminLawyerLawyerIdRouteImport } from './routes/admin.lawyer.$lawyerId'
+import { Route as AdminLawyerAppAppIdRouteImport } from './routes/admin.lawyer-app.$appId'
+import { Route as AdminInvoiceInvoiceIdRouteImport } from './routes/admin.invoice.$invoiceId'
 import { Route as AdminFirmFirmIdRouteImport } from './routes/admin.firm.$firmId'
+import { Route as AdminFirmAppAppIdRouteImport } from './routes/admin.firm-app.$appId'
+import { Route as AdminConsultationConsultationIdRouteImport } from './routes/admin.consultation.$consultationId'
+import { Route as AdminClientClientIdRouteImport } from './routes/admin.client.$clientId'
+import { Route as AdminCaseCaseIdRouteImport } from './routes/admin.case.$caseId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -168,14 +178,65 @@ const AdminCasesRoute = AdminCasesRouteImport.update({
   path: '/cases',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSubscriptionSubIdRoute = AdminSubscriptionSubIdRouteImport.update({
+  id: '/subscription/$subId',
+  path: '/subscription/$subId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStaffFormStaffIdRoute = AdminStaffFormStaffIdRouteImport.update({
+  id: '/staff-form/$staffId',
+  path: '/staff-form/$staffId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRoleFormRoleIdRoute = AdminRoleFormRoleIdRouteImport.update({
+  id: '/role-form/$roleId',
+  path: '/role-form/$roleId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPlanFormPlanIdRoute = AdminPlanFormPlanIdRouteImport.update({
+  id: '/plan-form/$planId',
+  path: '/plan-form/$planId',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLawyerLawyerIdRoute = AdminLawyerLawyerIdRouteImport.update({
   id: '/lawyer/$lawyerId',
   path: '/lawyer/$lawyerId',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLawyerAppAppIdRoute = AdminLawyerAppAppIdRouteImport.update({
+  id: '/lawyer-app/$appId',
+  path: '/lawyer-app/$appId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInvoiceInvoiceIdRoute = AdminInvoiceInvoiceIdRouteImport.update({
+  id: '/invoice/$invoiceId',
+  path: '/invoice/$invoiceId',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFirmFirmIdRoute = AdminFirmFirmIdRouteImport.update({
   id: '/firm/$firmId',
   path: '/firm/$firmId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFirmAppAppIdRoute = AdminFirmAppAppIdRouteImport.update({
+  id: '/firm-app/$appId',
+  path: '/firm-app/$appId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConsultationConsultationIdRoute =
+  AdminConsultationConsultationIdRouteImport.update({
+    id: '/consultation/$consultationId',
+    path: '/consultation/$consultationId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminClientClientIdRoute = AdminClientClientIdRouteImport.update({
+  id: '/client/$clientId',
+  path: '/client/$clientId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCaseCaseIdRoute = AdminCaseCaseIdRouteImport.update({
+  id: '/case/$caseId',
+  path: '/case/$caseId',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -206,8 +267,18 @@ export interface FileRoutesByFullPath {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
+  '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
+  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/invoice/$invoiceId': typeof AdminInvoiceInvoiceIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
+  '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
+  '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
+  '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -235,8 +306,18 @@ export interface FileRoutesByTo {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin': typeof AdminIndexRoute
   '/lawyers': typeof LawyersIndexRoute
+  '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
+  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/invoice/$invoiceId': typeof AdminInvoiceInvoiceIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
+  '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
+  '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
+  '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -266,8 +347,18 @@ export interface FileRoutesById {
   '/lawyers/$lawyerId': typeof LawyersLawyerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
+  '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
+  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
+  '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
+  '/admin/invoice/$invoiceId': typeof AdminInvoiceInvoiceIdRoute
+  '/admin/lawyer-app/$appId': typeof AdminLawyerAppAppIdRoute
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
+  '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
+  '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
+  '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -298,8 +389,18 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin/'
     | '/lawyers/'
+    | '/admin/case/$caseId'
+    | '/admin/client/$clientId'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/invoice/$invoiceId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
+    | '/admin/plan-form/$planId'
+    | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
+    | '/admin/subscription/$subId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -327,8 +428,18 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin'
     | '/lawyers'
+    | '/admin/case/$caseId'
+    | '/admin/client/$clientId'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/invoice/$invoiceId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
+    | '/admin/plan-form/$planId'
+    | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
+    | '/admin/subscription/$subId'
   id:
     | '__root__'
     | '/'
@@ -357,8 +468,18 @@ export interface FileRouteTypes {
     | '/lawyers/$lawyerId'
     | '/admin/'
     | '/lawyers/'
+    | '/admin/case/$caseId'
+    | '/admin/client/$clientId'
+    | '/admin/consultation/$consultationId'
+    | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
+    | '/admin/invoice/$invoiceId'
+    | '/admin/lawyer-app/$appId'
     | '/admin/lawyer/$lawyerId'
+    | '/admin/plan-form/$planId'
+    | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
+    | '/admin/subscription/$subId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -563,6 +684,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCasesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/subscription/$subId': {
+      id: '/admin/subscription/$subId'
+      path: '/subscription/$subId'
+      fullPath: '/admin/subscription/$subId'
+      preLoaderRoute: typeof AdminSubscriptionSubIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/staff-form/$staffId': {
+      id: '/admin/staff-form/$staffId'
+      path: '/staff-form/$staffId'
+      fullPath: '/admin/staff-form/$staffId'
+      preLoaderRoute: typeof AdminStaffFormStaffIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/role-form/$roleId': {
+      id: '/admin/role-form/$roleId'
+      path: '/role-form/$roleId'
+      fullPath: '/admin/role-form/$roleId'
+      preLoaderRoute: typeof AdminRoleFormRoleIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/plan-form/$planId': {
+      id: '/admin/plan-form/$planId'
+      path: '/plan-form/$planId'
+      fullPath: '/admin/plan-form/$planId'
+      preLoaderRoute: typeof AdminPlanFormPlanIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/lawyer/$lawyerId': {
       id: '/admin/lawyer/$lawyerId'
       path: '/lawyer/$lawyerId'
@@ -570,11 +719,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLawyerLawyerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/lawyer-app/$appId': {
+      id: '/admin/lawyer-app/$appId'
+      path: '/lawyer-app/$appId'
+      fullPath: '/admin/lawyer-app/$appId'
+      preLoaderRoute: typeof AdminLawyerAppAppIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/invoice/$invoiceId': {
+      id: '/admin/invoice/$invoiceId'
+      path: '/invoice/$invoiceId'
+      fullPath: '/admin/invoice/$invoiceId'
+      preLoaderRoute: typeof AdminInvoiceInvoiceIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/firm/$firmId': {
       id: '/admin/firm/$firmId'
       path: '/firm/$firmId'
       fullPath: '/admin/firm/$firmId'
       preLoaderRoute: typeof AdminFirmFirmIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/firm-app/$appId': {
+      id: '/admin/firm-app/$appId'
+      path: '/firm-app/$appId'
+      fullPath: '/admin/firm-app/$appId'
+      preLoaderRoute: typeof AdminFirmAppAppIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/consultation/$consultationId': {
+      id: '/admin/consultation/$consultationId'
+      path: '/consultation/$consultationId'
+      fullPath: '/admin/consultation/$consultationId'
+      preLoaderRoute: typeof AdminConsultationConsultationIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/client/$clientId': {
+      id: '/admin/client/$clientId'
+      path: '/client/$clientId'
+      fullPath: '/admin/client/$clientId'
+      preLoaderRoute: typeof AdminClientClientIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/case/$caseId': {
+      id: '/admin/case/$caseId'
+      path: '/case/$caseId'
+      fullPath: '/admin/case/$caseId'
+      preLoaderRoute: typeof AdminCaseCaseIdRouteImport
       parentRoute: typeof AdminRoute
     }
   }
@@ -592,8 +783,18 @@ interface AdminRouteChildren {
   AdminStaffRoute: typeof AdminStaffRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminCaseCaseIdRoute: typeof AdminCaseCaseIdRoute
+  AdminClientClientIdRoute: typeof AdminClientClientIdRoute
+  AdminConsultationConsultationIdRoute: typeof AdminConsultationConsultationIdRoute
+  AdminFirmAppAppIdRoute: typeof AdminFirmAppAppIdRoute
   AdminFirmFirmIdRoute: typeof AdminFirmFirmIdRoute
+  AdminInvoiceInvoiceIdRoute: typeof AdminInvoiceInvoiceIdRoute
+  AdminLawyerAppAppIdRoute: typeof AdminLawyerAppAppIdRoute
   AdminLawyerLawyerIdRoute: typeof AdminLawyerLawyerIdRoute
+  AdminPlanFormPlanIdRoute: typeof AdminPlanFormPlanIdRoute
+  AdminRoleFormRoleIdRoute: typeof AdminRoleFormRoleIdRoute
+  AdminStaffFormStaffIdRoute: typeof AdminStaffFormStaffIdRoute
+  AdminSubscriptionSubIdRoute: typeof AdminSubscriptionSubIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -608,8 +809,18 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminStaffRoute: AdminStaffRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminCaseCaseIdRoute: AdminCaseCaseIdRoute,
+  AdminClientClientIdRoute: AdminClientClientIdRoute,
+  AdminConsultationConsultationIdRoute: AdminConsultationConsultationIdRoute,
+  AdminFirmAppAppIdRoute: AdminFirmAppAppIdRoute,
   AdminFirmFirmIdRoute: AdminFirmFirmIdRoute,
+  AdminInvoiceInvoiceIdRoute: AdminInvoiceInvoiceIdRoute,
+  AdminLawyerAppAppIdRoute: AdminLawyerAppAppIdRoute,
   AdminLawyerLawyerIdRoute: AdminLawyerLawyerIdRoute,
+  AdminPlanFormPlanIdRoute: AdminPlanFormPlanIdRoute,
+  AdminRoleFormRoleIdRoute: AdminRoleFormRoleIdRoute,
+  AdminStaffFormStaffIdRoute: AdminStaffFormStaffIdRoute,
+  AdminSubscriptionSubIdRoute: AdminSubscriptionSubIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

@@ -1,17 +1,12 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, ClipboardCheck } from "lucide-react";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, SectionTitle, type Column,
 } from "@/components/admin/parts";
-import { ProfileDialog } from "@/components/admin/ProfileDialog";
-import { ApplicationDialog } from "@/components/admin/ApplicationDialog";
 import { firms, firmSpecialties, firmCities, type Firm } from "@/data/firms";
 import { firmApplications, type FirmApplication } from "@/data/applications";
-import { firmProfile } from "@/data/profiles";
-import {
-  useAdminStore, isBlocked, toggleBlock, appStatus, setApplicationStatus,
-} from "@/lib/admin-store";
+import { useAdminStore, isBlocked, appStatus } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/firms")({ component: FirmsPage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -21,11 +16,10 @@ const appLabel = { pending: "قيد المراجعة", approved: "مقبول", r
 
 function FirmsPage() {
   const store = useAdminStore();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [spec, setSpec] = useState("كل التخصصات");
   const [city, setCity] = useState("كل المدن");
-  const [selected, setSelected] = useState<Firm | null>(null);
-  const [review, setReview] = useState<FirmApplication | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -64,7 +58,7 @@ function FirmsPage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/firm/$firmId", params: { firmId: r.id } })}>
           <Eye className="h-4 w-4" /> عرض الملف
         </ActionButton>
       ),
@@ -94,12 +88,11 @@ function FirmsPage() {
       } },
     {
       key: "actions", label: "",
-      render: (r) =>
-        appStatus(store, r.id) === "pending" ? (
-          <ActionButton tone="gold" onClick={() => setReview(r)}>
-            <ClipboardCheck className="h-4 w-4" /> مراجعة
-          </ActionButton>
-        ) : null,
+      render: (r) => (
+        <ActionButton tone="gold" onClick={() => navigate({ to: "/admin/firm-app/$appId", params: { appId: r.id } })}>
+          <ClipboardCheck className="h-4 w-4" /> {appStatus(store, r.id) === "pending" ? "مراجعة" : "عرض"}
+        </ActionButton>
+      ),
     },
   ];
 
@@ -127,52 +120,6 @@ function FirmsPage() {
         ]}
       />
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (
-        <ProfileDialog
-          open={Boolean(selected)}
-          onOpenChange={(v) => !v && setSelected(null)}
-          image={selected.image}
-          name={selected.name}
-          subtitle={`${selected.specialty} • ${selected.city}`}
-          blocked={isBlocked(store, "firm", selected.id)}
-          onToggleBlock={() => toggleBlock("firm", selected.id)}
-          profile={firmProfile(selected)}
-          fields={[
-            { label: "التخصص", value: selected.specialty },
-            { label: "المدينة", value: selected.city },
-            { label: "سنة التأسيس", value: selected.established },
-            { label: "حجم الفريق", value: `${selected.teamSize} عضو` },
-            { label: "سعر الاستشارة", value: `${fmt(selected.consultationPrice)} ج.م` },
-            { label: "عدد القضايا", value: fmt(selected.cases) },
-            { label: "التقييم", value: `★ ${selected.rating} (${selected.reviews} تقييم)` },
-            { label: "نبذة", value: <span className="text-cream/70">{selected.about}</span> },
-          ]}
-        />
-      )}
-
-      {review && (
-        <ApplicationDialog
-          open={Boolean(review)}
-          onOpenChange={(v) => !v && setReview(null)}
-          image={review.image}
-          name={review.name}
-          subtitle={`${review.specialty} • ${review.city}`}
-          files={review.files}
-          fields={[
-            { label: "التخصص", value: review.specialty },
-            { label: "المدينة", value: review.city },
-            { label: "سنة التأسيس", value: review.established },
-            { label: "حجم الفريق", value: `${review.teamSize} عضو` },
-            { label: "رقم الترخيص", value: review.licenseNumber },
-            { label: "الهاتف", value: <span dir="ltr">{review.phone}</span> },
-            { label: "البريد", value: <span dir="ltr">{review.email}</span> },
-            { label: "نبذة", value: <span className="text-cream/70">{review.about}</span> },
-          ]}
-          onApprove={() => { setApplicationStatus(review.id, "approved"); setReview(null); }}
-          onReject={() => { setApplicationStatus(review.id, "rejected"); setReview(null); }}
-        />
-      )}
     </>
   );
 }

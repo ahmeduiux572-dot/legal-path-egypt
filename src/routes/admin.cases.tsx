@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Eye, CheckCircle2, XCircle } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Eye } from "lucide-react";
 import {
-  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton,
-  AdminDialog, Field, FieldGrid, type Column,
+  PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, type Column,
 } from "@/components/admin/parts";
 import { cases, type CaseListing } from "@/data/content";
-import { useAdminStore, caseStatus, setCaseStatus } from "@/lib/admin-store";
+import { useAdminStore, caseStatus } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/cases")({ component: CasesPage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -18,10 +17,10 @@ const categories = ["all", "تجاري", "أسرة", "ملكية فكرية", "�
 
 function CasesPage() {
   const store = useAdminStore();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState("all");
   const [st, setSt] = useState("all");
-  const [selected, setSelected] = useState<CaseListing | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -47,7 +46,7 @@ function CasesPage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/case/$caseId", params: { caseId: r.id } })}>
           <Eye className="h-4 w-4" /> مراجعة
         </ActionButton>
       ),
@@ -79,34 +78,6 @@ function CasesPage() {
         ]}
       />
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (() => {
-        const s = caseStatus(store, selected.id);
-        return (
-          <AdminDialog open onOpenChange={(v) => !v && setSelected(null)} title="مراجعة القضية">
-            <FieldGrid>
-              <Field label="العنوان" value={selected.title} />
-              <Field label="التصنيف" value={<Badge tone="gold">{selected.category}</Badge>} />
-              <Field label="المدينة" value={selected.city} />
-              <Field label="الميزانية" value={selected.budget} />
-              <Field label="الموعد" value={selected.deadline} />
-              <Field label="عدد العروض" value={fmt(selected.proposals)} />
-              <Field label="الحالة" value={<Badge tone={csBadge[s]}>{csLabel[s]}</Badge>} />
-            </FieldGrid>
-            <p className="mt-4 rounded-2xl border border-white/10 bg-navy-card/40 p-4 text-sm text-cream/75">
-              {selected.description}
-            </p>
-            <div className="mt-6 flex justify-end gap-2">
-              <ActionButton tone="red" onClick={() => { setCaseStatus(selected.id, "rejected"); setSelected(null); }}>
-                <XCircle className="h-4 w-4" /> رفض
-              </ActionButton>
-              <ActionButton tone="green" onClick={() => { setCaseStatus(selected.id, "published"); setSelected(null); }}>
-                <CheckCircle2 className="h-4 w-4" /> نشر القضية
-              </ActionButton>
-            </div>
-          </AdminDialog>
-        );
-      })()}
     </>
   );
 }
