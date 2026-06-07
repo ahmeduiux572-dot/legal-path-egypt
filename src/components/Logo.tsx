@@ -5,7 +5,7 @@ export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
   return (
     <Link to="/" className="flex items-center">
       <span className="flex flex-col leading-none">
-        <span className={`text-xl font-extrabold ${textClass}`}>محام</span>
+        <span className={`text-xl font-extrabold ${textClass}`}>مُحَامٌ</span>
         <span className="text-[10px] font-medium tracking-wide text-gold">MOHAM · LEGAL</span>
       </span>
     </Link>

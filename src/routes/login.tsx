@@ -7,10 +7,10 @@ import { login } from "@/lib/auth";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | محام" },
-      { name: "description", content: "سجّل الدخول إلى منصة محام كمحامٍ أو كعميل للوصول إلى حسابك واستشاراتك." },
-      { property: "og:title", content: "تسجيل الدخول | محام" },
-      { property: "og:description", content: "ادخل إلى حسابك على منصة محام كمحامٍ أو عميل." },
+      { title: "تسجيل الدخول | مُحَامٌ" },
+      { name: "description", content: "سجّل الدخول إلى منصة مُحَامٌ كمحامٍ أو كعميل للوصول إلى حسابك واستشاراتك." },
+      { property: "og:title", content: "تسجيل الدخول | مُحَامٌ" },
+      { property: "og:description", content: "ادخل إلى حسابك على منصة مُحَامٌ كمحامٍ أو عميل." },
     ],
   }),
   component: LoginPage,
@@ -54,7 +54,7 @@ function LoginPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gold/30 bg-navy-card/60">
             <Scale className="h-5 w-5 text-gold" />
           </div>
-          <span className="text-xl font-bold text-cream">محام</span>
+          <span className="text-xl font-bold text-cream">مُحَامٌ</span>
         </div>
 
         {submitted ? (
@@ -62,7 +62,7 @@ function LoginPage() {
             <CheckCircle2 className="mx-auto h-12 w-12 text-gold" />
             <h3 className="mt-4 text-xl font-bold text-cream">تم تسجيل الدخول بنجاح</h3>
             <p className="mt-2 text-sm text-cream/70">
-              مرحباً بك مجدداً في منصة محام {role === "lawyer" ? "كمحامٍ" : "كعميل"}.
+              مرحباً بك مجدداً في منصة مُحَامٌ {role === "lawyer" ? "كمحامٍ" : "كعميل"}.
             </p>
           </div>
         ) : (
@@ -71,7 +71,7 @@ function LoginPage() {
             <div className="mb-8 text-center">
               <h1 className="text-2xl font-bold text-cream">تسجيل الدخول</h1>
               <p className="mt-2 text-sm text-cream/60">
-                ادخل إلى حسابك على منصة محام للوصول إلى استشاراتك وخدماتك.
+                ادخل إلى حسابك على منصة مُحَامٌ للوصول إلى استشاراتك وخدماتك.
               </p>
             </div>
 
