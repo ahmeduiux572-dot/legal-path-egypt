@@ -48,6 +48,11 @@ import {
   FolderOpen,
   Upload,
   ScrollText,
+  BookOpen,
+  Bookmark,
+  Library as LibraryIcon,
+  Minus,
+  List,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
@@ -75,6 +80,12 @@ import {
   type DashReminder,
 } from "@/data/dashboard";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
+import {
+  libraryBooks,
+  libraryCategories,
+  searchLibrary,
+  type LibraryBook,
+} from "@/data/library";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -99,6 +110,7 @@ type SectionId =
   | "consultations"
   | "invoices"
   | "documents"
+  | "library"
   | "wallet"
   | "ai";
 
@@ -111,6 +123,7 @@ const nav: { id: SectionId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "consultations", label: "الاستشارات", icon: MessageSquare },
   { id: "invoices", label: "الفواتير", icon: Receipt },
   { id: "documents", label: "المستندات", icon: FileText },
+  { id: "library", label: "المكتبة القانونية", icon: BookOpen },
   { id: "wallet", label: "المحفظة", icon: Wallet },
   { id: "ai", label: "الذكاء الاصطناعي القانوني", icon: Sparkles },
 ];
@@ -341,6 +354,7 @@ function DashboardPage() {
           {section === "consultations" && <Consultations />}
           {section === "invoices" && <Invoices />}
           {section === "documents" && <Documents />}
+          {section === "library" && <Library />}
           {section === "wallet" && <WalletPanel />}
           {section === "ai" && <LegalAI />}
         </div>
@@ -1989,6 +2003,317 @@ function Documents() {
           </form>
         </Modal>
       )}
+    </div>
+  );
+}
+
+/* ============================ المكتبة القانونية ============================ */
+function Library() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string>("all");
+  const [openBook, setOpenBook] = useState<LibraryBook | null>(null);
+
+  const results = useMemo(() => {
+    const bySearch = searchLibrary(search);
+    return category === "all" ? bySearch : bySearch.filter((b) => b.category === category);
+  }, [search, category]);
+
+  if (openBook) {
+    return <BookReader book={openBook} onBack={() => setOpenBook(null)} />;
+  }
+
+  const totalArticles = libraryBooks.reduce((n, b) => n + b.articlesCount, 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Intro / stats */}
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-navy p-6 md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="flex items-center gap-2 text-xl font-extrabold text-gradient-gold md:text-2xl">
+              <LibraryIcon className="h-6 w-6 text-gold" /> المكتبة القانونية
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-cream/70">
+              مرجعك القانوني الكامل داخل المنصة — اقرأ أهم القوانين والتشريعات المصرية بتصميم مريح،
+              مع فهرس للمواد وبحث فوري داخل كل كتاب.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <div className="rounded-xl border border-white/10 bg-navy-card/60 px-5 py-3 text-center">
+              <p className="text-2xl font-extrabold text-gold">{libraryBooks.length}</p>
+              <p className="text-xs text-cream/60">كتاب وقانون</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-navy-card/60 px-5 py-3 text-center">
+              <p className="text-2xl font-extrabold text-cream">{totalArticles}</p>
+              <p className="text-xs text-cream/60">مادة قانونية</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search + categories */}
+      <div className={card}>
+        <div className="relative mb-4">
+          <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="ابحث عن قانون، مادة، أو موضوع..."
+            className={`${fieldCls} pr-9`}
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setCategory("all")}
+            className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+              category === "all" ? "bg-gradient-gold text-navy shadow-gold" : "border border-white/10 bg-navy-deep/50 text-cream/75 hover:border-gold/40"
+            }`}
+          >
+            الكل
+          </button>
+          {libraryCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+                category === cat ? "bg-gradient-gold text-navy shadow-gold" : "border border-white/10 bg-navy-deep/50 text-cream/75 hover:border-gold/40"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Books grid */}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {results.map((book) => (
+          <button
+            key={book.id}
+            type="button"
+            onClick={() => setOpenBook(book)}
+            className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-navy-card/60 text-right transition-all hover:-translate-y-1 hover:border-gold/40 hover:shadow-card"
+          >
+            <div className="relative flex h-40 items-center justify-center p-5" style={{ background: book.cover }}>
+              <div className="absolute inset-0 pattern-grid opacity-30" />
+              <div className="relative flex h-full w-16 flex-col justify-between rounded-md border border-gold/30 bg-black/10 p-2 shadow-lg">
+                <BookOpen className="mx-auto h-6 w-6 text-gold" />
+                <span className="block text-center text-[10px] font-bold leading-tight text-cream/80">{book.category}</span>
+              </div>
+              <span className="absolute right-3 top-3 rounded-full bg-black/30 px-2 py-0.5 text-[10px] font-semibold text-cream/85 backdrop-blur">
+                {book.year}
+              </span>
+            </div>
+            <div className="flex flex-1 flex-col p-5">
+              <h3 className="text-base font-extrabold text-cream group-hover:text-gold">{book.title}</h3>
+              <p className="mt-1 text-xs text-cream/55">{book.authority}</p>
+              <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-cream/70">{book.description}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {book.tags.slice(0, 3).map((t) => (
+                  <span key={t} className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">{t}</span>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+                <span className="text-[11px] text-cream/50">{book.articlesCount} مادة · {book.pages} صفحة</span>
+                <span className="flex items-center gap-1.5 text-xs font-bold text-gold">
+                  اقرأ الكتاب <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </div>
+            </div>
+          </button>
+        ))}
+        {results.length === 0 && (
+          <p className="col-span-full py-12 text-center text-sm text-cream/50">لا توجد نتائج مطابقة لبحثك.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const BOOKMARKS_KEY = "muhamik_library_bookmarks";
+
+function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void }) {
+  const [fontSize, setFontSize] = useState(17);
+  const [query, setQuery] = useState("");
+  const [tocOpen, setTocOpen] = useState(false);
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(`${BOOKMARKS_KEY}_${book.id}`);
+      if (raw) setBookmarks(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [book.id]);
+
+  const toggleBookmark = (key: string) => {
+    setBookmarks((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      try { localStorage.setItem(`${BOOKMARKS_KEY}_${book.id}`, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
+  const q = query.trim();
+  const filteredChapters = useMemo(() => {
+    if (!q) return book.chapters;
+    return book.chapters
+      .map((c) => ({
+        ...c,
+        articles: c.articles.filter((a) => a.text.includes(q) || a.num === q || (a.title ?? "").includes(q)),
+      }))
+      .filter((c) => c.articles.length > 0);
+  }, [book.chapters, q]);
+
+  const matchCount = filteredChapters.reduce((n, c) => n + c.articles.length, 0);
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTocOpen(false);
+  };
+
+  const highlight = (text: string) => {
+    if (!q) return text;
+    const parts = text.split(q);
+    return parts.map((part, i) => (
+      <span key={i}>
+        {part}
+        {i < parts.length - 1 && <mark className="rounded bg-gold/40 text-cream">{q}</mark>}
+      </span>
+    ));
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-cream transition-colors hover:bg-white/5 hover:text-gold">
+            <ArrowRight className="h-5 w-5" />
+          </button>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><BookOpen className="h-5 w-5 text-gold" /> {book.title}</h2>
+            <p className="mt-0.5 text-sm text-cream/55">{book.authority} · {book.year}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setTocOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-cream transition-colors hover:border-gold hover:text-gold lg:hidden"
+          >
+            <List className="h-4 w-4" /> الفهرس
+          </button>
+          <div className="flex items-center rounded-lg border border-white/15">
+            <button type="button" onClick={() => setFontSize((s) => Math.max(14, s - 1))} className="px-2.5 py-2 text-cream/70 hover:text-gold"><Minus className="h-4 w-4" /></button>
+            <span className="px-1 text-xs font-bold text-cream/60">حجم الخط</span>
+            <button type="button" onClick={() => setFontSize((s) => Math.min(26, s + 1))} className="px-2.5 py-2 text-cream/70 hover:text-gold"><Plus className="h-4 w-4" /></button>
+          </div>
+        </div>
+      </div>
+
+      <div className="lg:flex lg:gap-6">
+        {/* TOC sidebar */}
+        <aside className={`${tocOpen ? "block" : "hidden"} mb-5 lg:mb-0 lg:block lg:w-64 lg:shrink-0`}>
+          <div className="sticky top-4 rounded-2xl border border-white/10 bg-navy-card/60 p-4">
+            <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gold"><List className="h-4 w-4" /> فهرس المواد</p>
+            <div className="max-h-[60vh] space-y-3 overflow-y-auto pl-1">
+              {book.chapters.map((c, ci) => (
+                <div key={ci}>
+                  <p className="mb-1 text-xs font-bold text-cream/80">{c.title}</p>
+                  <ul className="space-y-0.5">
+                    {c.articles.map((a) => {
+                      const id = `art-${ci}-${a.num}`;
+                      return (
+                        <li key={id}>
+                          <button
+                            type="button"
+                            onClick={() => scrollTo(id)}
+                            className="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-right text-xs text-cream/60 transition-colors hover:bg-white/5 hover:text-gold"
+                          >
+                            {bookmarks.includes(id) && <Bookmark className="h-3 w-3 shrink-0 fill-gold text-gold" />}
+                            <span className="truncate">مادة {a.num}{a.title ? ` — ${a.title}` : ""}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* Reading pane */}
+        <div className="min-w-0 flex-1 space-y-4">
+          <div className="relative">
+            <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`ابحث داخل ${book.title}...`}
+              className={`${fieldCls} pr-9`}
+            />
+            {q && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-cream/50">{matchCount} نتيجة</span>}
+          </div>
+
+          <div ref={contentRef} className="rounded-2xl border border-white/10 bg-[oklch(0.97_0.012_85)] p-6 text-[oklch(0.22_0.05_264)] shadow-card md:p-10">
+            {/* Title page header */}
+            <div className="mb-8 border-b-2 border-gold/40 pb-6 text-center">
+              <p className="font-logo text-sm font-bold tracking-wide text-[oklch(0.5_0.08_70)]">منصة محامٍ — المكتبة القانونية</p>
+              <h1 className="mt-2 text-2xl font-extrabold md:text-3xl">{book.title}</h1>
+              <p className="mt-2 text-sm text-[oklch(0.4_0.03_264)]">{book.authority} · {book.year}</p>
+            </div>
+
+            {filteredChapters.map((c, ci) => {
+              const origCi = book.chapters.findIndex((x) => x.title === c.title);
+              return (
+                <section key={ci} className="mb-8">
+                  <h2 className="mb-4 rounded-lg bg-[oklch(0.94_0.02_85)] px-4 py-2 text-lg font-extrabold text-[oklch(0.3_0.06_264)]">{c.title}</h2>
+                  <div className="space-y-6">
+                    {c.articles.map((a) => {
+                      const id = `art-${origCi}-${a.num}`;
+                      const marked = bookmarks.includes(id);
+                      return (
+                        <article key={id} id={id} className="scroll-mt-20">
+                          <div className="mb-1.5 flex items-center justify-between gap-2">
+                            <h3 className="flex items-center gap-2 text-base font-bold text-[oklch(0.45_0.09_70)]">
+                              <span className="rounded-md bg-[oklch(0.55_0.10_80)] px-2 py-0.5 text-sm text-white">مادة {a.num}</span>
+                              {a.title && <span>{a.title}</span>}
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => toggleBookmark(id)}
+                              className={`shrink-0 rounded-md p-1.5 transition-colors ${marked ? "text-[oklch(0.55_0.10_80)]" : "text-[oklch(0.6_0.02_264)] hover:text-[oklch(0.55_0.10_80)]"}`}
+                              aria-label="حفظ المادة"
+                            >
+                              <Bookmark className={`h-4 w-4 ${marked ? "fill-current" : ""}`} />
+                            </button>
+                          </div>
+                          <p style={{ fontSize, lineHeight: 2 }} className="text-justify text-[oklch(0.28_0.04_264)]">
+                            {highlight(a.text)}
+                          </p>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
+
+            {filteredChapters.length === 0 && (
+              <p className="py-10 text-center text-sm text-[oklch(0.5_0.03_264)]">لا توجد مواد مطابقة لبحثك داخل هذا الكتاب.</p>
+            )}
+
+            <div className="mt-10 border-t border-[oklch(0.88_0.01_85)] pt-6 text-center text-xs text-[oklch(0.5_0.03_264)]">
+              — تمّت قراءة هذا المحتوى داخل منصة محامٍ —
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
