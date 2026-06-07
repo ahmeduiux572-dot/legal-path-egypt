@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { plans as seedPlans, type Plan } from "@/data/content";
 import { employees as seedEmployees, jobOpenings as seedJobs, type Employee, type JobOpening } from "@/data/admin";
 import { defaultRoles, type JobRole, ALL_PERMISSIONS } from "@/data/permissions";
+import type { WithdrawalStatus } from "@/data/withdrawals";
 
 export type AppStatus = "pending" | "approved" | "rejected";
 export type CaseStatus = "pending" | "published" | "rejected";
@@ -16,6 +17,7 @@ export interface AdminState {
   blocked: Record<string, boolean>;
   applications: Record<string, AppStatus>;
   cases: Record<string, CaseStatus>;
+  withdrawals: Record<string, WithdrawalStatus>;
   packages: Plan[];
   roles: JobRole[];
   staff: StaffMember[];
@@ -41,6 +43,7 @@ function seed(): AdminState {
     blocked: {},
     applications: {},
     cases: {},
+    withdrawals: {},
     packages: seedPlans.map((p) => ({ ...p, features: [...p.features] })),
     roles: defaultRoles.map((r) => ({ ...r, permissions: [...r.permissions] })),
     staff: seedStaff(),
@@ -117,6 +120,18 @@ export function setCaseStatus(id: string, status: CaseStatus) {
 }
 export function caseStatus(s: AdminState, id: string): CaseStatus {
   return s.cases[id] ?? "pending";
+}
+
+/* ---------- طلبات السحب ---------- */
+export function setWithdrawalStatus(id: string, status: WithdrawalStatus) {
+  set((s) => ({ ...s, withdrawals: { ...s.withdrawals, [id]: status } }));
+}
+export function withdrawalStatus(
+  s: AdminState,
+  id: string,
+  fallback: WithdrawalStatus,
+): WithdrawalStatus {
+  return s.withdrawals[id] ?? fallback;
 }
 
 /* ---------- الباقات ---------- */
