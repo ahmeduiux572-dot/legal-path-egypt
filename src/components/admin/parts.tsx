@@ -325,3 +325,49 @@ function FileViewer({ file, onClose }: { file: string | null; onClose: () => voi
     </Dialog>
   );
 }
+
+/* ---------- عناصر النماذج ---------- */
+const inputCls =
+  "h-10 w-full rounded-xl border border-white/10 bg-navy-card/60 px-3 text-sm text-cream placeholder:text-cream/40 outline-none transition-colors focus:border-gold/40";
+
+export function Labeled({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-semibold text-cream/70">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} className={`${inputCls} ${props.className ?? ""}`} />;
+}
+
+export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      {...props}
+      className={`min-h-[90px] w-full rounded-xl border border-white/10 bg-navy-card/60 p-3 text-sm text-cream placeholder:text-cream/40 outline-none transition-colors focus:border-gold/40 ${props.className ?? ""}`}
+    />
+  );
+}
+
+export function SelectInput({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
+      {options.map((o) => (
+        <option key={o.value} value={o.value} className="bg-navy-deep text-cream">
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
