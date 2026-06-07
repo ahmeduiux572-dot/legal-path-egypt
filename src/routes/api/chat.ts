@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
+
 const SYSTEM_PROMPT = `أنت مساعد قانوني ذكي على منصة "مُحامٍ" القانونية الرقمية في مصر والشرق الأوسط.
 مهمتك تقديم إجابات قانونية مبدئية واضحة ومبسطة باللغة العربية لأغراض التوعية القانونية.
 قواعد مهمة:
@@ -24,14 +26,6 @@ export const Route = createFileRoute("/api/chat")({
             messages: { role: "user" | "assistant"; content: string }[];
           };
 
-          const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-          if (!LOVABLE_API_KEY) {
-            return new Response(
-              JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
-              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-            );
-          }
-
           if (!Array.isArray(messages) || messages.length === 0) {
             return new Response(
               JSON.stringify({ error: "messages are required" }),
@@ -48,6 +42,33 @@ export const Route = createFileRoute("/api/chat")({
                 m.content.length > 0 &&
                 m.content.length <= 4000,
             );
+
+          const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+          if (!LOVABLE_API_KEY) {
+            const requestHost = new URL(request.url).hostname;
+            const fallbackHost = new URL(FALLBACK_AI_BASE).hostname;
+            if (requestHost !== fallbackHost) {
+              const upstream = await fetch(`${FALLBACK_AI_BASE}/api/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: safeMessages }),
+              });
+
+              return new Response(upstream.body, {
+                status: upstream.status,
+                headers: {
+                  ...corsHeaders,
+                  "Content-Type": upstream.headers.get("Content-Type") || "text/event-stream",
+                  "Cache-Control": "no-cache",
+                },
+              });
+            }
+
+            return new Response(
+              JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
 
           const response = await fetch(
             "https://ai.gateway.lovable.dev/v1/chat/completions",
