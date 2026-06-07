@@ -58,7 +58,7 @@ function LoginPage() {
         </div>
 
         {submitted ? (
-          <div className="w-full max-w-sm rounded-2xl border border-gold/30 bg-navy-card/80 p-10 text-center backdrop-blur-md">
+          <div className="w-full max-w-lg rounded-2xl border border-gold/30 bg-navy-card/80 p-10 text-center backdrop-blur-md">
             <CheckCircle2 className="mx-auto h-12 w-12 text-gold" />
             <h3 className="mt-4 text-xl font-bold text-cream">تم تسجيل الدخول بنجاح</h3>
             <p className="mt-2 text-sm text-cream/70">
@@ -66,7 +66,7 @@ function LoginPage() {
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-navy-card/70 p-6 backdrop-blur-md sm:p-8">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-navy-card/70 p-6 backdrop-blur-md sm:p-8">
             {/* Header */}
             <div className="mb-8 text-center">
               <h1 className="text-2xl font-bold text-cream">تسجيل الدخول</h1>
