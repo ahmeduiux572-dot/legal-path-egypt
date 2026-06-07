@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, Upload, CheckCircle2, Scale, User } from "lucide-react";
+import logoImg from "@/assets/mohaam-logo-v2.png";
 import { SectionHeading } from "@/components/SectionHeading";
 import { plans } from "@/data/content";
 import { specialties as specs } from "@/data/lawyers";
