@@ -51,11 +51,14 @@ function LoginPage() {
       {/* Centered form on top of background */}
       <div className="relative z-10 flex w-full flex-col items-center justify-center">
         {/* Logo */}
-        <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gold/30 bg-navy-card/60">
-            <Scale className="h-5 w-5 text-gold" />
-          </div>
-          <span className="text-xl font-bold text-cream">مُحامٍ</span>
+        <div className="mb-8 flex items-center justify-center">
+          <img
+            src={logoImg}
+            alt="شعار منصة مُحامٍ"
+            width={1280}
+            height={640}
+            className="h-14 w-auto object-contain md:h-16"
+          />
         </div>
 
         {submitted ? (
