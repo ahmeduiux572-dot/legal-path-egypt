@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/mohaam-logo.png";
+import logo from "@/assets/mohaam-logo-v2.png";
 
 export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
   return (
