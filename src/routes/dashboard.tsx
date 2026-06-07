@@ -247,22 +247,22 @@ function DashboardPage() {
    <DashNavContext.Provider value={{ go, request }}>
     <div className="bg-navy">
       <section className="bg-gradient-navy">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center md:px-8">
-          <div className="flex items-center gap-4">
-            <img src={lawyer.image} alt={lawyer.name} width={64} height={64} className="h-16 w-16 rounded-2xl border border-gold/30 object-cover" />
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-8 md:flex-row md:items-center md:gap-6 md:px-8 md:py-10">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img src={lawyer.image} alt={lawyer.name} width={64} height={64} className="h-14 w-14 rounded-2xl border border-gold/30 object-cover sm:h-16 sm:w-16" />
             <div>
               <p className="text-sm text-cream/60">مرحباً بعودتك</p>
-              <h1 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">{lawyer.name}</h1>
+              <h1 className="text-xl font-extrabold text-gradient-gold sm:text-2xl md:text-3xl">{lawyer.name}</h1>
               <p className="mt-1 flex items-center gap-2 text-sm text-cream/65">
                 <MapPin className="h-4 w-4 text-gold" /> {lawyer.city} — {lawyer.title}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 md:w-auto">
             <div className="relative">
               <button
                 onClick={() => setNotifOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-white/5 md:w-auto"
               >
                 <span className="relative">
                   <Bell className="h-4 w-4 text-gold" />
@@ -277,7 +277,7 @@ function DashboardPage() {
               {notifOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute left-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-white/10 bg-navy-card shadow-2xl">
+                  <div className="absolute left-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/10 bg-navy-card shadow-2xl">
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                       <span className="flex items-center gap-2 text-sm font-bold text-cream">
                         <Bell className="h-4 w-4 text-gold" /> الإشعارات
