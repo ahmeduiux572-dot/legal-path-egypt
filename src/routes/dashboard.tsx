@@ -327,18 +327,18 @@ function DashboardPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl gap-8 px-4 py-10 md:px-8 lg:flex">
-        <aside className="mb-8 lg:mb-0 lg:w-64 lg:shrink-0">
-          <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-navy-card/60 p-2 lg:flex-col lg:overflow-visible">
+      <div className="mx-auto max-w-7xl gap-8 px-4 py-6 md:px-8 md:py-10 lg:flex">
+        <aside className="sticky top-0 z-30 -mx-4 mb-6 bg-navy/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-navy/80 md:-mx-8 md:px-8 lg:static lg:mx-0 lg:mb-0 lg:w-64 lg:shrink-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+          <nav className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-navy-card/60 p-2 lg:flex-col lg:overflow-visible">
             {nav.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setSection(n.id)}
-                className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                className={`flex shrink-0 snap-start items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors lg:py-3 ${
                   section === n.id ? "bg-gradient-gold text-navy shadow-gold" : "text-cream/75 hover:bg-white/5 hover:text-gold"
                 }`}
               >
-                <n.icon className="h-4 w-4" />
+                <n.icon className="h-4 w-4 shrink-0" />
                 <span className="whitespace-nowrap">{n.label}</span>
               </button>
             ))}
