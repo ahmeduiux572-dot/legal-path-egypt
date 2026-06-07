@@ -413,10 +413,18 @@ const rawBooks: Omit<LibraryBook, "articlesCount">[] = [
   },
 ];
 
-export const libraryBooks: LibraryBook[] = rawBooks.map((b) => ({
-  ...b,
-  articlesCount: countArticles(b.chapters),
-}));
+import { fullBookContent } from "./library-content";
+
+export const libraryBooks: LibraryBook[] = rawBooks.map((b) => {
+  // إن وُجد نصّ كامل لهذا الكتاب نستبدل به المقتطفات لتُقرأ كاملةً داخل المنصة
+  const full = fullBookContent[b.id];
+  const chapters = full && full.length ? full : b.chapters;
+  return {
+    ...b,
+    chapters,
+    articlesCount: countArticles(chapters),
+  };
+});
 
 export function getLibraryBook(id: string): LibraryBook | undefined {
   return libraryBooks.find((b) => b.id === id);
