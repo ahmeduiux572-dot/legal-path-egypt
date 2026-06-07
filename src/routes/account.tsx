@@ -371,13 +371,13 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-center gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-4 backdrop-blur">
+      <div className="flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-navy-card/70 px-3 py-2 backdrop-blur sm:gap-3 sm:px-4 sm:py-4">
         <button onClick={() => setMicOn((v) => !v)} aria-label="الميكروفون"
-          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors sm:h-12 sm:w-12 ${micOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
           {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
         </button>
         <button onClick={() => setCamOn((v) => !v)} aria-label="الكاميرا"
-          className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${camOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
+          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors sm:h-12 sm:w-12 ${camOn ? "bg-white/10 text-cream hover:bg-white/15" : "bg-red-500/20 text-red-400"}`}>
           {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
         </button>
         <button onClick={() => setSharing((v) => !v)} aria-label="مشاركة الشاشة"
@@ -385,7 +385,7 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
           <MonitorUp className="h-5 w-5" />
         </button>
         <button onClick={onClose} aria-label="إنهاء المكالمة"
-          className="flex h-12 items-center justify-center gap-2 rounded-full bg-red-500 px-6 text-sm font-bold text-white transition-colors hover:bg-red-600">
+          className="flex h-10 items-center justify-center gap-2 rounded-full bg-red-500 px-5 text-sm font-bold text-white transition-colors hover:bg-red-600 sm:h-12 sm:px-6">
           <PhoneOff className="h-5 w-5" /> إنهاء
         </button>
       </div>
