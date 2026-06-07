@@ -30,7 +30,7 @@ function LoginPage() {
     if (role === "lawyer") {
       navigate({ to: "/dashboard" });
     } else {
-      setSubmitted(true);
+      navigate({ to: "/account" });
     }
   };
 

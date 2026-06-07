@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, ShieldCheck, UserCircle } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuth, logout } from "@/lib/auth";
 
@@ -54,6 +54,15 @@ export function Navbar() {
                   activeProps={{ className: "text-gold" }}
                 >
                   <LayoutDashboard className="h-4 w-4" /> لوحة التحكم
+                </Link>
+              )}
+              {!isLawyer && (
+                <Link
+                  to="/account"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-cream/80 transition-colors hover:text-gold"
+                  activeProps={{ className: "text-gold" }}
+                >
+                  <UserCircle className="h-4 w-4" /> حسابي
                 </Link>
               )}
               <button
@@ -114,6 +123,15 @@ export function Navbar() {
                     className="flex items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2 text-center text-sm font-semibold text-cream"
                   >
                     <LayoutDashboard className="h-4 w-4" /> لوحة التحكم
+                  </Link>
+                )}
+                {!isLawyer && (
+                  <Link
+                    to="/account"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2 text-center text-sm font-semibold text-cream"
+                  >
+                    <UserCircle className="h-4 w-4" /> حسابي
                   </Link>
                 )}
                 <button

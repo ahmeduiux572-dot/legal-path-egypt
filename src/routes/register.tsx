@@ -1,38 +1,76 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Check, Upload, CheckCircle2 } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Check, Upload, CheckCircle2, Scale, User } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { plans } from "@/data/content";
 import { specialties as specs } from "@/data/lawyers";
+import { login } from "@/lib/auth";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "انضم كمحامٍ | محام" },
-      { name: "description", content: "سجّل كمحامٍ على منصة محام، اختر باقتك وارفع بياناتك وصورتك وسيرتك الذاتية." },
-      { property: "og:title", content: "انضم كمحامٍ | محام" },
-      { property: "og:description", content: "اختر باقتك وابدأ استقبال العملاء على منصة محام." },
+      { title: "إنشاء حساب | محام" },
+      { name: "description", content: "أنشئ حسابك على منصة محام كعميل لطلب الاستشارات، أو كمحامٍ لاستقبال العملاء." },
+      { property: "og:title", content: "إنشاء حساب | محام" },
+      { property: "og:description", content: "انضم إلى منصة محام كعميل أو كمحامٍ." },
     ],
   }),
   component: RegisterPage,
 });
 
+type Role = "client" | "lawyer";
+
 function RegisterPage() {
+  const navigate = useNavigate();
+  const [role, setRole] = useState<Role>("client");
   const [plan, setPlan] = useState("pro");
   const [photo, setPhoto] = useState<string | null>(null);
   const [cv, setCv] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (role === "client") {
+      login({ role: "client", email });
+      navigate({ to: "/account" });
+    } else {
+      setSubmitted(true);
+    }
+  };
 
   return (
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
-          <SectionHeading light title="انضم إلى محام كمحامٍ" subtitle="اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء." />
+          <SectionHeading
+            light
+            title="انضم إلى منصة محام"
+            subtitle={role === "client" ? "أنشئ حسابك كعميل لطلب الاستشارات ونشر قضاياك ومتابعتها." : "اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء."}
+          />
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-        {/* Plans */}
+        {/* Role switcher */}
+        <div className="mx-auto mb-10 grid max-w-md grid-cols-2 gap-2 rounded-xl border border-white/10 bg-navy-card/60 p-1.5">
+          <button
+            onClick={() => setRole("client")}
+            className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all ${role === "client" ? "bg-gradient-gold text-navy shadow-gold" : "text-cream/70 hover:text-cream"}`}
+          >
+            <User className="h-4 w-4" /> عميل
+          </button>
+          <button
+            onClick={() => setRole("lawyer")}
+            className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all ${role === "lawyer" ? "bg-gradient-gold text-navy shadow-gold" : "text-cream/70 hover:text-cream"}`}
+          >
+            <Scale className="h-4 w-4" /> محامٍ
+          </button>
+        </div>
+
+        {/* Plans (lawyers only) */}
+        {role === "lawyer" && (
+         <>
         <h3 className="mb-6 text-center text-xl font-bold text-cream">اختر باقتك</h3>
         <div className="mb-14 grid gap-6 lg:grid-cols-3">
           {plans.map((p) => {
@@ -60,6 +98,8 @@ function RegisterPage() {
             );
           })}
         </div>
+         </>
+        )}
 
         {/* Form */}
         {submitted ? (
@@ -70,37 +110,66 @@ function RegisterPage() {
           </div>
         ) : (
           <form
-            onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
+            onSubmit={handleSubmit}
             className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-navy-card/50 p-7"
           >
             <h3 className="mb-5 text-lg font-bold text-cream">بياناتك</h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="الاسم الكامل" required />
-              <Field label="رقم نقابة المحامين" required />
-              <Field label="البريد الإلكتروني" type="email" required />
-              <Field label="رقم الهاتف" type="tel" required />
-              <div>
-                <label className="mb-1.5 block text-sm text-cream/80">التخصص</label>
-                <select className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
-                  {specs.slice(1).map((s) => (<option key={s}>{s}</option>))}
-                </select>
-              </div>
-              <Field label="المدينة" required />
-            </div>
+            {role === "client" ? (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="الاسم الكامل" required />
+                  <div>
+                    <label className="mb-1.5 block text-sm text-cream/80">البريد الإلكتروني</label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none"
+                    />
+                  </div>
+                  <Field label="رقم الهاتف" type="tel" required />
+                  <Field label="المدينة" required />
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 block text-sm text-cream/80">كلمة المرور</label>
+                    <input type="password" required placeholder="••••••••" className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none" />
+                  </div>
+                </div>
+                <button type="submit" className="mt-6 w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+                  إنشاء حساب العميل
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="الاسم الكامل" required />
+                  <Field label="رقم نقابة المحامين" required />
+                  <Field label="البريد الإلكتروني" type="email" required />
+                  <Field label="رقم الهاتف" type="tel" required />
+                  <div>
+                    <label className="mb-1.5 block text-sm text-cream/80">التخصص</label>
+                    <select className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
+                      {specs.slice(1).map((s) => (<option key={s}>{s}</option>))}
+                    </select>
+                  </div>
+                  <Field label="المدينة" required />
+                </div>
 
-            <div className="mt-4">
-              <label className="mb-1.5 block text-sm text-cream/80">نبذة تعريفية</label>
-              <textarea rows={3} className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none" placeholder="اكتب نبذة مختصرة عن خبرتك..." />
-            </div>
+                <div className="mt-4">
+                  <label className="mb-1.5 block text-sm text-cream/80">نبذة تعريفية</label>
+                  <textarea rows={3} className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none" placeholder="اكتب نبذة مختصرة عن خبرتك..." />
+                </div>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <FileInput label="الصورة الشخصية" value={photo} onChange={setPhoto} accept="image/*" />
-              <FileInput label="السيرة الذاتية (CV)" value={cv} onChange={setCv} accept=".pdf,.doc,.docx" />
-            </div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <FileInput label="الصورة الشخصية" value={photo} onChange={setPhoto} accept="image/*" />
+                  <FileInput label="السيرة الذاتية (CV)" value={cv} onChange={setCv} accept=".pdf,.doc,.docx" />
+                </div>
 
-            <button type="submit" className="mt-6 w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
-              إرسال طلب التسجيل
-            </button>
+                <button type="submit" className="mt-6 w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+                  إرسال طلب التسجيل
+                </button>
+              </>
+            )}
           </form>
         )}
       </div>
