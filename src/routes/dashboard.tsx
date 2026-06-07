@@ -48,6 +48,11 @@ import {
   FolderOpen,
   Upload,
   ScrollText,
+  BookOpen,
+  Bookmark,
+  Library as LibraryIcon,
+  Minus,
+  List,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
@@ -75,6 +80,12 @@ import {
   type DashReminder,
 } from "@/data/dashboard";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
+import {
+  libraryBooks,
+  libraryCategories,
+  searchLibrary,
+  type LibraryBook,
+} from "@/data/library";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
