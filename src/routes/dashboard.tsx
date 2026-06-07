@@ -845,12 +845,12 @@ function Profile() {
   return (
     <div className="space-y-6">
       <div className={card}>
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><UserCircle className="h-5 w-5 text-gold" /> الملف الشخصي العام</h2>
           <div className="flex items-center gap-2">
-            <Link to="/lawyers/$lawyerId" params={{ lawyerId: lawyer.id }} className="rounded-md border border-white/15 px-3 py-2 text-xs font-semibold text-cream hover:bg-white/5">عرض على الموقع</Link>
+            <Link to="/lawyers/$lawyerId" params={{ lawyerId: lawyer.id }} className="flex flex-1 items-center justify-center rounded-md border border-white/15 px-3 py-2 text-xs font-semibold text-cream hover:bg-white/5 sm:flex-none">عرض على الموقع</Link>
             {!editing && (
-              <button onClick={() => setEditing(true)} className="flex items-center gap-2 rounded-md bg-gradient-gold px-4 py-2 text-xs font-bold text-navy shadow-gold"><Pencil className="h-3.5 w-3.5" /> تعديل</button>
+              <button onClick={() => setEditing(true)} className="flex flex-1 items-center justify-center gap-2 rounded-md bg-gradient-gold px-4 py-2 text-xs font-bold text-navy shadow-gold sm:flex-none"><Pencil className="h-3.5 w-3.5" /> تعديل</button>
             )}
           </div>
         </div>
