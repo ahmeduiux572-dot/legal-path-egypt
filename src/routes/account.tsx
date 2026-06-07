@@ -320,8 +320,13 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
   const [sharing, setSharing] = useState(false);
   useEffect(() => {
     const original = document.body.style.overflow;
+    const originalHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = original; };
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+      document.documentElement.style.overflow = originalHtml;
+    };
   }, []);
   useEffect(() => {
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
@@ -333,8 +338,8 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
   const youInitial = clientProfile.name.trim().charAt(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-gradient-navy p-3 sm:p-5">
-      <div className="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-4 py-3 backdrop-blur">
+    <div className="fixed inset-0 z-50 flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-gradient-navy p-2 sm:p-5">
+      <div className="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-navy-card/70 px-3 py-2 backdrop-blur sm:px-4 sm:py-3">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-bold text-cream">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-red-500" /> مكالمة فيديو مباشرة
@@ -344,21 +349,21 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
         <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-sm font-bold text-gold">{mm}:{ss}</span>
       </div>
 
-      <div className="my-3 grid min-h-0 flex-1 grid-cols-1 gap-3 sm:my-5 sm:grid-cols-2">
+      <div className="my-2 grid min-h-0 flex-1 grid-cols-1 grid-rows-2 gap-2 sm:my-5 sm:grid-cols-2 sm:grid-rows-1 sm:gap-3">
         {/* Lawyer tile (large) */}
-        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-navy-deep">
+        <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-navy-deep sm:rounded-3xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,162,77,0.12),transparent_60%)]" />
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{lawyerInitial}</div>
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-2xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28 sm:text-3xl">{lawyerInitial}</div>
           <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> {consultation.lawyer} (المحامي)
           </span>
         </div>
         {/* Client tile */}
-        <div className="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-3xl border border-gold/30 bg-navy-deep">
+        <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-2xl border border-gold/30 bg-navy-deep sm:rounded-3xl">
           {camOn ? (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-3xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28">{youInitial}</div>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-2xl font-extrabold text-navy shadow-gold sm:h-28 sm:w-28 sm:text-3xl">{youInitial}</div>
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-cream/70"><VideoOff className="h-8 w-8" /></div>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-cream/70 sm:h-24 sm:w-24"><VideoOff className="h-8 w-8" /></div>
           )}
           <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-navy-deep/80 px-3 py-1 text-xs font-semibold text-cream backdrop-blur">
             {micOn ? <Mic className="h-3 w-3 text-emerald-400" /> : <MicOff className="h-3 w-3 text-red-400" />} {clientProfile.name} (أنت)
