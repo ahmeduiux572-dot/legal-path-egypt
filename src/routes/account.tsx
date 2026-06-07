@@ -3,8 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   UserCircle,
   MessageSquare,
-  Briefcase,
-  Receipt,
   MapPin,
   Mail,
   Phone,
@@ -12,18 +10,21 @@ import {
   Clock,
   Video,
   Building2,
-  Star,
   Plus,
   Save,
   Pencil,
   LayoutDashboard,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  MonitorUp,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
   clientProfile,
   clientConsultations,
-  clientCases,
-  clientInvoices,
+  type ClientConsultation,
 } from "@/data/client";
 
 export const Route = createFileRoute("/account")({
@@ -38,14 +39,12 @@ export const Route = createFileRoute("/account")({
   component: AccountPage,
 });
 
-type SectionId = "overview" | "profile" | "consultations" | "cases" | "invoices";
+type SectionId = "overview" | "profile" | "consultations";
 
 const nav: { id: SectionId; label: string; icon: typeof UserCircle }[] = [
   { id: "overview", label: "الرئيسية", icon: LayoutDashboard },
   { id: "profile", label: "الملف الشخصي", icon: UserCircle },
   { id: "consultations", label: "استشاراتي", icon: MessageSquare },
-  { id: "cases", label: "قضاياي", icon: Briefcase },
-  { id: "invoices", label: "الفواتير", icon: Receipt },
 ];
 
 const card = "rounded-2xl border border-white/10 bg-navy-card/60 p-6";
@@ -56,11 +55,6 @@ const statusColor: Record<string, string> = {
   "قادمة": "bg-gold/15 text-gold",
   "مكتملة": "bg-emerald-500/15 text-emerald-400",
   "ملغاة": "bg-red-500/15 text-red-400",
-  "مفتوحة": "bg-gold/15 text-gold",
-  "قيد التنفيذ": "bg-emerald-500/15 text-emerald-400",
-  "مغلقة": "bg-white/10 text-cream/60",
-  "مدفوعة": "bg-emerald-500/15 text-emerald-400",
-  "معلقة": "bg-gold/15 text-gold",
 };
 
 const channelIcon: Record<string, typeof Video> = {
@@ -132,8 +126,6 @@ function AccountPage() {
           {section === "overview" && <Overview onNavigate={setSection} />}
           {section === "profile" && <Profile email={email} />}
           {section === "consultations" && <Consultations />}
-          {section === "cases" && <Cases />}
-          {section === "invoices" && <Invoices />}
         </div>
       </div>
     </div>
