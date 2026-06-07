@@ -45,7 +45,7 @@ import { Route as AdminInvoiceInvoiceIdRouteImport } from './routes/admin.invoic
 import { Route as AdminFirmFirmIdRouteImport } from './routes/admin.firm.$firmId'
 import { Route as AdminFirmAppAppIdRouteImport } from './routes/admin.firm-app.$appId'
 import { Route as AdminConsultationConsultationIdRouteImport } from './routes/admin.consultation.$consultationId'
-import { Route as AdminClientClientIdRouteImport } from './routes/admin.client.$clientId'
+import { Route as AdminClientProfileClientIdRouteImport } from './routes/admin.client-profile.$clientId'
 import { Route as AdminCaseCaseIdRouteImport } from './routes/admin.case.$caseId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -229,11 +229,12 @@ const AdminConsultationConsultationIdRoute =
     path: '/consultation/$consultationId',
     getParentRoute: () => AdminRoute,
   } as any)
-const AdminClientClientIdRoute = AdminClientClientIdRouteImport.update({
-  id: '/client/$clientId',
-  path: '/client/$clientId',
-  getParentRoute: () => AdminRoute,
-} as any)
+const AdminClientProfileClientIdRoute =
+  AdminClientProfileClientIdRouteImport.update({
+    id: '/client-profile/$clientId',
+    path: '/client-profile/$clientId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminCaseCaseIdRoute = AdminCaseCaseIdRouteImport.update({
   id: '/case/$caseId',
   path: '/case/$caseId',
@@ -268,7 +269,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
   '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
-  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/client-profile/$clientId': typeof AdminClientProfileClientIdRoute
   '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
   '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
@@ -307,7 +308,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/lawyers': typeof LawyersIndexRoute
   '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
-  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/client-profile/$clientId': typeof AdminClientProfileClientIdRoute
   '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
   '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
@@ -348,7 +349,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/lawyers/': typeof LawyersIndexRoute
   '/admin/case/$caseId': typeof AdminCaseCaseIdRoute
-  '/admin/client/$clientId': typeof AdminClientClientIdRoute
+  '/admin/client-profile/$clientId': typeof AdminClientProfileClientIdRoute
   '/admin/consultation/$consultationId': typeof AdminConsultationConsultationIdRoute
   '/admin/firm-app/$appId': typeof AdminFirmAppAppIdRoute
   '/admin/firm/$firmId': typeof AdminFirmFirmIdRoute
@@ -390,7 +391,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/lawyers/'
     | '/admin/case/$caseId'
-    | '/admin/client/$clientId'
+    | '/admin/client-profile/$clientId'
     | '/admin/consultation/$consultationId'
     | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
@@ -429,7 +430,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/lawyers'
     | '/admin/case/$caseId'
-    | '/admin/client/$clientId'
+    | '/admin/client-profile/$clientId'
     | '/admin/consultation/$consultationId'
     | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
@@ -469,7 +470,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/lawyers/'
     | '/admin/case/$caseId'
-    | '/admin/client/$clientId'
+    | '/admin/client-profile/$clientId'
     | '/admin/consultation/$consultationId'
     | '/admin/firm-app/$appId'
     | '/admin/firm/$firmId'
@@ -754,11 +755,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsultationConsultationIdRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/client/$clientId': {
-      id: '/admin/client/$clientId'
-      path: '/client/$clientId'
-      fullPath: '/admin/client/$clientId'
-      preLoaderRoute: typeof AdminClientClientIdRouteImport
+    '/admin/client-profile/$clientId': {
+      id: '/admin/client-profile/$clientId'
+      path: '/client-profile/$clientId'
+      fullPath: '/admin/client-profile/$clientId'
+      preLoaderRoute: typeof AdminClientProfileClientIdRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/case/$caseId': {
@@ -784,7 +785,7 @@ interface AdminRouteChildren {
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCaseCaseIdRoute: typeof AdminCaseCaseIdRoute
-  AdminClientClientIdRoute: typeof AdminClientClientIdRoute
+  AdminClientProfileClientIdRoute: typeof AdminClientProfileClientIdRoute
   AdminConsultationConsultationIdRoute: typeof AdminConsultationConsultationIdRoute
   AdminFirmAppAppIdRoute: typeof AdminFirmAppAppIdRoute
   AdminFirmFirmIdRoute: typeof AdminFirmFirmIdRoute
@@ -810,7 +811,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminCaseCaseIdRoute: AdminCaseCaseIdRoute,
-  AdminClientClientIdRoute: AdminClientClientIdRoute,
+  AdminClientProfileClientIdRoute: AdminClientProfileClientIdRoute,
   AdminConsultationConsultationIdRoute: AdminConsultationConsultationIdRoute,
   AdminFirmAppAppIdRoute: AdminFirmAppAppIdRoute,
   AdminFirmFirmIdRoute: AdminFirmFirmIdRoute,
@@ -845,3 +846,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
