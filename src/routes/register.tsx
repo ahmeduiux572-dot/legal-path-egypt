@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, Upload, CheckCircle2, Scale, User } from "lucide-react";
+import logoImg from "@/assets/mohaam-logo-v2.png";
 import { SectionHeading } from "@/components/SectionHeading";
 import { plans } from "@/data/content";
 import { specialties as specs } from "@/data/lawyers";
@@ -9,10 +10,10 @@ import { login } from "@/lib/auth";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب | محام" },
-      { name: "description", content: "أنشئ حسابك على منصة محام كعميل لطلب الاستشارات، أو كمحامٍ لاستقبال العملاء." },
-      { property: "og:title", content: "إنشاء حساب | محام" },
-      { property: "og:description", content: "انضم إلى منصة محام كعميل أو كمحامٍ." },
+      { title: "إنشاء حساب | مُحامٍ" },
+      { name: "description", content: "أنشئ حسابك على منصة مُحامٍ كعميل لطلب الاستشارات، أو كمحامٍ لاستقبال العملاء." },
+      { property: "og:title", content: "إنشاء حساب | مُحامٍ" },
+      { property: "og:description", content: "انضم إلى منصة مُحامٍ كعميل أو كمحامٍ." },
     ],
   }),
   component: RegisterPage,
@@ -43,9 +44,18 @@ function RegisterPage() {
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
+          <div className="mb-6 flex items-center justify-center">
+            <img
+              src={logoImg}
+              alt="شعار منصة مُحامٍ"
+              width={1280}
+              height={640}
+              className="h-14 w-auto object-contain md:h-16"
+            />
+          </div>
           <SectionHeading
             light
-            title="انضم إلى منصة محام"
+            title="انضم إلى منصة مُحامٍ"
             subtitle={role === "client" ? "أنشئ حسابك كعميل لطلب الاستشارات ونشر قضاياك ومتابعتها." : "اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء."}
           />
         </div>
