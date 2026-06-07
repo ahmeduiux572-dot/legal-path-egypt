@@ -63,11 +63,11 @@ function Index() {
             <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/80">
               مجتمع من المحامين نسعى لتعزيز الوصول إلى العدالة من خلال الابتكار والتكنولوجيا، لتحصل على استشارتك القانونية بسرعة واحترافية وشفافية.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/lawyers" className="rounded-md bg-gradient-gold px-6 py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link to="/lawyers" className="flex h-12 items-center justify-center rounded-md bg-gradient-gold px-6 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:flex-1 sm:max-w-[16rem]">
                 تواصل مع محامٍ متخصص
               </Link>
-              <Link to="/ai" className="rounded-md border border-gold/50 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
+              <Link to="/ai" className="flex h-12 items-center justify-center rounded-md border border-gold/50 px-6 text-sm font-semibold text-cream transition-colors hover:bg-white/5 sm:flex-1 sm:max-w-[16rem]">
                 جرّب المساعد الذكي
               </Link>
             </div>

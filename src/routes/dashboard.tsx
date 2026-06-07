@@ -845,19 +845,19 @@ function Profile() {
   return (
     <div className="space-y-6">
       <div className={card}>
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><UserCircle className="h-5 w-5 text-gold" /> الملف الشخصي العام</h2>
           <div className="flex items-center gap-2">
-            <Link to="/lawyers/$lawyerId" params={{ lawyerId: lawyer.id }} className="rounded-md border border-white/15 px-3 py-2 text-xs font-semibold text-cream hover:bg-white/5">عرض على الموقع</Link>
+            <Link to="/lawyers/$lawyerId" params={{ lawyerId: lawyer.id }} className="flex flex-1 items-center justify-center rounded-md border border-white/15 px-3 py-2 text-xs font-semibold text-cream hover:bg-white/5 sm:flex-none">عرض على الموقع</Link>
             {!editing && (
-              <button onClick={() => setEditing(true)} className="flex items-center gap-2 rounded-md bg-gradient-gold px-4 py-2 text-xs font-bold text-navy shadow-gold"><Pencil className="h-3.5 w-3.5" /> تعديل</button>
+              <button onClick={() => setEditing(true)} className="flex flex-1 items-center justify-center gap-2 rounded-md bg-gradient-gold px-4 py-2 text-xs font-bold text-navy shadow-gold sm:flex-none"><Pencil className="h-3.5 w-3.5" /> تعديل</button>
             )}
           </div>
         </div>
         {saved && <p className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400">تم حفظ بيانات الملف بنجاح وستظهر على الموقع.</p>}
 
         <div className="mb-6 flex items-center gap-4">
-          <img src={lawyer.image} alt={data.name} width={72} height={72} className="h-18 w-18 rounded-2xl border border-gold/30 object-cover" />
+          <img src={lawyer.image} alt={data.name} width={72} height={72} className="h-16 w-16 shrink-0 rounded-2xl border border-gold/30 object-cover sm:h-20 sm:w-20" />
           <div>
             <p className="text-lg font-bold text-cream">{data.name}</p>
             <p className="text-sm text-cream/60">{data.title}</p>

@@ -25,17 +25,17 @@ export function ReviewsSection({ lawyerName }: { lawyerName: string }) {
   const avg = reviews.reduce((a, b) => a + b.rating, 0) / reviews.length;
 
   return (
-    <div className="mt-10 rounded-2xl border border-border bg-card p-7 shadow-card">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div className="flex items-center gap-2">
+    <div className="mt-10 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-7">
+      <div className="flex flex-col-reverse gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-lg font-bold text-navy">{avg.toFixed(1)}</span>
           <StarRating value={avg} />
           <span className="text-sm text-muted-foreground">({reviews.length} تقييم)</span>
         </div>
-        <h3 className="text-xl font-bold text-navy">التعليقات والتقييمات</h3>
+        <h3 className="text-lg font-bold text-navy sm:text-xl">التعليقات والتقييمات</h3>
       </div>
 
-      <form onSubmit={submit} className="mt-6 rounded-xl border border-border bg-secondary/50 p-5">
+      <form onSubmit={submit} className="mt-6 rounded-xl border border-border bg-secondary/50 p-4 sm:p-5">
         <h4 className="text-sm font-bold text-navy">أضف تقييمك عن {lawyerName}</h4>
         <div className="mt-3 flex flex-row-reverse items-center justify-end gap-1">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -68,7 +68,7 @@ export function ReviewsSection({ lawyerName }: { lawyerName: string }) {
         />
         <button
           type="submit"
-          className="mt-3 rounded-lg bg-gradient-gold px-6 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"
+          className="mt-3 w-full rounded-lg bg-gradient-gold px-6 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:w-auto"
         >
           نشر التقييم
         </button>
@@ -76,13 +76,13 @@ export function ReviewsSection({ lawyerName }: { lawyerName: string }) {
 
       <div className="mt-6 space-y-4">
         {reviews.map((r) => (
-          <div key={r.id} className="rounded-xl border border-border p-5">
-            <div className="flex items-center justify-between">
+          <div key={r.id} className="rounded-xl border border-border p-4 sm:p-5">
+            <div className="flex flex-wrap-reverse items-center justify-between gap-x-3 gap-y-2">
               <span className="text-xs text-muted-foreground">{r.date}</span>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <StarRating value={r.rating} size={14} />
                 <span className="font-bold text-navy">{r.author}</span>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-gold text-sm font-bold text-navy">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-gold text-sm font-bold text-navy">
                   {r.author.charAt(0)}
                 </span>
               </div>
