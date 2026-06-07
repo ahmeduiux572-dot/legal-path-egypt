@@ -2116,6 +2116,11 @@ function Library() {
                   <span key={t} className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">{t}</span>
                 ))}
               </div>
+              {book.source && (
+                <span className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                  <ExternalLink className="h-3 w-3" /> مصدر مجاني · النص الكامل متاح
+                </span>
+              )}
               <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
                 <span className="text-[11px] text-cream/50">{book.articlesCount} مادة · {book.pages} صفحة</span>
                 <span className="flex items-center gap-1.5 text-xs font-bold text-gold">
