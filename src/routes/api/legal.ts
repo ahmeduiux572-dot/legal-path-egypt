@@ -7,6 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
+
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
   text: z.string().min(1).max(4000),
@@ -47,6 +49,24 @@ export const Route = createFileRoute("/api/legal")({
 
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
+          const requestHost = new URL(request.url).hostname;
+          const fallbackHost = new URL(FALLBACK_AI_BASE).hostname;
+          if (requestHost !== fallbackHost) {
+            const upstream = await fetch(`${FALLBACK_AI_BASE}/api/legal`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(parsed.data),
+            });
+
+            return new Response(upstream.body, {
+              status: upstream.status,
+              headers: {
+                ...corsHeaders,
+                "Content-Type": upstream.headers.get("Content-Type") || "application/json",
+              },
+            });
+          }
+
           return new Response(
             JSON.stringify({ reply: "خدمة الذكاء الاصطناعي غير مهيأة حالياً.", error: "no_key" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
