@@ -1,7 +1,20 @@
 import type { Lawyer } from "./lawyers";
 import type { Firm } from "./firms";
 import { subscriptions, type Subscription } from "./admin";
-import { dashConsultations, type DashConsultation } from "./dashboard";
+import {
+  dashConsultations,
+  dashCases,
+  dashClients,
+  dashSessions,
+  dashInvoices,
+  aiConversations,
+  type DashConsultation,
+  type DashCase,
+  type DashClient,
+  type DashSession,
+  type DashInvoice,
+  type AIConversation,
+} from "./dashboard";
 import { withdrawalsFor, type Withdrawal } from "./withdrawals";
 
 /* بيانات مشتقة (تجريبية) لملف كل محامٍ/مكتب لعرضها في لوحة الإدارة */
@@ -15,6 +28,11 @@ export interface WalletTxn {
 
 export type WithdrawalRequest = Withdrawal;
 export type ProfileConsultation = DashConsultation;
+export interface ProfileDocument {
+  id: string;
+  name: string;
+  source: string;
+}
 
 function hash(id: string): number {
   let h = 0;
@@ -49,6 +67,54 @@ export function profileConsultations(idLike: { id: string; consultations?: numbe
   );
 }
 
+function rotate<T>(arr: T[], id: string): T[] {
+  if (arr.length === 0) return [];
+  const offset = hash(id) % arr.length;
+  return Array.from({ length: arr.length }, (_, i) => arr[(offset + i) % arr.length]);
+}
+
+export function profileCases(idLike: { id: string }): DashCase[] {
+  return rotate(dashCases, idLike.id);
+}
+
+export function profileClients(idLike: { id: string }): DashClient[] {
+  return rotate(dashClients, idLike.id);
+}
+
+export function profileSessions(idLike: { id: string }): DashSession[] {
+  return rotate(dashSessions, idLike.id);
+}
+
+export function profileInvoices(idLike: { id: string }): DashInvoice[] {
+  return rotate(dashInvoices, idLike.id);
+}
+
+export function profileChats(idLike: { id: string }): AIConversation[] {
+  return rotate(aiConversations, idLike.id);
+}
+
+export function profileDocuments(idLike: { id: string }): ProfileDocument[] {
+  const docs: ProfileDocument[] = [];
+  const seen = new Set<string>();
+  for (const c of rotate(dashCases, idLike.id)) {
+    for (const f of c.files ?? []) {
+      const key = `${c.title}:${f}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      docs.push({ id: key, name: f, source: c.title });
+    }
+  }
+  for (const cl of rotate(dashClients, idLike.id)) {
+    for (const f of cl.files ?? []) {
+      const key = `${cl.name}:${f}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      docs.push({ id: key, name: f, source: cl.name });
+    }
+  }
+  return docs;
+}
+
 export function profileSubscription(name: string): Subscription | undefined {
   return subscriptions.find((s) => s.subscriber === name);
 }
@@ -59,6 +125,12 @@ export function lawyerProfile(l: Lawyer) {
     wallet: profileWallet(l),
     withdrawals: profileWithdrawals(l),
     consultations: profileConsultations(l),
+    clients: profileClients(l),
+    cases: profileCases(l),
+    sessions: profileSessions(l),
+    invoices: profileInvoices(l),
+    chats: profileChats(l),
+    documents: profileDocuments(l),
     subscription: profileSubscription(l.name),
   };
 }
@@ -69,6 +141,12 @@ export function firmProfile(f: Firm) {
     wallet: profileWallet(f),
     withdrawals: profileWithdrawals(f),
     consultations: profileConsultations(f),
+    clients: profileClients(f),
+    cases: profileCases(f),
+    sessions: profileSessions(f),
+    invoices: profileInvoices(f),
+    chats: profileChats(f),
+    documents: profileDocuments(f),
     subscription: profileSubscription(f.name),
   };
 }
