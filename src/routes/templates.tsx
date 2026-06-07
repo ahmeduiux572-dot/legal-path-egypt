@@ -47,7 +47,7 @@ function TemplatesPage() {
 
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {templates.map((t) => (
-            <div key={t.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-6 transition-all hover:-translate-y-1 hover:border-gold/40">
+            <div key={t.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-4 transition-all hover:-translate-y-1 hover:border-gold/40 sm:p-6">
               <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-gold">
                 <FileText className="h-6 w-6 text-navy" />
               </span>
