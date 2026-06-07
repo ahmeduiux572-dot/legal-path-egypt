@@ -44,9 +44,18 @@ function RegisterPage() {
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
+          <div className="mb-6 flex items-center justify-center">
+            <img
+              src={logoImg}
+              alt="شعار منصة مُحامٍ"
+              width={1280}
+              height={640}
+              className="h-14 w-auto object-contain md:h-16"
+            />
+          </div>
           <SectionHeading
             light
-            title="انضم إلى منصة محام"
+            title="انضم إلى منصة مُحامٍ"
             subtitle={role === "client" ? "أنشئ حسابك كعميل لطلب الاستشارات ونشر قضاياك ومتابعتها." : "اختر الباقة المناسبة، ارفع بياناتك وسيرتك الذاتية، وابدأ استقبال العملاء."}
           />
         </div>
