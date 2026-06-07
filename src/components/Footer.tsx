@@ -92,6 +92,10 @@ export function Footer() {
           </div>
           <p className="mt-6 text-center text-xs text-cream/45">
             © {new Date().getFullYear()} مُحامٍ. جميع الحقوق محفوظة.
+            <span className="mx-2 text-cream/25">|</span>
+            <Link to="/admin" className="text-cream/45 transition-colors hover:text-gold">
+              لوحة الإدارة
+            </Link>
           </p>
         </div>
       </div>
