@@ -2324,6 +2324,17 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
               <p className="py-10 text-center text-sm text-[oklch(0.5_0.03_264)]">لا توجد مواد مطابقة لبحثك داخل هذا الكتاب.</p>
             )}
 
+            {book.source && !q && (
+              <a
+                href={book.source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 flex items-center justify-center gap-2 rounded-xl border border-[oklch(0.55_0.10_80)]/40 bg-[oklch(0.96_0.03_85)] px-4 py-3 text-sm font-bold text-[oklch(0.42_0.09_70)] transition-colors hover:bg-[oklch(0.93_0.05_85)]"
+              >
+                <ExternalLink className="h-4 w-4" /> تابع قراءة النص الكامل من المصدر المجاني — {book.source.label}
+              </a>
+            )}
+
             <div className="mt-10 border-t border-[oklch(0.88_0.01_85)] pt-6 text-center text-xs text-[oklch(0.5_0.03_264)]">
               — تمّت قراءة هذا المحتوى داخل منصة محامٍ —
             </div>
