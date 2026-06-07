@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock, CheckCircle2, Scale, User } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
+import logoImg from "@/assets/mohaam-logo-v2.png";
 import { login } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
