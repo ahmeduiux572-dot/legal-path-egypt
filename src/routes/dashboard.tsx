@@ -857,7 +857,7 @@ function Profile() {
         {saved && <p className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400">تم حفظ بيانات الملف بنجاح وستظهر على الموقع.</p>}
 
         <div className="mb-6 flex items-center gap-4">
-          <img src={lawyer.image} alt={data.name} width={72} height={72} className="h-16 w-16 shrink-0 rounded-2xl border border-gold/30 object-cover sm:h-18 sm:w-18" />
+          <img src={lawyer.image} alt={data.name} width={72} height={72} className="h-16 w-16 shrink-0 rounded-2xl border border-gold/30 object-cover sm:h-20 sm:w-20" />
           <div>
             <p className="text-lg font-bold text-cream">{data.name}</p>
             <p className="text-sm text-cream/60">{data.title}</p>
