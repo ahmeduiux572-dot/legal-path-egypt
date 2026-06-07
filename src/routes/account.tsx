@@ -319,6 +319,11 @@ function VideoCall({ consultation, onClose }: { consultation: ClientConsultation
   const [camOn, setCamOn] = useState(true);
   const [sharing, setSharing] = useState(false);
   useEffect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = original; };
+  }, []);
+  useEffect(() => {
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, []);
