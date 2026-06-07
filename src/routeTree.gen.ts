@@ -36,6 +36,7 @@ import { Route as AdminConsultationsRouteImport } from './routes/admin.consultat
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
 import { Route as AdminSubscriptionSubIdRouteImport } from './routes/admin.subscription.$subId'
+import { Route as AdminStaffFormStaffIdRouteImport } from './routes/admin.staff-form.$staffId'
 import { Route as AdminRoleFormRoleIdRouteImport } from './routes/admin.role-form.$roleId'
 import { Route as AdminPlanFormPlanIdRouteImport } from './routes/admin.plan-form.$planId'
 import { Route as AdminLawyerLawyerIdRouteImport } from './routes/admin.lawyer.$lawyerId'
@@ -182,6 +183,11 @@ const AdminSubscriptionSubIdRoute = AdminSubscriptionSubIdRouteImport.update({
   path: '/subscription/$subId',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStaffFormStaffIdRoute = AdminStaffFormStaffIdRouteImport.update({
+  id: '/staff-form/$staffId',
+  path: '/staff-form/$staffId',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRoleFormRoleIdRoute = AdminRoleFormRoleIdRouteImport.update({
   id: '/role-form/$roleId',
   path: '/role-form/$roleId',
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
   '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRoutesByTo {
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
   '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRoutesById {
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/admin/lawyer/$lawyerId': typeof AdminLawyerLawyerIdRoute
   '/admin/plan-form/$planId': typeof AdminPlanFormPlanIdRoute
   '/admin/role-form/$roleId': typeof AdminRoleFormRoleIdRoute
+  '/admin/staff-form/$staffId': typeof AdminStaffFormStaffIdRoute
   '/admin/subscription/$subId': typeof AdminSubscriptionSubIdRoute
 }
 export interface FileRouteTypes {
@@ -390,6 +399,7 @@ export interface FileRouteTypes {
     | '/admin/lawyer/$lawyerId'
     | '/admin/plan-form/$planId'
     | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/admin/lawyer/$lawyerId'
     | '/admin/plan-form/$planId'
     | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
   id:
     | '__root__'
@@ -467,6 +478,7 @@ export interface FileRouteTypes {
     | '/admin/lawyer/$lawyerId'
     | '/admin/plan-form/$planId'
     | '/admin/role-form/$roleId'
+    | '/admin/staff-form/$staffId'
     | '/admin/subscription/$subId'
   fileRoutesById: FileRoutesById
 }
@@ -679,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSubscriptionSubIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/staff-form/$staffId': {
+      id: '/admin/staff-form/$staffId'
+      path: '/staff-form/$staffId'
+      fullPath: '/admin/staff-form/$staffId'
+      preLoaderRoute: typeof AdminStaffFormStaffIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/role-form/$roleId': {
       id: '/admin/role-form/$roleId'
       path: '/role-form/$roleId'
@@ -774,6 +793,7 @@ interface AdminRouteChildren {
   AdminLawyerLawyerIdRoute: typeof AdminLawyerLawyerIdRoute
   AdminPlanFormPlanIdRoute: typeof AdminPlanFormPlanIdRoute
   AdminRoleFormRoleIdRoute: typeof AdminRoleFormRoleIdRoute
+  AdminStaffFormStaffIdRoute: typeof AdminStaffFormStaffIdRoute
   AdminSubscriptionSubIdRoute: typeof AdminSubscriptionSubIdRoute
 }
 
@@ -799,6 +819,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLawyerLawyerIdRoute: AdminLawyerLawyerIdRoute,
   AdminPlanFormPlanIdRoute: AdminPlanFormPlanIdRoute,
   AdminRoleFormRoleIdRoute: AdminRoleFormRoleIdRoute,
+  AdminStaffFormStaffIdRoute: AdminStaffFormStaffIdRoute,
   AdminSubscriptionSubIdRoute: AdminSubscriptionSubIdRoute,
 }
 

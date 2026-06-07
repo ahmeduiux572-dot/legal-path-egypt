@@ -1,17 +1,12 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, ClipboardCheck } from "lucide-react";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, SectionTitle, type Column,
 } from "@/components/admin/parts";
-import { ProfileDialog } from "@/components/admin/ProfileDialog";
-import { ApplicationDialog } from "@/components/admin/ApplicationDialog";
 import { lawyers, specialties, cities, type Lawyer } from "@/data/lawyers";
 import { lawyerApplications, type LawyerApplication } from "@/data/applications";
-import { lawyerProfile } from "@/data/profiles";
-import {
-  useAdminStore, isBlocked, toggleBlock, appStatus, setApplicationStatus,
-} from "@/lib/admin-store";
+import { useAdminStore, isBlocked, appStatus } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/lawyers")({ component: LawyersPage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -21,11 +16,10 @@ const appLabel = { pending: "قيد المراجعة", approved: "مقبول", r
 
 function LawyersPage() {
   const store = useAdminStore();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [spec, setSpec] = useState("كل التخصصات");
   const [city, setCity] = useState("كل المدن");
-  const [selected, setSelected] = useState<Lawyer | null>(null);
-  const [review, setReview] = useState<LawyerApplication | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -64,7 +58,7 @@ function LawyersPage() {
     {
       key: "actions", label: "",
       render: (r) => (
-        <ActionButton tone="outline" onClick={() => setSelected(r)}>
+        <ActionButton tone="outline" onClick={() => navigate({ to: "/admin/lawyer/$lawyerId", params: { lawyerId: r.id } })}>
           <Eye className="h-4 w-4" /> عرض الملف
         </ActionButton>
       ),
@@ -94,12 +88,11 @@ function LawyersPage() {
       } },
     {
       key: "actions", label: "",
-      render: (r) =>
-        appStatus(store, r.id) === "pending" ? (
-          <ActionButton tone="gold" onClick={() => setReview(r)}>
-            <ClipboardCheck className="h-4 w-4" /> مراجعة
-          </ActionButton>
-        ) : null,
+      render: (r) => (
+        <ActionButton tone="gold" onClick={() => navigate({ to: "/admin/lawyer-app/$appId", params: { appId: r.id } })}>
+          <ClipboardCheck className="h-4 w-4" /> {appStatus(store, r.id) === "pending" ? "مراجعة" : "عرض"}
+        </ActionButton>
+      ),
     },
   ];
 
@@ -127,52 +120,6 @@ function LawyersPage() {
         ]}
       />
       <DataTable columns={cols} rows={filtered} />
-
-      {selected && (
-        <ProfileDialog
-          open={Boolean(selected)}
-          onOpenChange={(v) => !v && setSelected(null)}
-          image={selected.image}
-          name={selected.name}
-          subtitle={`${selected.title} • ${selected.specialty}`}
-          blocked={isBlocked(store, "lawyer", selected.id)}
-          onToggleBlock={() => toggleBlock("lawyer", selected.id)}
-          profile={lawyerProfile(selected)}
-          fields={[
-            { label: "التخصص", value: selected.specialty },
-            { label: "المدينة", value: selected.city },
-            { label: "سنوات الخبرة", value: `${selected.experience} سنة` },
-            { label: "سعر الاستشارة", value: `${fmt(selected.price)} ج.م` },
-            { label: "الهاتف", value: <span dir="ltr">{selected.phone}</span> },
-            { label: "البريد", value: <span dir="ltr">{selected.email}</span> },
-            { label: "التقييم", value: `★ ${selected.rating} (${selected.reviews} تقييم)` },
-            { label: "عدد الاستشارات", value: fmt(selected.consultations) },
-          ]}
-        />
-      )}
-
-      {review && (
-        <ApplicationDialog
-          open={Boolean(review)}
-          onOpenChange={(v) => !v && setReview(null)}
-          image={review.image}
-          name={review.name}
-          subtitle={`${review.title} • ${review.specialty}`}
-          files={review.files}
-          fields={[
-            { label: "التخصص", value: review.specialty },
-            { label: "المدينة", value: review.city },
-            { label: "سنوات الخبرة", value: `${review.experience} سنة` },
-            { label: "سعر الاستشارة", value: `${fmt(review.price)} ج.م` },
-            { label: "رقم العضوية", value: review.barNumber },
-            { label: "الهاتف", value: <span dir="ltr">{review.phone}</span> },
-            { label: "البريد", value: <span dir="ltr">{review.email}</span> },
-            { label: "نبذة", value: <span className="text-cream/70">{review.bio}</span> },
-          ]}
-          onApprove={() => { setApplicationStatus(review.id, "approved"); setReview(null); }}
-          onReject={() => { setApplicationStatus(review.id, "rejected"); setReview(null); }}
-        />
-      )}
     </>
   );
 }
