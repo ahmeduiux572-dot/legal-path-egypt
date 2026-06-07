@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Send, Sparkles, Loader2 } from "lucide-react";
 import { aiUrl } from "@/lib/ai-endpoint";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 
 export const Route = createFileRoute("/ai")({
   head: () => ({
