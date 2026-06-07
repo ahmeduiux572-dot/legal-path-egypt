@@ -53,7 +53,6 @@ import {
   Library as LibraryIcon,
   Minus,
   List,
-  ExternalLink,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
@@ -2116,11 +2115,9 @@ function Library() {
                   <span key={t} className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">{t}</span>
                 ))}
               </div>
-              {book.source && (
-                <span className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
-                  <ExternalLink className="h-3 w-3" /> مصدر مجاني · النص الكامل متاح
-                </span>
-              )}
+              <span className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                <BookOpen className="h-3 w-3" /> يُقرأ كاملًا داخل المنصة
+              </span>
               <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
                 <span className="text-[11px] text-cream/50">{book.articlesCount} مادة · {book.pages} صفحة</span>
                 <span className="flex items-center gap-1.5 text-xs font-bold text-gold">
@@ -2213,16 +2210,6 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
           >
             <List className="h-4 w-4" /> الفهرس
           </button>
-          {book.source && (
-            <a
-              href={book.source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-400/10"
-            >
-              <ExternalLink className="h-4 w-4" /> النص الكامل المجاني
-            </a>
-          )}
           <div className="flex items-center rounded-lg border border-white/15">
             <button type="button" onClick={() => setFontSize((s) => Math.max(14, s - 1))} className="px-2.5 py-2 text-cream/70 hover:text-gold"><Minus className="h-4 w-4" /></button>
             <span className="px-1 text-xs font-bold text-cream/60">حجم الخط</span>
@@ -2309,9 +2296,11 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
                               <Bookmark className={`h-4 w-4 ${marked ? "fill-current" : ""}`} />
                             </button>
                           </div>
-                          <p style={{ fontSize, lineHeight: 2 }} className="text-justify text-[oklch(0.28_0.04_264)]">
-                            {highlight(a.text)}
-                          </p>
+                          <div style={{ fontSize, lineHeight: 2 }} className="space-y-2 text-justify text-[oklch(0.28_0.04_264)]">
+                            {a.text.split("\n").filter((p) => p.trim()).map((para, pi) => (
+                              <p key={pi}>{highlight(para)}</p>
+                            ))}
+                          </div>
                         </article>
                       );
                     })}
@@ -2325,14 +2314,9 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
             )}
 
             {book.source && !q && (
-              <a
-                href={book.source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 rounded-xl border border-[oklch(0.55_0.10_80)]/40 bg-[oklch(0.96_0.03_85)] px-4 py-3 text-sm font-bold text-[oklch(0.42_0.09_70)] transition-colors hover:bg-[oklch(0.93_0.05_85)]"
-              >
-                <ExternalLink className="h-4 w-4" /> تابع قراءة النص الكامل من المصدر المجاني — {book.source.label}
-              </a>
+              <p className="mt-8 text-center text-xs text-[oklch(0.5_0.03_264)]">
+                المصدر: {book.source.label}
+              </p>
             )}
 
             <div className="mt-10 border-t border-[oklch(0.88_0.01_85)] pt-6 text-center text-xs text-[oklch(0.5_0.03_264)]">
