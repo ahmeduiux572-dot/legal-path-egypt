@@ -26,6 +26,10 @@ import { Route as FirmsFirmIdRouteImport } from './routes/firms.$firmId'
 import { Route as ApiLegalRouteImport } from './routes/api/legal'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AdminLawyersRouteImport } from './routes/admin.lawyers'
+import { Route as AdminFirmsRouteImport } from './routes/admin.firms'
+import { Route as AdminConsultationsRouteImport } from './routes/admin.consultations'
+import { Route as AdminClientsRouteImport } from './routes/admin.clients'
+import { Route as AdminCasesRouteImport } from './routes/admin.cases'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -112,6 +116,26 @@ const AdminLawyersRoute = AdminLawyersRouteImport.update({
   path: '/lawyers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFirmsRoute = AdminFirmsRouteImport.update({
+  id: '/firms',
+  path: '/firms',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConsultationsRoute = AdminConsultationsRouteImport.update({
+  id: '/consultations',
+  path: '/consultations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClientsRoute = AdminClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCasesRoute = AdminCasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +148,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
@@ -142,6 +170,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
@@ -162,6 +194,10 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/templates': typeof TemplatesRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRoute
+  '/admin/consultations': typeof AdminConsultationsRoute
+  '/admin/firms': typeof AdminFirmsRoute
   '/admin/lawyers': typeof AdminLawyersRoute
   '/api/chat': typeof ApiChatRoute
   '/api/legal': typeof ApiLegalRoute
@@ -183,6 +219,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
     | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
@@ -201,6 +241,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
     | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
@@ -220,6 +264,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/templates'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/consultations'
+    | '/admin/firms'
     | '/admin/lawyers'
     | '/api/chat'
     | '/api/legal'
@@ -368,15 +416,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLawyersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/firms': {
+      id: '/admin/firms'
+      path: '/firms'
+      fullPath: '/admin/firms'
+      preLoaderRoute: typeof AdminFirmsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/consultations': {
+      id: '/admin/consultations'
+      path: '/consultations'
+      fullPath: '/admin/consultations'
+      preLoaderRoute: typeof AdminConsultationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clients': {
+      id: '/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AdminClientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cases': {
+      id: '/admin/cases'
+      path: '/cases'
+      fullPath: '/admin/cases'
+      preLoaderRoute: typeof AdminCasesRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminCasesRoute: typeof AdminCasesRoute
+  AdminClientsRoute: typeof AdminClientsRoute
+  AdminConsultationsRoute: typeof AdminConsultationsRoute
+  AdminFirmsRoute: typeof AdminFirmsRoute
   AdminLawyersRoute: typeof AdminLawyersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCasesRoute: AdminCasesRoute,
+  AdminClientsRoute: AdminClientsRoute,
+  AdminConsultationsRoute: AdminConsultationsRoute,
+  AdminFirmsRoute: AdminFirmsRoute,
   AdminLawyersRoute: AdminLawyersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
