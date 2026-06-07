@@ -68,7 +68,7 @@ export function ReviewsSection({ lawyerName }: { lawyerName: string }) {
         />
         <button
           type="submit"
-          className="mt-3 rounded-lg bg-gradient-gold px-6 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5"
+          className="mt-3 w-full rounded-lg bg-gradient-gold px-6 py-2.5 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:w-auto"
         >
           نشر التقييم
         </button>
