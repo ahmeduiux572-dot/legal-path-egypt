@@ -2297,9 +2297,11 @@ function BookReader({ book, onBack }: { book: LibraryBook; onBack: () => void })
                               <Bookmark className={`h-4 w-4 ${marked ? "fill-current" : ""}`} />
                             </button>
                           </div>
-                          <p style={{ fontSize, lineHeight: 2 }} className="text-justify text-[oklch(0.28_0.04_264)]">
-                            {highlight(a.text)}
-                          </p>
+                          <div style={{ fontSize, lineHeight: 2 }} className="space-y-2 text-justify text-[oklch(0.28_0.04_264)]">
+                            {a.text.split("\n").filter((p) => p.trim()).map((para, pi) => (
+                              <p key={pi}>{highlight(para)}</p>
+                            ))}
+                          </div>
                         </article>
                       );
                     })}
