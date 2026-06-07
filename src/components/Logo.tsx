@@ -1,13 +1,14 @@
 import { Link } from "@tanstack/react-router";
+import logo from "@/assets/mohaam-logo.png.asset.json";
 
 export function Logo({ variant = "light" }: { variant?: "light" | "dark" }) {
-  const textClass = variant === "light" ? "text-cream" : "text-navy";
   return (
-    <Link to="/" className="flex items-center">
-      <span className="flex flex-col leading-none">
-        <span className={`text-xl font-extrabold ${textClass}`}>مُحَامٌ</span>
-        <span className="text-[10px] font-medium tracking-wide text-gold">MOHAM · LEGAL</span>
-      </span>
+    <Link to="/" className="flex items-center" aria-label="مُحَامٌ MOHAAM">
+      <img
+        src={logo.url}
+        alt="شعار منصة مُحَامٌ MOHAAM"
+        className="h-12 w-auto object-contain md:h-14"
+      />
     </Link>
   );
 }
