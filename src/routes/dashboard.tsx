@@ -56,7 +56,7 @@ import {
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
-import { askLegalAi } from "@/lib/legal-ai.functions";
+import { aiUrl } from "@/lib/ai-endpoint";
 import {
   dashCases,
   dashClients,
