@@ -74,6 +74,7 @@ import {
   type DashConsultation,
   type DashReminder,
 } from "@/data/dashboard";
+import { generateInvoicePdf } from "@/lib/invoice-pdf";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
