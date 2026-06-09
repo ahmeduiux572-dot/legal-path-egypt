@@ -60,23 +60,16 @@ function Index() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden">
+        {/* Country flag as the full hero background */}
         <img
-          src={heroLegal}
-          alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* Country flag backdrop */}
-        <div
           key={country}
-          className="absolute inset-0 flex select-none items-center justify-center overflow-hidden"
-          aria-hidden
-        >
-          <span className="animate-in fade-in zoom-in-95 text-[34rem] leading-none opacity-[0.14] blur-[1px] duration-700 md:text-[52rem]">
-            {getCountry(country).flag}
-          </span>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/95 via-navy-deep/85 to-navy-deep/60" />
-        <div className="absolute inset-0 pattern-grid opacity-30" />
+          src={getCountry(country).flagImage}
+          alt={`علم ${countryName}`}
+          className="absolute inset-0 h-full w-full animate-in fade-in object-cover duration-700"
+        />
+        {/* Gradient keeps the text side (right in RTL) readable while the flag shows on the left */}
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/85 to-navy-deep/35" />
+        <div className="absolute inset-0 pattern-grid opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-1 text-xs font-medium text-gold">
