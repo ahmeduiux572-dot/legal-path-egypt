@@ -270,7 +270,7 @@ function DashboardPage() {
 
   return (
    <DashNavContext.Provider value={{ go, request }}>
-    <div className="bg-navy">
+    <div className="bg-navy" key={activeCountry}>
       <section className="bg-gradient-navy">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-8 md:flex-row md:items-center md:gap-6 md:px-8 md:py-10">
           <div className="flex items-center gap-3 sm:gap-4">
