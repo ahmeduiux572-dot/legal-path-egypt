@@ -4,9 +4,8 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
 import { FirmCard } from "@/components/FirmCard";
 import { AdCarousel } from "@/components/AdCarousel";
-import { CountryBanner } from "@/components/CountryBanner";
-import { topRated, mostConsulted } from "@/data/lawyers";
-import { topFirms } from "@/data/firms";
+import { topRated, mostConsulted, lawyers } from "@/data/lawyers";
+import { topFirms, firms } from "@/data/firms";
 import { useActiveCountry } from "@/lib/country-store";
 import { getCountry } from "@/data/countries";
 import heroLegal from "@/assets/hero-legal.jpg";
@@ -44,7 +43,8 @@ const stats = [
 
 function Index() {
   const country = useActiveCountry();
-  const countryName = getCountry(country).name;
+  const activeCountry = getCountry(country);
+  const countryName = activeCountry.name;
   const ratedInCountry = topRated.filter(
     (l) => l.country === country || l.countries.includes(country),
   );
@@ -52,6 +52,10 @@ function Index() {
     (l) => l.country === country || l.countries.includes(country),
   );
   const firmsInCountry = topFirms.filter((f) => f.countries.includes(country));
+  const lawyerCount = lawyers.filter(
+    (l) => l.country === country || l.countries.includes(country),
+  ).length;
+  const firmCount = firms.filter((f) => f.countries.includes(country)).length;
   return (
     <div>
       {/* Hero */}
@@ -67,7 +71,7 @@ function Index() {
           className="absolute inset-0 flex select-none items-center justify-center overflow-hidden"
           aria-hidden
         >
-          <span className="animate-in fade-in zoom-in-95 text-[30rem] leading-none opacity-[0.10] blur-[2px] duration-700 md:text-[44rem]">
+          <span className="animate-in fade-in zoom-in-95 text-[34rem] leading-none opacity-[0.14] blur-[1px] duration-700 md:text-[52rem]">
             {getCountry(country).flag}
           </span>
         </div>
@@ -94,12 +98,16 @@ function Index() {
                 جرّب المساعد الذكي
               </Link>
             </div>
+            {/* Country stats inside hero */}
+            <div className="mt-10 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
+              <HeroStat value={`${lawyerCount}+`} label="محامٍ متاح" />
+              <HeroStat value={`${firmCount}`} label="مكتب محاماة" />
+              <HeroStat value={activeCountry.currency.symbol} label="العملة المحلية" />
+              <HeroStat value={`${activeCountry.cities.length}`} label="مدينة مغطّاة" />
+            </div>
           </div>
         </div>
       </section>
-
-      {/* Active country banner */}
-      <CountryBanner />
 
       {/* About */}
       <section className="bg-cream">
@@ -220,6 +228,15 @@ function Index() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function HeroStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-navy-card/50 px-3 py-3 text-center backdrop-blur">
+      <div className="text-xl font-extrabold text-gold">{value}</div>
+      <div className="mt-1 text-[11px] text-cream/65">{label}</div>
     </div>
   );
 }
