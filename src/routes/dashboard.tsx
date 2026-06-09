@@ -821,11 +821,13 @@ const PROFILE_KEY = "muhamik_profile";
 interface ProfileData {
   name: string; title: string; specialty: string; city: string;
   price: number; experience: number; phone: string; email: string; bio: string;
+  countries: import("@/data/countries").CountryCode[];
 }
 function Profile() {
   const initial: ProfileData = {
     name: lawyer.name, title: lawyer.title, specialty: lawyer.specialty, city: lawyer.city,
     price: lawyer.price, experience: lawyer.experience, phone: lawyer.phone, email: lawyer.email, bio: lawyer.bio,
+    countries: [...lawyer.countries],
   };
   const [data, setData] = useState<ProfileData>(initial);
   const [editing, setEditing] = useState(false);
@@ -876,11 +878,34 @@ function Profile() {
             <Field label="الاسم"><input className={fieldCls} value={data.name} onChange={(e) => set("name", e.target.value)} required /></Field>
             <Field label="المسمى"><input className={fieldCls} value={data.title} onChange={(e) => set("title", e.target.value)} required /></Field>
             <Field label="التخصص"><input className={fieldCls} value={data.specialty} onChange={(e) => set("specialty", e.target.value)} /></Field>
-            <Field label="المدينة"><input className={fieldCls} value={data.city} onChange={(e) => set("city", e.target.value)} /></Field>
+            <Field label="المدينة">
+              <select className={fieldCls} value={data.city} onChange={(e) => set("city", e.target.value)}>
+                {getCountry(LAWYER_COUNTRY).cities.map((c) => (<option key={c}>{c}</option>))}
+              </select>
+            </Field>
             <Field label={`سعر الاستشارة (${CURRENCY})`}><input type="number" className={fieldCls} value={data.price} onChange={(e) => set("price", Number(e.target.value))} /></Field>
             <Field label="سنوات الخبرة"><input type="number" className={fieldCls} value={data.experience} onChange={(e) => set("experience", Number(e.target.value))} /></Field>
             <Field label="الهاتف"><input className={fieldCls} value={data.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
             <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={data.email} onChange={(e) => set("email", e.target.value)} /></Field>
+            <div className="sm:col-span-2">
+              <Field label="الدول التي تخدمها">
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {countriesList.map((c) => {
+                    const on = data.countries.includes(c.code);
+                    return (
+                      <button
+                        type="button"
+                        key={c.code}
+                        onClick={() => setData((d) => ({ ...d, countries: on ? d.countries.filter((x) => x !== c.code) : [...d.countries, c.code] }))}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${on ? "border-gold bg-gold/15 text-gold" : "border-white/15 text-cream/65 hover:border-gold/40"}`}
+                      >
+                        {c.flag} {c.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+            </div>
             <div className="sm:col-span-2"><Field label="نبذة تعريفية"><textarea rows={4} className={fieldCls} value={data.bio} onChange={(e) => set("bio", e.target.value)} /></Field></div>
             <div className="flex gap-2 sm:col-span-2">
               <button type="button" onClick={() => { setData(initial); setEditing(false); }} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream">إلغاء</button>
@@ -893,6 +918,7 @@ function Profile() {
             <Info label="المدينة" value={data.city} />
             <Info label="سعر الاستشارة" value={`${money(data.price)}`} />
             <Info label="سنوات الخبرة" value={`${data.experience} سنة`} />
+            <Info label="الدول المخدومة" value={data.countries.map((c) => getCountry(c).flag + " " + getCountry(c).name).join("، ")} />
             <Info label="الهاتف" value={data.phone} />
             <Info label="البريد الإلكتروني" value={data.email} />
             <div className="sm:col-span-2"><Info label="نبذة تعريفية" value={data.bio} /></div>
