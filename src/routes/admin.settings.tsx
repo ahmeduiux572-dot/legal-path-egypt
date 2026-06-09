@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LogOut, ShieldCheck, Globe, MapPin, Landmark, Wallet } from "lucide-react";
+import { LogOut, ShieldCheck, Globe, MapPin, Landmark, Wallet, Plus, Pencil, Trash2, RotateCcw } from "lucide-react";
 import { PageHeader } from "@/components/admin/parts";
 import { adminLogout, ADMIN_EMAIL } from "@/lib/admin-auth";
-import { countries, type CountryCode } from "@/data/countries";
+import {
+  useCountries,
+  saveCountry,
+  removeCountry,
+  resetCountries,
+  type Country,
+  type CountryCode,
+} from "@/data/countries";
+import { CountryFormDialog } from "@/components/admin/CountryFormDialog";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
