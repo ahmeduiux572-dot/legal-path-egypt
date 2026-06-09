@@ -1850,7 +1850,7 @@ function Invoices() {
 }
 
 /* ---------- Wallet ---------- */
-const walletMethods = ["فودافون كاش", "أورنج كاش", "اتصالات كاش", "إنستا باي"];
+const walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
 function WalletPanel() {
   return <WalletPanelImpl />;
 }
