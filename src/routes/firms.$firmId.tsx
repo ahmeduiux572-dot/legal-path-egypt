@@ -80,7 +80,7 @@ function FirmProfile() {
                 <p className="text-xs text-muted-foreground">عضو في الفريق</p>
               </div>
             </div>
-            <BookingDialog name={firm.name} price={firm.consultationPrice} country={firm.country} />
+            <BookingDialog name={firm.name} price={firm.consultationPrice} country={firm.country} address={`${firm.city} — مقر المكتب`} />
             <div className="mt-5 space-y-3 text-sm">
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" />{firm.city}</span><span>المقر</span></p>
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" />{firm.established}</span><span>سنة التأسيس</span></p>
