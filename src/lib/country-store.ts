@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { DEFAULT_COUNTRY, type CountryCode } from "@/data/countries";
+import { DEFAULT_COUNTRY, getCountries, type CountryCode } from "@/data/countries";
 
 const KEY = "mohamy_active_country_v1";
 const listeners = new Set<() => void>();
@@ -10,8 +10,9 @@ function load(): CountryCode {
   if (active) return active;
   if (typeof window === "undefined") return DEFAULT_COUNTRY;
   try {
-    const raw = window.localStorage.getItem(KEY) as CountryCode | null;
-    active = raw === "EG" || raw === "SA" || raw === "JO" ? raw : DEFAULT_COUNTRY;
+    const raw = window.localStorage.getItem(KEY);
+    const known = getCountries().some((c) => c.code === raw);
+    active = raw && known ? raw : DEFAULT_COUNTRY;
   } catch {
     active = DEFAULT_COUNTRY;
   }
