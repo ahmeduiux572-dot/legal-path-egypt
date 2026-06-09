@@ -762,7 +762,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
 /* ---------- Overview ---------- */
 function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
   const stats = [
-    { label: "إجمالي الأرباح", value: "84,500 ج.م", icon: Wallet, hint: "هذا الشهر +12%" },
+    { label: "إجمالي الأرباح", value: money(84500), icon: Wallet, hint: "هذا الشهر +12%" },
     { label: "قضايا نشطة", value: String(dashCases.filter((c) => c.status === "نشطة").length), icon: Briefcase, hint: "قيد المتابعة" },
     { label: "عملاء", value: String(dashClients.length), icon: Users, hint: "إجمالي" },
     { label: "متوسط التقييم", value: lawyer.rating.toFixed(1), icon: Star, hint: `${lawyer.reviews} تقييم` },
@@ -877,7 +877,7 @@ function Profile() {
             <Field label="المسمى"><input className={fieldCls} value={data.title} onChange={(e) => set("title", e.target.value)} required /></Field>
             <Field label="التخصص"><input className={fieldCls} value={data.specialty} onChange={(e) => set("specialty", e.target.value)} /></Field>
             <Field label="المدينة"><input className={fieldCls} value={data.city} onChange={(e) => set("city", e.target.value)} /></Field>
-            <Field label="سعر الاستشارة (ج.م)"><input type="number" className={fieldCls} value={data.price} onChange={(e) => set("price", Number(e.target.value))} /></Field>
+            <Field label={`سعر الاستشارة (${CURRENCY})`}><input type="number" className={fieldCls} value={data.price} onChange={(e) => set("price", Number(e.target.value))} /></Field>
             <Field label="سنوات الخبرة"><input type="number" className={fieldCls} value={data.experience} onChange={(e) => set("experience", Number(e.target.value))} /></Field>
             <Field label="الهاتف"><input className={fieldCls} value={data.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
             <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={data.email} onChange={(e) => set("email", e.target.value)} /></Field>
@@ -909,7 +909,7 @@ function Profile() {
 function SubscriptionCard() {
   const plan = {
     name: "الباقة الاحترافية",
-    price: "499 ج.م / شهرياً",
+    price: `${money(499)} / شهرياً`,
     renew: "15 يوليو 2026",
     status: "نشط",
     features: [
@@ -1062,7 +1062,7 @@ function Cases() {
         <FormSection title="الطرف الآخر">
           <Field label="اسم الخصم"><input className={fieldCls} value={form.opponent} onChange={(e) => setForm({ ...form, opponent: e.target.value })} /></Field>
           <Field label="محامي الخصم"><input className={fieldCls} value={form.opponentLawyer} onChange={(e) => setForm({ ...form, opponentLawyer: e.target.value })} /></Field>
-          <Field label="قيمة المطالبة (ج.م)"><input type="number" min={0} className={fieldCls} value={form.claimAmount} onChange={(e) => setForm({ ...form, claimAmount: e.target.value })} /></Field>
+          <Field label={`قيمة المطالبة (${CURRENCY})`}><input type="number" min={0} className={fieldCls} value={form.claimAmount} onChange={(e) => setForm({ ...form, claimAmount: e.target.value })} /></Field>
         </FormSection>
         <div>
           <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
@@ -1757,7 +1757,7 @@ function Invoices() {
           <div className="sm:col-span-2"><SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" /></div>
         </FormSection>
         <FormSection title="المبالغ والتواريخ">
-          <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+          <Field label={`المبلغ (${CURRENCY})`}><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
           <Field label="الضريبة (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.tax} onChange={(e) => setForm({ ...form, tax: e.target.value })} /></Field>
           <Field label="تاريخ الإصدار"><input className={fieldCls} placeholder="6 يونيو 2026" value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} /></Field>
           <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
@@ -2388,7 +2388,7 @@ function WalletPanelImpl() {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
-              <Field label="المبلغ (ج.م)">
+              <Field label={`المبلغ (${CURRENCY})`}>
                 <input type="number" required min={1} max={walletBalance} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className={fieldCls} />
                 <p className="mt-1 text-xs text-cream/45">الحد الأقصى {money(walletBalance)}</p>
               </Field>
