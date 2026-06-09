@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
 import { FirmCard } from "@/components/FirmCard";
 import { AdCarousel } from "@/components/AdCarousel";
+import { CountryBanner } from "@/components/CountryBanner";
 import { topRated, mostConsulted } from "@/data/lawyers";
 import { topFirms } from "@/data/firms";
 import heroLegal from "@/assets/hero-legal.jpg";
@@ -74,6 +75,9 @@ function Index() {
           </div>
         </div>
       </section>
+
+      {/* Active country banner */}
+      <CountryBanner />
 
       {/* About */}
       <section className="bg-cream">
