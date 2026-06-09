@@ -191,7 +191,6 @@ function RegisterPage() {
                       className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none"
                     />
                   </div>
-                  <Field label="رقم الهاتف" type="tel" required />
                   <PhoneField dial={dial} />
                   <CitySelect country={country} />
                   <div className="sm:col-span-2">
@@ -209,7 +208,7 @@ function RegisterPage() {
                   <Field label="الاسم الكامل" required />
                   <Field label="رقم نقابة المحامين" required />
                   <Field label="البريد الإلكتروني" type="email" required />
-                  <Field label="رقم الهاتف" type="tel" required />
+                  <PhoneField dial={dial} />
                   <div>
                     <label className="mb-1.5 block text-sm text-cream/80">التخصص</label>
                     <select className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
