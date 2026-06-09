@@ -67,15 +67,8 @@ function Index() {
           alt={`علم ${countryName}`}
           className="absolute inset-0 h-full w-full animate-in fade-in object-cover duration-700"
         />
-        {/* Legal photo blended subtly above the flag */}
-        <img
-          src={heroLegal}
-          alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
-          className="absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-overlay"
-        />
-        {/* Dark overlay + gradient keep the text readable */}
-        <div className="absolute inset-0 bg-navy-deep/55" />
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/80 to-navy-deep/30" />
+        {/* Gradient keeps the text side (right in RTL) readable while the flag shows on the left */}
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/85 to-navy-deep/35" />
         <div className="absolute inset-0 pattern-grid opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
