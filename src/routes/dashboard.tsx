@@ -1896,7 +1896,7 @@ function Invoices() {
 }
 
 /* ---------- Wallet ---------- */
-const walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
+let walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
 function WalletPanel() {
   return <WalletPanelImpl />;
 }
