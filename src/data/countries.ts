@@ -45,7 +45,7 @@ export interface Country {
   marketing: CountryMarketing;
 }
 
-export const countries: Country[] = [
+export const baseCountries: Country[] = [
   {
     code: "EG",
     name: "مصر",
