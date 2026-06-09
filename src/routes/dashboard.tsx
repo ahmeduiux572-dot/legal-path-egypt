@@ -1225,7 +1225,12 @@ function Clients() {
         <FormSection title="البيانات الأساسية">
           <div className="sm:col-span-2"><Field label="الاسم الكامل"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
           <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
-          <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <Field label="المدينة">
+            <select className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
+              <option value="">اختر المدينة</option>
+              {getCountry(LAWYER_COUNTRY).cities.map((c) => (<option key={c}>{c}</option>))}
+            </select>
+          </Field>
           <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
         </FormSection>
         <FormSection title="بيانات التواصل">
