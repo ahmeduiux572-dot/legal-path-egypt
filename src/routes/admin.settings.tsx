@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck, Globe, MapPin, Landmark, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/admin/parts";
 import { adminLogout, ADMIN_EMAIL } from "@/lib/admin-auth";
+import { countries, type CountryCode } from "@/data/countries";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
@@ -23,6 +25,9 @@ const fields = [
 
 function SettingsPage() {
   const navigate = useNavigate();
+  const [activeCountries, setActiveCountries] = useState<CountryCode[]>(countries.map((c) => c.code));
+  const toggleCountry = (code: CountryCode) =>
+    setActiveCountries((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   const handleLogout = () => {
     adminLogout();
     navigate({ to: "/admin" });
@@ -65,6 +70,80 @@ function SettingsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* إدارة الدول */}
+      <div className="mt-6 rounded-2xl border border-white/10 bg-navy-card/50 p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-cream">
+            <Globe className="h-5 w-5 text-gold" /> إدارة الدول
+          </h2>
+          <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
+            {activeCountries.length} / {countries.length} مفعّلة
+          </span>
+        </div>
+        <p className="mb-5 text-sm text-cream/60">
+          تحكّم في الدول المتاحة على المنصة وراجع عملة كل دولة ونسبة الضريبة والمحاكم ووسائل السحب الخاصة بها.
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {countries.map((c) => {
+            const on = activeCountries.includes(c.code);
+            return (
+              <div
+                key={c.code}
+                className={`rounded-xl border p-4 transition-colors ${
+                  on ? "border-gold/30 bg-navy-deep/40" : "border-white/10 bg-navy-deep/20 opacity-70"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl leading-none">{c.flag}</span>
+                    <div>
+                      <p className="text-sm font-bold text-cream">{c.name}</p>
+                      <p className="text-xs text-cream/50" dir="ltr">{c.dialCode}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleCountry(c.code)}
+                    aria-label={`تفعيل ${c.name}`}
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                      on ? "bg-gold" : "bg-white/15"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        on ? "-translate-x-1" : "-translate-x-6"
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="mt-4 space-y-2 text-xs text-cream/70">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="flex items-center gap-1.5 text-cream/50"><Wallet className="h-3.5 w-3.5 text-gold" /> العملة</span>
+                    <span className="font-semibold text-cream">{c.currency.symbol} ({c.currency.code})</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="text-cream/50">نسبة الضريبة</span>
+                    <span className="font-semibold text-cream">{c.vat}%</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="flex items-center gap-1.5 text-cream/50"><MapPin className="h-3.5 w-3.5 text-gold" /> المدن</span>
+                    <span className="font-semibold text-cream">{c.cities.length} مدينة</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="flex items-center gap-1.5 text-cream/50"><Landmark className="h-3.5 w-3.5 text-gold" /> المحاكم</span>
+                    <span className="font-semibold text-cream">{c.courts.length} محكمة</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-cream/50">وسائل السحب</span>
+                    <span className="font-semibold text-cream">{c.withdrawalMethods.length} وسيلة</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
