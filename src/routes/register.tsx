@@ -25,6 +25,7 @@ type Role = "client" | "lawyer";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const countries = useCountries();
   const [role, setRole] = useState<Role>("client");
   const [plan, setPlan] = useState("pro");
   const [photo, setPhoto] = useState<string | null>(null);
