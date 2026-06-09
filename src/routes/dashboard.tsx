@@ -225,6 +225,8 @@ const statusColor: Record<string, string> = {
 
 function DashboardPage() {
   const user = useAuth();
+  const activeCountry = useActiveCountry();
+  applyCountry(activeCountry);
   const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>("overview");
   const [request, setRequest] = useState<NavRequest | null>(null);
