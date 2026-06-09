@@ -1753,7 +1753,7 @@ function Invoices() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
-  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
+  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: String(COUNTRY_VAT), issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
