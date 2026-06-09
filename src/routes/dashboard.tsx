@@ -81,7 +81,7 @@ import {
   searchLibrary,
   type LibraryBook,
 } from "@/data/library";
-import { formatMoney, getCountry, countries as countriesList } from "@/data/countries";
+import { formatMoney, getCountry, getCountries } from "@/data/countries";
 import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/dashboard")({
