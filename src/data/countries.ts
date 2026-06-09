@@ -10,7 +10,6 @@ export interface Country {
   code: CountryCode;
   name: string;
   flag: string;
-  flagImage: string;
   dialCode: string;
   currency: CountryCurrency;
   vat: number; // نسبة الضريبة %
@@ -24,7 +23,6 @@ export const countries: Country[] = [
     code: "EG",
     name: "مصر",
     flag: "🇪🇬",
-    flagImage: "https://flagcdn.com/w1280/eg.png",
     dialCode: "+20",
     currency: { code: "EGP", symbol: "ج.م", locale: "ar-EG" },
     vat: 14,
@@ -44,7 +42,6 @@ export const countries: Country[] = [
     code: "SA",
     name: "السعودية",
     flag: "🇸🇦",
-    flagImage: "https://flagcdn.com/w1280/sa.png",
     dialCode: "+966",
     currency: { code: "SAR", symbol: "ر.س", locale: "ar-SA" },
     vat: 15,
@@ -63,7 +60,6 @@ export const countries: Country[] = [
     code: "JO",
     name: "الأردن",
     flag: "🇯🇴",
-    flagImage: "https://flagcdn.com/w1280/jo.png",
     dialCode: "+962",
     currency: { code: "JOD", symbol: "د.أ", locale: "ar-JO" },
     vat: 16,
