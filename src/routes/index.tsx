@@ -7,6 +7,8 @@ import { AdCarousel } from "@/components/AdCarousel";
 import { CountryBanner } from "@/components/CountryBanner";
 import { topRated, mostConsulted } from "@/data/lawyers";
 import { topFirms } from "@/data/firms";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 import heroLegal from "@/assets/hero-legal.jpg";
 import library from "@/assets/library.jpg";
 
@@ -41,6 +43,15 @@ const stats = [
 ];
 
 function Index() {
+  const country = useActiveCountry();
+  const countryName = getCountry(country).name;
+  const ratedInCountry = topRated.filter(
+    (l) => l.country === country || l.countries.includes(country),
+  );
+  const consultedInCountry = mostConsulted.filter(
+    (l) => l.country === country || l.countries.includes(country),
+  );
+  const firmsInCountry = topFirms.filter((f) => f.countries.includes(country));
   return (
     <div>
       {/* Hero */}
@@ -132,36 +143,48 @@ function Index() {
       {/* Top law firms */}
       <section className="bg-navy-deep pb-16 pt-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <SectionHeading light title="أشهر مكاتب المحاماة" subtitle="نخبة من أعرق مكاتب المحاماة في مصر والشرق الأوسط بخبرات ممتدة وفرق متخصصة." />
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {topFirms.map((f) => (
-              <FirmCard key={f.id} firm={f} />
-            ))}
-          </div>
+          <SectionHeading light title="أشهر مكاتب المحاماة" subtitle={`نخبة من أعرق مكاتب المحاماة المتاحة في ${countryName} بخبرات ممتدة وفرق متخصصة.`} />
+          {firmsInCountry.length === 0 ? (
+            <p className="mt-10 text-center text-cream/60">لا توجد مكاتب متاحة في {countryName} حالياً.</p>
+          ) : (
+            <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+              {firmsInCountry.map((f) => (
+                <FirmCard key={f.id} firm={f} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Top rated */}
       <section className="bg-navy py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <SectionHeading light title="المحامون الأكثر تقييماً" subtitle="نخبة من المحامين الحاصلين على أعلى تقييمات من عملائنا." />
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
-            {topRated.map((l) => (
-              <LawyerCard key={l.id} lawyer={l} />
-            ))}
-          </div>
+          <SectionHeading light title="المحامون الأكثر تقييماً" subtitle={`نخبة من المحامين الحاصلين على أعلى تقييمات في ${countryName}.`} />
+          {ratedInCountry.length === 0 ? (
+            <p className="mt-10 text-center text-cream/60">لا يوجد محامون متاحون في {countryName} حالياً.</p>
+          ) : (
+            <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
+              {ratedInCountry.map((l) => (
+                <LawyerCard key={l.id} lawyer={l} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Most consulted */}
       <section className="bg-navy-deep py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <SectionHeading light title="المحامون الأكثر استشارة" subtitle="الأكثر طلباً من العملاء على المنصة." />
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
-            {mostConsulted.map((l) => (
-              <LawyerCard key={l.id} lawyer={l} />
-            ))}
-          </div>
+          <SectionHeading light title="المحامون الأكثر استشارة" subtitle={`الأكثر طلباً من العملاء في ${countryName}.`} />
+          {consultedInCountry.length === 0 ? (
+            <p className="mt-10 text-center text-cream/60">لا يوجد محامون متاحون في {countryName} حالياً.</p>
+          ) : (
+            <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
+              {consultedInCountry.map((l) => (
+                <LawyerCard key={l.id} lawyer={l} />
+              ))}
+            </div>
+          )}
           <div className="mt-10 text-center">
             <Link to="/lawyers" className="inline-flex items-center gap-2 rounded-md border border-gold/50 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-white/5">
               تصفح كل المحامين
