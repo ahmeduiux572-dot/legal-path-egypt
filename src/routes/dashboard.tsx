@@ -68,7 +68,6 @@ import {
   walletTransactions,
   walletBalance,
   caseTypes,
-  courts,
   sessionTypes,
   invoiceItems,
   caseDegrees,
@@ -86,6 +85,7 @@ import {
   searchLibrary,
   type LibraryBook,
 } from "@/data/library";
+import { formatMoney, getCountry } from "@/data/countries";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -100,6 +100,13 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const lawyer = lawyers[0];
+
+// الدولة محور لوحة المحامي — العملة والمحاكم ووسائل السحب تُشتق منها
+const LAWYER_COUNTRY = lawyer.country;
+const CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
+const COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
+const courts = getCountry(LAWYER_COUNTRY).courts;
+const money = (n: number) => formatMoney(n, LAWYER_COUNTRY);
 
 type SectionId =
   | "overview"
