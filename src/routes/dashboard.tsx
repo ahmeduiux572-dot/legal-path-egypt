@@ -243,7 +243,7 @@ function DashboardPage() {
       items.push({ id: `con-${c.id}`, icon: MessageSquare, text: `${c.subject} — ${c.client}`, meta: `استشارة • ${c.date} ${c.time}`, urgent: false, go: () => go("consultations", c.id) }),
     );
     dashInvoices.filter((i) => i.status === "متأخرة").forEach((i) =>
-      items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${i.amount.toLocaleString()} ج.م`, urgent: true, go: () => go("invoices", i.id) }),
+      items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${money(i.amount)}`, urgent: true, go: () => go("invoices", i.id) }),
     );
     return items;
   }, []);
@@ -891,7 +891,7 @@ function Profile() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Info label="التخصص" value={data.specialty} />
             <Info label="المدينة" value={data.city} />
-            <Info label="سعر الاستشارة" value={`${data.price} ج.م`} />
+            <Info label="سعر الاستشارة" value={`${money(data.price)}`} />
             <Info label="سنوات الخبرة" value={`${data.experience} سنة`} />
             <Info label="الهاتف" value={data.phone} />
             <Info label="البريد الإلكتروني" value={data.email} />
@@ -1104,7 +1104,7 @@ function Cases() {
           <DetailGrid title="الطرف الآخر">
             <DetailItem label="اسم الخصم" value={c.opponent} />
             <DetailItem label="محامي الخصم" value={c.opponentLawyer} />
-            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${c.claimAmount.toLocaleString()} ج.م` : undefined} />
+            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${money(c.claimAmount)}` : undefined} />
           </DetailGrid>
         )}
         {(c.description || (c.files && c.files.length > 0)) && (
@@ -1117,7 +1117,7 @@ function Cases() {
         <RelatedSection title="جلسات القضية" icon={CalendarDays}
           items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير القضية" icon={Receipt}
-          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
+          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${money(iv.amount)}`, onClick: () => go("invoices", iv.id) }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
@@ -1231,7 +1231,7 @@ function Clients() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">القضايا</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedCases.length}</p></div>
           <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">الجلسات</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedSessions.length}</p></div>
-          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{totalBilled.toLocaleString()} ج.م</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{money(totalBilled)}</p></div>
         </div>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
@@ -1278,7 +1278,7 @@ function Clients() {
         <RelatedSection title="جلسات العميل" icon={CalendarDays}
           items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
-          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${money(iv.amount)}`, onClick: () => go("invoices", iv.id) }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -1655,7 +1655,7 @@ function Consultations() {
           <DetailItem label="التاريخ" value={c.date} />
           <DetailItem label="الوقت" value={c.time} />
           <DetailItem label="المدة" value={c.duration} />
-          <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
+          <DetailItem label="السعر" value={`${money(c.price)}`} />
           <DetailItem label="الحالة" value={c.status} />
           <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
@@ -1694,7 +1694,7 @@ function Consultations() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-extrabold text-cream">{c.price} ج.م</span>
+                <span className="font-extrabold text-cream">{money(c.price)}</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
                 {c.status !== "ملغاة" && (
                   <button onClick={() => setInCall(c)} aria-label="انضمام للمكالمة" className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
@@ -1792,7 +1792,7 @@ function Invoices() {
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-cream/60">الإجمالي المستحق</span>
-            <span className="text-2xl font-extrabold text-gradient-gold">{(inv.amount + taxAmount).toLocaleString()} ج.م</span>
+            <span className="text-2xl font-extrabold text-gradient-gold">{money((inv.amount + taxAmount))}</span>
           </div>
         </div>
         <DetailGrid title="بيانات الفاتورة">
@@ -1802,8 +1802,8 @@ function Invoices() {
           <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
         </DetailGrid>
         <DetailGrid title="المبالغ والتواريخ">
-          <DetailItem label="المبلغ" value={`${inv.amount.toLocaleString()} ج.م`} />
-          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${taxAmount.toLocaleString()} ج.م)` : undefined} />
+          <DetailItem label="المبلغ" value={`${money(inv.amount)}`} />
+          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${money(taxAmount)})` : undefined} />
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
@@ -1822,9 +1822,9 @@ function Invoices() {
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي الفواتير</p><p className="mt-2 text-2xl font-extrabold text-cream">{total.toLocaleString()} ج.م</p></div>
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">محصّلة</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{paid.toLocaleString()} ج.م</p></div>
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستحقة</p><p className="mt-2 text-2xl font-extrabold text-gold">{(total - paid).toLocaleString()} ج.م</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي الفواتير</p><p className="mt-2 text-2xl font-extrabold text-cream">{money(total)}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">محصّلة</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{money(paid)}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستحقة</p><p className="mt-2 text-2xl font-extrabold text-gold">{money((total - paid))}</p></div>
       </div>
       <div className={card}>
         <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Receipt className="h-5 w-5 text-gold" /> الفواتير</h2>
@@ -1836,7 +1836,7 @@ function Invoices() {
             <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
-                <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
+                <span className="font-extrabold text-cream">{money(inv.amount)}</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
                 <ViewButton onClick={() => setViewingId(inv.id)} />
               </div>
@@ -2360,7 +2360,7 @@ function WalletPanelImpl() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-gold/30 bg-gradient-navy p-7 lg:col-span-1">
           <p className="text-sm text-cream/65">الرصيد المتاح</p>
-          <p className="mt-2 text-3xl font-extrabold text-gradient-gold">{walletBalance.toLocaleString()} ج.م</p>
+          <p className="mt-2 text-3xl font-extrabold text-gradient-gold">{money(walletBalance)}</p>
           <button onClick={() => { setOpen(true); setDone(false); }} className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
             <ArrowDownToLine className="h-4 w-4" /> طلب سحب
           </button>
@@ -2371,7 +2371,7 @@ function WalletPanelImpl() {
             {walletTransactions.map((t) => (
               <div key={t.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-4">
                 <div><p className="text-sm font-semibold text-cream">{t.label}</p><p className="mt-0.5 text-xs text-cream/50">{t.date}</p></div>
-                <span className={`text-sm font-bold ${t.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>{t.amount > 0 ? "+" : "-"}{Math.abs(t.amount).toLocaleString()} ج.م</span>
+                <span className={`text-sm font-bold ${t.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>{t.amount > 0 ? "+" : "-"}{money(Math.abs(t.amount))}</span>
               </div>
             ))}
           </div>
@@ -2390,7 +2390,7 @@ function WalletPanelImpl() {
             <form onSubmit={submit} className="space-y-4">
               <Field label="المبلغ (ج.م)">
                 <input type="number" required min={1} max={walletBalance} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className={fieldCls} />
-                <p className="mt-1 text-xs text-cream/45">الحد الأقصى {walletBalance.toLocaleString()} ج.م</p>
+                <p className="mt-1 text-xs text-cream/45">الحد الأقصى {money(walletBalance)}</p>
               </Field>
               <div>
                 <span className="mb-1.5 block text-sm font-medium text-cream/80">المحفظة الإلكترونية</span>
