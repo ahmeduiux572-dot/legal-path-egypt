@@ -65,17 +65,18 @@ function Index() {
           alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {/* Country flag backdrop */}
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/95 via-navy-deep/85 to-navy-deep/60" />
+        {/* Country flag backdrop — clearly visible on the left side */}
         <div
           key={country}
-          className="absolute inset-0 flex select-none items-center justify-center overflow-hidden"
+          className="pointer-events-none absolute inset-y-0 left-0 flex w-2/3 select-none items-center justify-start overflow-hidden md:w-1/2"
           aria-hidden
         >
-          <span className="animate-in fade-in zoom-in-95 text-[34rem] leading-none opacity-[0.14] blur-[1px] duration-700 md:text-[52rem]">
+          <span className="-ml-16 animate-in fade-in zoom-in-95 text-[26rem] leading-none opacity-30 duration-700 drop-shadow-2xl md:-ml-24 md:text-[40rem]">
             {getCountry(country).flag}
           </span>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/95 via-navy-deep/85 to-navy-deep/60" />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-navy-deep/40 to-navy-deep/80" />
         <div className="absolute inset-0 pattern-grid opacity-30" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
