@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Globe, Check } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { countries } from "@/data/countries";
 import { useActiveCountry, setActiveCountry } from "@/lib/country-store";
 
@@ -24,7 +24,6 @@ export function CountrySwitcher({ compact = false }: { compact?: boolean }) {
         className={`flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-2 text-sm font-semibold text-cream/90 transition-colors hover:border-gold/50 hover:bg-white/5 ${compact ? "w-full justify-center" : ""}`}
         aria-label="اختر الدولة"
       >
-        <Globe className="h-4 w-4 text-gold" />
         <span className="text-base leading-none">{current.flag}</span>
         <span className="hidden sm:inline">{current.name}</span>
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
