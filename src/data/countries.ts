@@ -180,8 +180,83 @@ export const baseCountries: Country[] = [
 
 export const DEFAULT_COUNTRY: CountryCode = "EG";
 
+/* ---------------- مخزن الدول القابل للتعديل (يُدار من لوحة الأدمن) ---------------- */
+
+const STORAGE_KEY = "mohamy_countries_v1";
+const listeners = new Set<() => void>();
+let live: Country[] | null = null;
+
+function clone(list: Country[]): Country[] {
+  return JSON.parse(JSON.stringify(list)) as Country[];
+}
+
+function load(): Country[] {
+  if (live) return live;
+  if (typeof window === "undefined") {
+    live = baseCountries;
+    return live;
+  }
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Country[]) : null;
+    live = parsed && Array.isArray(parsed) && parsed.length ? parsed : clone(baseCountries);
+  } catch {
+    live = clone(baseCountries);
+  }
+  return live;
+}
+
+function persist() {
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(live));
+    } catch {
+      /* ignore */
+    }
+  }
+  listeners.forEach((l) => l());
+}
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+
+/** القائمة الحالية للدول (لقطة متزامنة) */
+export function getCountries(): Country[] {
+  return load();
+}
+
+/** Hook تفاعلي يعيد قائمة الدول ويُحدّث عند أي تعديل */
+export function useCountries(): Country[] {
+  return useSyncExternalStore(subscribe, getCountries, () => baseCountries);
+}
+
+/** إضافة أو تعديل دولة (حسب الكود) */
+export function saveCountry(country: Country) {
+  const list = load().slice();
+  const i = list.findIndex((c) => c.code === country.code);
+  if (i >= 0) list[i] = country;
+  else list.push(country);
+  live = list;
+  persist();
+}
+
+/** حذف دولة */
+export function removeCountry(code: CountryCode) {
+  live = load().filter((c) => c.code !== code);
+  persist();
+}
+
+/** إعادة الضبط لقائمة الدول الافتراضية */
+export function resetCountries() {
+  live = clone(baseCountries);
+  persist();
+}
+
 export function getCountry(code: CountryCode): Country {
-  return countries.find((c) => c.code === code) ?? countries[0];
+  const list = load();
+  return list.find((c) => c.code === code) ?? list[0] ?? baseCountries[0];
 }
 
 export function countryName(code: CountryCode): string {
