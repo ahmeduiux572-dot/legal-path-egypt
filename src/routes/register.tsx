@@ -6,6 +6,8 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { plans } from "@/data/content";
 import { specialties as specs } from "@/data/lawyers";
 import { login } from "@/lib/auth";
+import { countries, getCountry, formatMoney, type CountryCode } from "@/data/countries";
+import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -29,6 +31,13 @@ function RegisterPage() {
   const [cv, setCv] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
+  const activeCountry = useActiveCountry();
+  const [country, setCountry] = useState<CountryCode>(activeCountry);
+  const [served, setServed] = useState<CountryCode[]>([activeCountry]);
+  const dial = getCountry(country).dialCode;
+
+  const toggleServed = (c: CountryCode) =>
+    setServed((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +87,50 @@ function RegisterPage() {
           </button>
         </div>
 
+        {/* Country selector — المحور الأساسي */}
+        <div className="mx-auto mb-10 max-w-2xl rounded-2xl border border-gold/30 bg-navy-card/50 p-5">
+          <label className="mb-3 block text-center text-sm font-bold text-cream">اختر دولتك</label>
+          <div className="grid grid-cols-3 gap-2">
+            {countries.map((c) => {
+              const sel = country === c.code;
+              return (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    setCountry(c.code);
+                    setServed((prev) => (prev.includes(c.code) ? prev : [...prev, c.code]));
+                  }}
+                  className={`flex flex-col items-center gap-1 rounded-xl border py-3 text-sm font-semibold transition-all ${sel ? "border-gold bg-navy text-gold shadow-gold" : "border-white/10 text-cream/75 hover:border-gold/40"}`}
+                >
+                  <span className="text-2xl leading-none">{c.flag}</span>
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+          {role === "lawyer" && (
+            <div className="mt-4">
+              <label className="mb-2 block text-sm text-cream/80">الدول التي ستقدّم خدماتك فيها</label>
+              <div className="flex flex-wrap gap-2">
+                {countries.map((c) => {
+                  const on = served.includes(c.code);
+                  return (
+                    <button
+                      key={c.code}
+                      type="button"
+                      onClick={() => toggleServed(c.code)}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${on ? "border-gold bg-gold/15 text-gold" : "border-white/15 text-cream/65 hover:border-gold/40"}`}
+                    >
+                      {c.flag} {c.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Plans (lawyers only) */}
         {role === "lawyer" && (
          <>
@@ -95,7 +148,7 @@ function RegisterPage() {
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-gold px-3 py-0.5 text-xs font-bold text-navy">الأكثر طلباً</span>
                 )}
                 <h4 className="text-lg font-bold text-cream">{p.name}</h4>
-                <div className="mt-3"><span className="text-3xl font-extrabold text-gold">{p.price}</span><span className="text-sm text-cream/60"> ج.م / {p.period}</span></div>
+                <div className="mt-3"><span className="text-3xl font-extrabold text-gold">{formatMoney(p.price, country)}</span><span className="text-sm text-cream/60"> / {p.period}</span></div>
                 <ul className="mt-5 flex-1 space-y-2.5">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-cream/75"><Check className="mt-0.5 h-4 w-4 shrink-0 text-gold" />{f}</li>
@@ -139,7 +192,8 @@ function RegisterPage() {
                     />
                   </div>
                   <Field label="رقم الهاتف" type="tel" required />
-                  <Field label="المدينة" required />
+                  <PhoneField dial={dial} />
+                  <CitySelect country={country} />
                   <div className="sm:col-span-2">
                     <label className="mb-1.5 block text-sm text-cream/80">كلمة المرور</label>
                     <input type="password" required placeholder="••••••••" className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none" />
@@ -162,7 +216,7 @@ function RegisterPage() {
                       {specs.slice(1).map((s) => (<option key={s}>{s}</option>))}
                     </select>
                   </div>
-                  <Field label="المدينة" required />
+                  <CitySelect country={country} />
                 </div>
 
                 <div className="mt-4">
