@@ -67,10 +67,6 @@ import {
   aiConversations,
   walletTransactions,
   walletBalance,
-  caseTypes,
-  sessionTypes,
-  invoiceItems,
-  caseDegrees,
   type DashCase,
   type DashClient,
   type DashSession,
@@ -86,6 +82,7 @@ import {
   type LibraryBook,
 } from "@/data/library";
 import { formatMoney, getCountry, countries as countriesList } from "@/data/countries";
+import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
