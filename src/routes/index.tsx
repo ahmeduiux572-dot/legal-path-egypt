@@ -60,25 +60,25 @@ function Index() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <img
-          src={heroLegal}
-          alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-navy-deep/60" />
-        {/* Country flag backdrop — clearly visible on the left side */}
+        {/* Country flag as the full hero background */}
         <div
           key={country}
-          className="pointer-events-none absolute inset-y-0 left-0 flex w-3/4 select-none items-center justify-start overflow-hidden md:w-1/2"
+          className="pointer-events-none absolute inset-0 flex select-none items-center justify-center overflow-hidden bg-navy-deep"
           aria-hidden
         >
-          <span className="-ml-10 animate-in fade-in zoom-in-95 text-[24rem] leading-none opacity-70 duration-700 drop-shadow-2xl md:-ml-12 md:text-[38rem]">
+          <span className="animate-in fade-in zoom-in-95 text-[40rem] leading-none opacity-90 duration-700 md:text-[64rem]">
             {getCountry(country).flag}
           </span>
         </div>
-        {/* Darken right side so text stays readable, fade to flag on the left */}
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/85 to-transparent" />
-        <div className="absolute inset-0 pattern-grid opacity-30" />
+        {/* Legal photo as a subtle texture above the flag */}
+        <img
+          src={heroLegal}
+          alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
+          className="absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+        />
+        {/* Dark gradient keeps the text side readable */}
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/80 to-navy-deep/40" />
+        <div className="absolute inset-0 pattern-grid opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-1 text-xs font-medium text-gold">
