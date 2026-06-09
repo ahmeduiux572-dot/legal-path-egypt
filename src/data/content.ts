@@ -1,3 +1,5 @@
+import { formatMoney, type CountryCode } from "@/data/countries";
+
 export interface LegalTemplate {
   id: string;
   title: string;
@@ -23,20 +25,28 @@ export interface CaseListing {
   title: string;
   category: string;
   city: string;
-  budget: string;
+  country: CountryCode;
+  budgetMin: number;
+  budgetMax: number;
   deadline: string;
   proposals: number;
   description: string;
 }
 
 export const cases: CaseListing[] = [
-  { id: "c1", title: "نزاع تجاري على عقد توريد", category: "تجاري", city: "القاهرة", budget: "5,000 - 12,000 ج.م", deadline: "خلال أسبوع", proposals: 7, description: "أبحث عن محامٍ متخصص لمتابعة نزاع حول إخلال طرف بعقد توريد بضائع والمطالبة بالتعويض." },
-  { id: "c2", title: "قضية حضانة أطفال", category: "أسرة", city: "الإسكندرية", budget: "3,000 - 8,000 ج.م", deadline: "عاجل", proposals: 12, description: "حاجة لمحامي أسرة لمتابعة دعوى حضانة وتنظيم الرؤية أمام محكمة الأسرة." },
-  { id: "c3", title: "تسجيل علامة تجارية", category: "ملكية فكرية", city: "دبي", budget: "4,000 - 9,000 د.إ", deadline: "خلال شهر", proposals: 5, description: "مطلوب مستشار لتسجيل علامة تجارية وحمايتها من التعدي محلياً وإقليمياً." },
-  { id: "c4", title: "فصل تعسفي من العمل", category: "عمل", city: "الرياض", budget: "2,500 - 6,000 ر.س", deadline: "خلال أسبوعين", proposals: 9, description: "أحتاج محامي عمل للمطالبة بمستحقات نهاية الخدمة والتعويض عن الفصل التعسفي." },
-  { id: "c5", title: "نزاع ملكية عقار", category: "عقارات", city: "جدة", budget: "8,000 - 20,000 ر.س", deadline: "خلال شهر", proposals: 4, description: "نزاع على ملكية قطعة أرض وأحتاج لمحامٍ متخصص في القضايا العقارية." },
-  { id: "c6", title: "صياغة عقد شراكة", category: "شركات", city: "عمّان", budget: "1,500 - 4,000 د.أ", deadline: "خلال أسبوع", proposals: 6, description: "مطلوب صياغة ومراجعة عقد شراكة بين ثلاثة مؤسسين مع تحديد الحصص والمسؤوليات." },
+  { id: "c1", title: "نزاع تجاري على عقد توريد", category: "تجاري", city: "القاهرة", country: "EG", budgetMin: 5000, budgetMax: 12000, deadline: "خلال أسبوع", proposals: 7, description: "أبحث عن محامٍ متخصص لمتابعة نزاع حول إخلال طرف بعقد توريد بضائع والمطالبة بالتعويض." },
+  { id: "c2", title: "قضية حضانة أطفال", category: "أسرة", city: "الإسكندرية", country: "EG", budgetMin: 3000, budgetMax: 8000, deadline: "عاجل", proposals: 12, description: "حاجة لمحامي أسرة لمتابعة دعوى حضانة وتنظيم الرؤية أمام محكمة الأسرة." },
+  { id: "c3", title: "تسجيل علامة تجارية", category: "ملكية فكرية", city: "الرياض", country: "SA", budgetMin: 4000, budgetMax: 9000, deadline: "خلال شهر", proposals: 5, description: "مطلوب مستشار لتسجيل علامة تجارية وحمايتها من التعدي محلياً وإقليمياً." },
+  { id: "c4", title: "فصل تعسفي من العمل", category: "عمل", city: "الرياض", country: "SA", budgetMin: 2500, budgetMax: 6000, deadline: "خلال أسبوعين", proposals: 9, description: "أحتاج محامي عمل للمطالبة بمستحقات نهاية الخدمة والتعويض عن الفصل التعسفي." },
+  { id: "c5", title: "نزاع ملكية عقار", category: "عقارات", city: "جدة", country: "SA", budgetMin: 8000, budgetMax: 20000, deadline: "خلال شهر", proposals: 4, description: "نزاع على ملكية قطعة أرض وأحتاج لمحامٍ متخصص في القضايا العقارية." },
+  { id: "c6", title: "صياغة عقد شراكة", category: "شركات", city: "عمّان", country: "JO", budgetMin: 1500, budgetMax: 4000, deadline: "خلال أسبوع", proposals: 6, description: "مطلوب صياغة ومراجعة عقد شراكة بين ثلاثة مؤسسين مع تحديد الحصص والمسؤوليات." },
 ];
+
+/** نطاق الميزانية مُنسّقاً بعملة دولة القضية */
+export function caseBudget(c: CaseListing): string {
+  const min = new Intl.NumberFormat("en-US").format(c.budgetMin);
+  return `${min} - ${formatMoney(c.budgetMax, c.country)}`;
+}
 
 export interface Plan {
   id: string;
