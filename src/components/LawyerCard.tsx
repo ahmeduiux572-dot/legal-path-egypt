@@ -1,16 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import type { Lawyer } from "@/data/lawyers";
+import { getCountry } from "@/data/countries";
 import { StarRating } from "./StarRating";
 
 export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
+  const home = getCountry(lawyer.country);
   return (
     <Link
       to="/lawyers/$lawyerId"
       params={{ lawyerId: lawyer.id }}
       className="group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-card/60 transition-all hover:-translate-y-1 hover:border-gold/40 hover:shadow-gold"
     >
-      <div className="aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={lawyer.image}
           alt={lawyer.name}
@@ -19,6 +21,13 @@ export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
           height={1024}
           className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
         />
+        <span
+          className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-gold/40 bg-navy-deep/80 px-2.5 py-1 text-[11px] font-semibold text-cream backdrop-blur"
+          title={`المقر: ${home.name}`}
+        >
+          <span className="text-sm leading-none">{home.flag}</span>
+          {home.name}
+        </span>
       </div>
       <div className="flex flex-1 flex-col p-3 text-center sm:p-5">
         <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
@@ -28,6 +37,16 @@ export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
           )}
         </h3>
         <p className="mt-1 text-xs text-gold">{lawyer.title}</p>
+        {lawyer.countries.length > 1 && (
+          <div className="mt-2 flex items-center justify-center gap-1">
+            <span className="text-[10px] text-cream/50">يخدم في</span>
+            {lawyer.countries.map((c) => (
+              <span key={c} className="text-sm leading-none" title={getCountry(c).name}>
+                {getCountry(c).flag}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-center gap-2">
           <StarRating value={lawyer.rating} size={14} />
           <span className="text-xs text-cream/60">({lawyer.reviews})</span>
