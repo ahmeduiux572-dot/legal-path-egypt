@@ -121,6 +121,7 @@ function applyCountry(code: typeof LAWYER_COUNTRY) {
   sessionTypes = c.sessionTypes;
   invoiceItems = c.invoiceItems;
   caseDegrees = c.caseDegrees;
+  walletMethods = c.withdrawalMethods;
 }
 
 type SectionId =
