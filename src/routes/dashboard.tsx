@@ -98,12 +98,30 @@ export const Route = createFileRoute("/dashboard")({
 
 const lawyer = lawyers[0];
 
-// الدولة محور لوحة المحامي — العملة والمحاكم ووسائل السحب تُشتق منها
-const LAWYER_COUNTRY = lawyer.country;
-const CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
-const COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
-const courts = getCountry(LAWYER_COUNTRY).courts;
+// الدولة محور لوحة المحامي — العملة والمحاكم والمسميات ووسائل السحب تُشتق منها
+// تُحدَّث ديناميكياً من الدولة النشطة داخل DashboardPage عند تغيير الدولة.
+let LAWYER_COUNTRY = lawyer.country;
+let CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
+let COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
+let courts = getCountry(LAWYER_COUNTRY).courts;
+let caseTypes = getCountry(LAWYER_COUNTRY).caseTypes;
+let sessionTypes = getCountry(LAWYER_COUNTRY).sessionTypes;
+let invoiceItems = getCountry(LAWYER_COUNTRY).invoiceItems;
+let caseDegrees = getCountry(LAWYER_COUNTRY).caseDegrees;
 const money = (n: number) => formatMoney(n, LAWYER_COUNTRY);
+
+/** يعيد ضبط كل القيم المشتقّة من الدولة قبل عرض اللوحة */
+function applyCountry(code: typeof LAWYER_COUNTRY) {
+  const c = getCountry(code);
+  LAWYER_COUNTRY = code;
+  CURRENCY = c.currency.symbol;
+  COUNTRY_VAT = c.vat;
+  courts = c.courts;
+  caseTypes = c.caseTypes;
+  sessionTypes = c.sessionTypes;
+  invoiceItems = c.invoiceItems;
+  caseDegrees = c.caseDegrees;
+}
 
 type SectionId =
   | "overview"
