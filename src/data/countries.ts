@@ -6,6 +6,24 @@ export interface CountryCurrency {
   locale: string;
 }
 
+/** مصطلحات قانونية ومسميات واجهة تختلف حسب الدولة */
+export interface CountryTerms {
+  cassationCourt: string; // أعلى درجة طعن
+  bailiff: string; // مُحضِر / مُبلّغ
+  prosecution: string; // جهة الادعاء
+  attorneyDoc: string; // وثيقة التوكيل
+  firstInstance: string; // محكمة الدرجة الأولى
+}
+
+/** نصوص تسويقية بلهجة كل دولة */
+export interface CountryMarketing {
+  heroBadge: string;
+  heroLead: string;
+  aboutTitle: string;
+  aboutBody: string;
+  pitches: string[];
+}
+
 export interface Country {
   code: CountryCode;
   name: string;
@@ -16,6 +34,12 @@ export interface Country {
   cities: string[];
   courts: string[];
   withdrawalMethods: string[];
+  caseTypes: string[];
+  sessionTypes: string[];
+  invoiceItems: string[];
+  caseDegrees: string[];
+  terms: CountryTerms;
+  marketing: CountryMarketing;
 }
 
 export const countries: Country[] = [
