@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import type { Lawyer } from "@/data/lawyers";
-import { getCountry } from "@/data/countries";
+import { getCountry, formatMoney } from "@/data/countries";
 import { StarRating } from "./StarRating";
 
 export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
@@ -52,7 +52,11 @@ export function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
           <span className="text-xs text-cream/60">({lawyer.reviews})</span>
         </div>
         <p className="mt-3 line-clamp-2 flex-1 text-xs leading-relaxed text-cream/65">{lawyer.bio}</p>
-        <span className="mt-4 inline-flex items-center justify-center gap-1 text-sm font-semibold text-gold">
+        <div className="mt-4 flex items-center justify-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2">
+          <span className="text-[11px] text-cream/60">الاستشارة تبدأ من</span>
+          <span className="text-sm font-extrabold text-gold">{formatMoney(lawyer.price, lawyer.country)}</span>
+        </div>
+        <span className="mt-3 inline-flex items-center justify-center gap-1 text-sm font-semibold text-gold">
           اعرف المزيد
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
         </span>

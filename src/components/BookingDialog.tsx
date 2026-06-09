@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Video, Building2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,16 +20,19 @@ export function BookingDialog({
   price,
   label = "احجز وادفع الآن",
   country = DEFAULT_COUNTRY,
+  address,
 }: {
   name: string;
   price: number;
   label?: string;
   country?: CountryCode;
+  address?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [mode, setMode] = useState<"online" | "office">("online");
   const [payValid, setPayValid] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
@@ -38,7 +41,7 @@ export function BookingDialog({
 
   const reset = () => {
     setDone(false);
-    setDate(""); setTime(""); setPayValid(false);
+    setDate(""); setTime(""); setMode("online"); setPayValid(false);
   };
 
   return (
@@ -64,12 +67,40 @@ export function BookingDialog({
             <CheckCircle2 className="mx-auto h-14 w-14 text-gold" />
             <h4 className="mt-4 text-lg font-bold text-navy">تم تأكيد حجز استشارتك بنجاح</h4>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              استشارتك مع {name} يوم {date} الساعة {time}. سيصلك تأكيد بموعد الجلسة قريباً.
+              استشارتك مع {name} يوم {date} الساعة {time} —{" "}
+              {mode === "online" ? "استشارة أونلاين" : "في المكتب"}
+              {mode === "office" && address ? ` (${address})` : ""}. سيصلك تأكيد بموعد الجلسة قريباً.
             </p>
             <button onClick={() => { setOpen(false); reset(); }} className="mt-5 rounded-lg bg-navy px-6 py-2.5 text-sm font-bold text-cream">تم</button>
           </div>
         ) : (
           <form onSubmit={(e) => { e.preventDefault(); if (valid) setDone(true); }} className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-navy">نوع الاستشارة</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMode("online")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-colors ${
+                    mode === "online" ? "border-gold bg-secondary text-navy" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  <Video className="h-4 w-4" /> أونلاين
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("office")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-colors ${
+                    mode === "office" ? "border-gold bg-secondary text-navy" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  <Building2 className="h-4 w-4" /> في المكتب
+                </button>
+              </div>
+              {mode === "office" && address && (
+                <p className="mt-2 text-xs text-muted-foreground">📍 {address}</p>
+              )}
+            </div>
             <div>
               <label className="mb-2 block text-sm font-semibold text-navy">اختر اليوم</label>
               <input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className={field} />

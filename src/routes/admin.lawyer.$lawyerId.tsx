@@ -4,6 +4,7 @@ import { ProfileView } from "@/components/admin/ProfileView";
 import { lawyers } from "@/data/lawyers";
 import { lawyerProfile } from "@/data/profiles";
 import { useAdminStore, isBlocked, toggleBlock } from "@/lib/admin-store";
+import { getCountry, formatMoney } from "@/data/countries";
 
 export const Route = createFileRoute("/admin/lawyer/$lawyerId")({ component: LawyerDetail });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -36,8 +37,10 @@ function LawyerDetail() {
         fields={[
           { label: "التخصص", value: lawyer.specialty },
           { label: "المدينة", value: lawyer.city },
+          { label: "الدولة", value: `${getCountry(lawyer.country).flag} ${getCountry(lawyer.country).name}` },
+          { label: "الدول المخدومة", value: lawyer.countries.map((c) => `${getCountry(c).flag} ${getCountry(c).name}`).join("، ") },
           { label: "سنوات الخبرة", value: `${lawyer.experience} سنة` },
-          { label: "سعر الاستشارة", value: `${fmt(lawyer.price)} ج.م` },
+          { label: "سعر الاستشارة", value: formatMoney(lawyer.price, lawyer.country) },
           { label: "الهاتف", value: <span dir="ltr">{lawyer.phone}</span> },
           { label: "البريد", value: <span dir="ltr">{lawyer.email}</span> },
           { label: "التقييم", value: `★ ${lawyer.rating} (${lawyer.reviews} تقييم)` },

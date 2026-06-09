@@ -4,6 +4,7 @@ import { ProfileView } from "@/components/admin/ProfileView";
 import { firms } from "@/data/firms";
 import { firmProfile } from "@/data/profiles";
 import { useAdminStore, isBlocked, toggleBlock } from "@/lib/admin-store";
+import { getCountry, formatMoney } from "@/data/countries";
 
 export const Route = createFileRoute("/admin/firm/$firmId")({ component: FirmDetail });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -36,9 +37,11 @@ function FirmDetail() {
         fields={[
           { label: "التخصص", value: firm.specialty },
           { label: "المدينة", value: firm.city },
+          { label: "الدولة", value: `${getCountry(firm.country).flag} ${getCountry(firm.country).name}` },
+          { label: "الدول المخدومة", value: firm.countries.map((c) => `${getCountry(c).flag} ${getCountry(c).name}`).join("، ") },
           { label: "سنة التأسيس", value: firm.established },
           { label: "حجم الفريق", value: `${firm.teamSize} عضو` },
-          { label: "سعر الاستشارة", value: `${fmt(firm.consultationPrice)} ج.م` },
+          { label: "سعر الاستشارة", value: formatMoney(firm.consultationPrice, firm.country) },
           { label: "عدد القضايا", value: fmt(firm.cases) },
           { label: "التقييم", value: `★ ${firm.rating} (${firm.reviews} تقييم)` },
           { label: "نبذة", value: <span className="text-cream/70">{firm.about}</span> },
