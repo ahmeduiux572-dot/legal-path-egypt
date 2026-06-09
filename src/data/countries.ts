@@ -1,7 +1,10 @@
-export type CountryCode = "EG" | "SA" | "JO";
+import { useSyncExternalStore } from "react";
+
+// كود الدولة (يُسمح بإضافة دول جديدة من لوحة الأدمن)
+export type CountryCode = string;
 
 export interface CountryCurrency {
-  code: "EGP" | "SAR" | "JOD";
+  code: string;
   symbol: string;
   locale: string;
 }
