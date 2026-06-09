@@ -81,14 +81,14 @@ function Index() {
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-1 text-xs font-medium text-gold">
               <span className="text-base leading-none">{getCountry(country).flag}</span>
-              مرحباً بكم في منصة المحاماة في {countryName}
+              {activeCountry.marketing.heroBadge}
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-cream md:text-6xl">
               مُحامٍ
               <span className="block text-gradient-gold">أول بنية رقمية للمحاماة في مصر والشرق الأوسط</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/80">
-              مجتمع من المحامين نسعى لتعزيز الوصول إلى العدالة من خلال الابتكار والتكنولوجيا، لتحصل على استشارتك القانونية بسرعة واحترافية وشفافية.
+              {activeCountry.marketing.heroLead}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/lawyers" className="flex h-12 items-center justify-center rounded-md bg-gradient-gold px-6 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 sm:flex-1 sm:max-w-[16rem]">
@@ -112,9 +112,9 @@ function Index() {
       {/* About */}
       <section className="bg-cream">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8">
-          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">مرحباً بكم في محام</h2>
+          <h2 className="text-2xl font-extrabold text-gradient-gold md:text-3xl">{activeCountry.marketing.aboutTitle}</h2>
           <p className="mt-5 text-sm leading-loose text-muted-foreground md:text-base">
-            "محام" منصة قانونية رقمية تهدف إلى تسهيل التواصل بين العملاء والمحامين بطريقة حديثة وموثوقة، من خلال تجربة استخدام سهلة تساعدك على الوصول إلى المحامي المناسب وفقاً للتخصص والتقييمات وآراء العملاء.
+            {activeCountry.marketing.aboutBody}
           </p>
           <p className="mt-4 text-sm leading-loose text-muted-foreground md:text-base">
             تتيح المنصة التواصل مع المحامين عبر الشات والمكالمات الصوتية والمرئية، ومتابعة الاستشارات والقضايا في أي وقت، لتقديم تجربة قانونية أكثر سرعة واحترافية وشفافية.

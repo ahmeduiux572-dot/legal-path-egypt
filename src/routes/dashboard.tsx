@@ -67,10 +67,6 @@ import {
   aiConversations,
   walletTransactions,
   walletBalance,
-  caseTypes,
-  sessionTypes,
-  invoiceItems,
-  caseDegrees,
   type DashCase,
   type DashClient,
   type DashSession,
@@ -86,6 +82,7 @@ import {
   type LibraryBook,
 } from "@/data/library";
 import { formatMoney, getCountry, countries as countriesList } from "@/data/countries";
+import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -101,12 +98,31 @@ export const Route = createFileRoute("/dashboard")({
 
 const lawyer = lawyers[0];
 
-// الدولة محور لوحة المحامي — العملة والمحاكم ووسائل السحب تُشتق منها
-const LAWYER_COUNTRY = lawyer.country;
-const CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
-const COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
-const courts = getCountry(LAWYER_COUNTRY).courts;
+// الدولة محور لوحة المحامي — العملة والمحاكم والمسميات ووسائل السحب تُشتق منها
+// تُحدَّث ديناميكياً من الدولة النشطة داخل DashboardPage عند تغيير الدولة.
+let LAWYER_COUNTRY = lawyer.country;
+let CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
+let COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
+let courts = getCountry(LAWYER_COUNTRY).courts;
+let caseTypes = getCountry(LAWYER_COUNTRY).caseTypes;
+let sessionTypes = getCountry(LAWYER_COUNTRY).sessionTypes;
+let invoiceItems = getCountry(LAWYER_COUNTRY).invoiceItems;
+let caseDegrees = getCountry(LAWYER_COUNTRY).caseDegrees;
 const money = (n: number) => formatMoney(n, LAWYER_COUNTRY);
+
+/** يعيد ضبط كل القيم المشتقّة من الدولة قبل عرض اللوحة */
+function applyCountry(code: typeof LAWYER_COUNTRY) {
+  const c = getCountry(code);
+  LAWYER_COUNTRY = code;
+  CURRENCY = c.currency.symbol;
+  COUNTRY_VAT = c.vat;
+  courts = c.courts;
+  caseTypes = c.caseTypes;
+  sessionTypes = c.sessionTypes;
+  invoiceItems = c.invoiceItems;
+  caseDegrees = c.caseDegrees;
+  walletMethods = c.withdrawalMethods;
+}
 
 type SectionId =
   | "overview"
@@ -209,6 +225,8 @@ const statusColor: Record<string, string> = {
 
 function DashboardPage() {
   const user = useAuth();
+  const activeCountry = useActiveCountry();
+  applyCountry(activeCountry);
   const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>("overview");
   const [request, setRequest] = useState<NavRequest | null>(null);
@@ -246,13 +264,13 @@ function DashboardPage() {
       items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${money(i.amount)}`, urgent: true, go: () => go("invoices", i.id) }),
     );
     return items;
-  }, []);
+  }, [activeCountry]);
 
   const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
 
   return (
    <DashNavContext.Provider value={{ go, request }}>
-    <div className="bg-navy">
+    <div className="bg-navy" key={activeCountry}>
       <section className="bg-gradient-navy">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-8 md:flex-row md:items-center md:gap-6 md:px-8 md:py-10">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -1881,7 +1899,7 @@ function Invoices() {
 }
 
 /* ---------- Wallet ---------- */
-const walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
+let walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
 function WalletPanel() {
   return <WalletPanelImpl />;
 }
