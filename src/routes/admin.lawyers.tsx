@@ -8,6 +8,7 @@ import {
 import { lawyers, specialties, cities, type Lawyer } from "@/data/lawyers";
 import { lawyerApplications, type LawyerApplication } from "@/data/applications";
 import { useAdminStore, isBlocked, appStatus } from "@/lib/admin-store";
+import { countries, getCountry, formatMoney } from "@/data/countries";
 
 export const Route = createFileRoute("/admin/lawyers")({ component: LawyersPage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -22,6 +23,7 @@ function LawyersPage() {
   const [search, setSearch] = useState("");
   const [spec, setSpec] = useState("كل التخصصات");
   const [city, setCity] = useState("كل المدن");
+  const [country, setCountry] = useState("all");
   const [appSearch, setAppSearch] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -32,9 +34,10 @@ function LawyersPage() {
         (l) =>
           (spec === "كل التخصصات" || l.specialty === spec) &&
           (city === "كل المدن" || l.city === city) &&
+          (country === "all" || l.country === country || l.countries.includes(country as never)) &&
           (l.name.includes(search) || l.title.includes(search) || l.email.includes(search)),
       ),
-    [search, spec, city],
+    [search, spec, city, country],
   );
 
   const filteredApps = useMemo(
@@ -67,8 +70,9 @@ function LawyersPage() {
     },
     { key: "specialty", label: "التخصص" },
     { key: "city", label: "المدينة" },
+    { key: "country", label: "الدولة", render: (r) => `${getCountry(r.country).flag} ${getCountry(r.country).name}` },
     { key: "experience", label: "الخبرة", render: (r) => `${r.experience} سنة` },
-    { key: "price", label: "السعر", render: (r) => `${fmt(r.price)} ج.م` },
+    { key: "price", label: "السعر", render: (r) => formatMoney(r.price, r.country) },
     { key: "rating", label: "التقييم", render: (r) => <Badge tone="gold">★ {r.rating}</Badge> },
     {
       key: "actions", label: "",
@@ -139,6 +143,7 @@ function LawyersPage() {
             filters={[
               { value: spec, onChange: setSpec, options: specialties.map((s) => ({ value: s, label: s })) },
               { value: city, onChange: setCity, options: cities.map((c) => ({ value: c, label: c })) },
+              { value: country, onChange: setCountry, options: [{ value: "all", label: "كل الدول" }, ...countries.map((c) => ({ value: c.code, label: `${c.flag} ${c.name}` }))] },
             ]}
           />
           <DataTable columns={cols} rows={filtered} />
