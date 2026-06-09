@@ -2,6 +2,7 @@ import lawyer1 from "@/assets/lawyer-1.jpg";
 import lawyer2 from "@/assets/lawyer-2.jpg";
 import lawyer3 from "@/assets/lawyer-3.jpg";
 import lawyer4 from "@/assets/lawyer-4.jpg";
+import type { CountryCode } from "@/data/countries";
 
 export interface Lawyer {
   id: string;
@@ -14,6 +15,8 @@ export interface Lawyer {
   consultations: number;
   price: number;
   city: string;
+  country: CountryCode; // دولة المقر
+  countries: CountryCode[]; // الدول التي يخدمها
   experience: number;
   phone: string;
   email: string;
@@ -63,6 +66,8 @@ export const lawyers: Lawyer[] = [
     consultations: 940,
     price: 2000,
     city: "القاهرة",
+    country: "EG",
+    countries: ["EG", "SA"],
     experience: 18,
     phone: "+20 122 158 2585",
     email: "mansour@muhamik.com",
@@ -78,9 +83,11 @@ export const lawyers: Lawyer[] = [
     reviews: 96,
     consultations: 812,
     price: 1500,
-    city: "دبي",
+    city: "جدة",
+    country: "SA",
+    countries: ["SA", "JO"],
     experience: 12,
-    phone: "+971 50 245 1180",
+    phone: "+966 50 245 1180",
     email: "elnabawy@muhamik.com",
     bio: baseBio,
   },
@@ -95,6 +102,8 @@ export const lawyers: Lawyer[] = [
     consultations: 760,
     price: 1800,
     city: "الرياض",
+    country: "SA",
+    countries: ["SA"],
     experience: 22,
     phone: "+966 55 410 2233",
     email: "fahd@muhamik.com",
@@ -111,6 +120,8 @@ export const lawyers: Lawyer[] = [
     consultations: 1020,
     price: 1700,
     city: "الإسكندرية",
+    country: "EG",
+    countries: ["EG"],
     experience: 10,
     phone: "+20 100 778 9012",
     email: "salma@muhamik.com",
@@ -127,6 +138,8 @@ export const lawyers: Lawyer[] = [
     consultations: 540,
     price: 1300,
     city: "جدة",
+    country: "SA",
+    countries: ["SA", "EG"],
     experience: 9,
     phone: "+966 56 882 4471",
     email: "fares@muhamik.com",
@@ -143,6 +156,8 @@ export const lawyers: Lawyer[] = [
     consultations: 690,
     price: 1600,
     city: "القاهرة",
+    country: "EG",
+    countries: ["EG"],
     experience: 15,
     phone: "+20 111 334 5566",
     email: "khaled@muhamik.com",
@@ -159,6 +174,8 @@ export const lawyers: Lawyer[] = [
     consultations: 430,
     price: 1400,
     city: "عمّان",
+    country: "JO",
+    countries: ["JO"],
     experience: 11,
     phone: "+962 79 220 1144",
     email: "hossam@muhamik.com",
@@ -174,9 +191,11 @@ export const lawyers: Lawyer[] = [
     reviews: 73,
     consultations: 588,
     price: 1200,
-    city: "دبي",
+    city: "عمّان",
+    country: "JO",
+    countries: ["JO", "SA"],
     experience: 8,
-    phone: "+971 52 661 0099",
+    phone: "+962 52 661 0099",
     email: "nourhan@muhamik.com",
     bio: baseBio,
   },
@@ -191,6 +210,8 @@ export const lawyers: Lawyer[] = [
     consultations: 612,
     price: 1550,
     city: "الرياض",
+    country: "SA",
+    countries: ["SA"],
     experience: 14,
     phone: "+966 53 117 2200",
     email: "mahmoud@muhamik.com",
