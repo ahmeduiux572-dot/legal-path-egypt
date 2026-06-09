@@ -33,9 +33,18 @@ const fields = [
 
 function SettingsPage() {
   const navigate = useNavigate();
-  const [activeCountries, setActiveCountries] = useState<CountryCode[]>(countries.map((c) => c.code));
+  const countries = useCountries();
+  const [disabled, setDisabled] = useState<CountryCode[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Country | null>(null);
   const toggleCountry = (code: CountryCode) =>
-    setActiveCountries((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+    setDisabled((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+  const openAdd = () => { setEditing(null); setDialogOpen(true); };
+  const openEdit = (c: Country) => { setEditing(c); setDialogOpen(true); };
+  const handleDelete = (c: Country) => {
+    if (countries.length <= 1) return;
+    if (typeof window !== "undefined" && window.confirm(`حذف دولة «${c.name}»؟`)) removeCountry(c.code);
+  };
   const handleLogout = () => {
     adminLogout();
     navigate({ to: "/admin" });
