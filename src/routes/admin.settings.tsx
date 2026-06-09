@@ -163,11 +163,27 @@ function SettingsPage() {
                     <span className="font-semibold text-cream">{c.withdrawalMethods.length} وسيلة</span>
                   </div>
                 </div>
+                <div className="mt-4 flex gap-2">
+                  <button onClick={() => openEdit(c)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20">
+                    <Pencil className="h-3.5 w-3.5" /> تعديل
+                  </button>
+                  <button onClick={() => handleDelete(c)} className="flex items-center justify-center gap-1.5 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition-colors hover:bg-red-500/20">
+                    <Trash2 className="h-3.5 w-3.5" /> حذف
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      <CountryFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initial={editing}
+        existingCodes={countries.map((c) => c.code)}
+        onSave={saveCountry}
+      />
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-navy-card/50 p-6 shadow-lg">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream">
