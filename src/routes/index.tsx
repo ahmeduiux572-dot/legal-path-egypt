@@ -60,24 +60,25 @@ function Index() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Country flag as the full hero background */}
-        <div
-          key={country}
-          className="pointer-events-none absolute inset-0 flex select-none items-center justify-center overflow-hidden bg-navy-deep"
-          aria-hidden
-        >
-          <span className="animate-in fade-in zoom-in-95 text-[40rem] leading-none opacity-90 duration-700 md:text-[64rem]">
-            {getCountry(country).flag}
-          </span>
-        </div>
-        {/* Legal photo as a subtle texture above the flag */}
+        {/* Legal photo base */}
         <img
           src={heroLegal}
           alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
-          className="absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        {/* Dark gradient keeps the text side readable */}
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/80 to-navy-deep/40" />
+        <div className="absolute inset-0 bg-navy-deep/75" />
+        {/* Whole country flag, clearly visible on the left */}
+        <div
+          key={country}
+          className="pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center overflow-hidden"
+          aria-hidden
+        >
+          <span className="animate-in fade-in slide-in-from-left-8 text-[16rem] leading-none opacity-90 drop-shadow-2xl duration-700 sm:text-[22rem] md:text-[26rem]">
+            {getCountry(country).flag}
+          </span>
+        </div>
+        {/* Fade the flag into the dark text side (right in RTL) */}
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-deep via-navy-deep/90 to-transparent" />
         <div className="absolute inset-0 pattern-grid opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
