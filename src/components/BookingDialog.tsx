@@ -8,6 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PaymentSection } from "@/components/PaymentSection";
+import { formatMoney, DEFAULT_COUNTRY, type CountryCode } from "@/data/countries";
 
 const times = ["10:00 ص", "12:00 م", "02:00 م", "04:00 م", "06:00 م", "08:00 م"];
 
@@ -18,10 +19,12 @@ export function BookingDialog({
   name,
   price,
   label = "احجز وادفع الآن",
+  country = DEFAULT_COUNTRY,
 }: {
   name: string;
   price: number;
   label?: string;
+  country?: CountryCode;
 }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
@@ -89,12 +92,12 @@ export function BookingDialog({
               </div>
             </div>
             <div className="flex items-center justify-between rounded-lg bg-secondary p-4">
-              <span className="text-lg font-extrabold text-navy">{price} ج.م</span>
+              <span className="text-lg font-extrabold text-navy">{formatMoney(price, country)}</span>
               <span className="text-sm text-muted-foreground">قيمة الاستشارة</span>
             </div>
             <PaymentSection onValidChange={setPayValid} />
             <button type="submit" disabled={!valid} className="w-full rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold disabled:opacity-50">
-              ادفع {price} ج.م
+              ادفع {formatMoney(price, country)}
             </button>
           </form>
         )}
