@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LogOut, ShieldCheck, Globe, MapPin, Landmark, Wallet } from "lucide-react";
+import { LogOut, ShieldCheck, Globe, MapPin, Landmark, Wallet, Plus, Pencil, Trash2, RotateCcw } from "lucide-react";
 import { PageHeader } from "@/components/admin/parts";
 import { adminLogout, ADMIN_EMAIL } from "@/lib/admin-auth";
-import { countries, type CountryCode } from "@/data/countries";
+import {
+  useCountries,
+  saveCountry,
+  removeCountry,
+  resetCountries,
+  type Country,
+  type CountryCode,
+} from "@/data/countries";
+import { CountryFormDialog } from "@/components/admin/CountryFormDialog";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
@@ -25,9 +33,18 @@ const fields = [
 
 function SettingsPage() {
   const navigate = useNavigate();
-  const [activeCountries, setActiveCountries] = useState<CountryCode[]>(countries.map((c) => c.code));
+  const countries = useCountries();
+  const [disabled, setDisabled] = useState<CountryCode[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Country | null>(null);
   const toggleCountry = (code: CountryCode) =>
-    setActiveCountries((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+    setDisabled((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+  const openAdd = () => { setEditing(null); setDialogOpen(true); };
+  const openEdit = (c: Country) => { setEditing(c); setDialogOpen(true); };
+  const handleDelete = (c: Country) => {
+    if (countries.length <= 1) return;
+    if (typeof window !== "undefined" && window.confirm(`حذف دولة «${c.name}»؟`)) removeCountry(c.code);
+  };
   const handleLogout = () => {
     adminLogout();
     navigate({ to: "/admin" });
@@ -79,16 +96,21 @@ function SettingsPage() {
           <h2 className="flex items-center gap-2 text-lg font-bold text-cream">
             <Globe className="h-5 w-5 text-gold" /> إدارة الدول
           </h2>
-          <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
-            {activeCountries.length} / {countries.length} مفعّلة
-          </span>
+          <div className="flex items-center gap-2">
+            <button onClick={resetCountries} className="flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-cream/70 transition-colors hover:bg-white/5">
+              <RotateCcw className="h-3.5 w-3.5" /> إعادة الضبط
+            </button>
+            <button onClick={openAdd} className="flex items-center gap-1.5 rounded-lg bg-gradient-gold px-3 py-2 text-xs font-bold text-navy shadow-gold">
+              <Plus className="h-4 w-4" /> إضافة دولة
+            </button>
+          </div>
         </div>
         <p className="mb-5 text-sm text-cream/60">
           تحكّم في الدول المتاحة على المنصة وراجع عملة كل دولة ونسبة الضريبة والمحاكم ووسائل السحب الخاصة بها.
         </p>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {countries.map((c) => {
-            const on = activeCountries.includes(c.code);
+            const on = !disabled.includes(c.code);
             return (
               <div
                 key={c.code}
@@ -141,11 +163,27 @@ function SettingsPage() {
                     <span className="font-semibold text-cream">{c.withdrawalMethods.length} وسيلة</span>
                   </div>
                 </div>
+                <div className="mt-4 flex gap-2">
+                  <button onClick={() => openEdit(c)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20">
+                    <Pencil className="h-3.5 w-3.5" /> تعديل
+                  </button>
+                  <button onClick={() => handleDelete(c)} className="flex items-center justify-center gap-1.5 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition-colors hover:bg-red-500/20">
+                    <Trash2 className="h-3.5 w-3.5" /> حذف
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      <CountryFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initial={editing}
+        existingCodes={countries.map((c) => c.code)}
+        onSave={saveCountry}
+      />
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-navy-card/50 p-6 shadow-lg">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream">

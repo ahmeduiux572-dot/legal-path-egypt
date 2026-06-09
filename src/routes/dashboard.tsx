@@ -81,7 +81,7 @@ import {
   searchLibrary,
   type LibraryBook,
 } from "@/data/library";
-import { formatMoney, getCountry, countries as countriesList } from "@/data/countries";
+import { formatMoney, getCountry, getCountries } from "@/data/countries";
 import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/dashboard")({
@@ -908,7 +908,7 @@ function Profile() {
             <div className="sm:col-span-2">
               <Field label="الدول التي تخدمها">
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {countriesList.map((c) => {
+                  {getCountries().map((c) => {
                     const on = data.countries.includes(c.code);
                     return (
                       <button

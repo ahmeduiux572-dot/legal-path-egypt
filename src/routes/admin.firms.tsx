@@ -8,7 +8,7 @@ import {
 import { firms, firmSpecialties, firmCities, type Firm } from "@/data/firms";
 import { firmApplications, type FirmApplication } from "@/data/applications";
 import { useAdminStore, isBlocked, appStatus } from "@/lib/admin-store";
-import { countries, getCountry, formatMoney } from "@/data/countries";
+import { useCountries, getCountry, formatMoney } from "@/data/countries";
 
 export const Route = createFileRoute("/admin/firms")({ component: FirmsPage });
 const fmt = (n: number) => new Intl.NumberFormat("ar-EG").format(n);
@@ -18,6 +18,7 @@ const appLabel = { pending: "قيد المراجعة", approved: "مقبول", r
 
 function FirmsPage() {
   const store = useAdminStore();
+  const countries = useCountries();
   const navigate = useNavigate();
   const [tab, setTab] = useState("registered");
   const [search, setSearch] = useState("");

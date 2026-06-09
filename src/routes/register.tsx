@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { plans } from "@/data/content";
 import { specialties as specs } from "@/data/lawyers";
 import { login } from "@/lib/auth";
-import { countries, getCountry, formatMoney, type CountryCode } from "@/data/countries";
+import { useCountries, getCountry, formatMoney, type CountryCode } from "@/data/countries";
 import { useActiveCountry } from "@/lib/country-store";
 
 export const Route = createFileRoute("/register")({
@@ -25,6 +25,7 @@ type Role = "client" | "lawyer";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const countries = useCountries();
   const [role, setRole] = useState<Role>("client");
   const [plan, setPlan] = useState("pro");
   const [photo, setPhoto] = useState<string | null>(null);
