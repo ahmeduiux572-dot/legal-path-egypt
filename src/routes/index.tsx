@@ -61,12 +61,23 @@ function Index() {
           alt="محامٍ يحمل ميزان العدالة داخل قاعة محكمة"
           className="absolute inset-0 h-full w-full object-cover"
         />
+        {/* Country flag backdrop */}
+        <div
+          key={country}
+          className="absolute inset-0 flex select-none items-center justify-center overflow-hidden"
+          aria-hidden
+        >
+          <span className="animate-in fade-in zoom-in-95 text-[30rem] leading-none opacity-[0.10] blur-[2px] duration-700 md:text-[44rem]">
+            {getCountry(country).flag}
+          </span>
+        </div>
         <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/95 via-navy-deep/85 to-navy-deep/60" />
         <div className="absolute inset-0 pattern-grid opacity-30" />
         <div className="relative mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
           <div className="max-w-2xl">
-            <span className="inline-block rounded-full border border-gold/40 px-4 py-1 text-xs font-medium text-gold">
-              منصة قانونية رقمية · مصر والشرق الأوسط
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-1 text-xs font-medium text-gold">
+              <span className="text-base leading-none">{getCountry(country).flag}</span>
+              مرحباً بكم في منصة المحاماة في {countryName}
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-cream md:text-6xl">
               مُحامٍ
