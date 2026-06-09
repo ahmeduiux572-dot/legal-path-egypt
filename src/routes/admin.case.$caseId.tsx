@@ -3,7 +3,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import {
   PageHeader, BackButton, Badge, Field, FieldGrid, SectionTitle, ActionButton,
 } from "@/components/admin/parts";
-import { cases } from "@/data/content";
+import { cases, caseBudget } from "@/data/content";
 import { useAdminStore, caseStatus, setCaseStatus } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/case/$caseId")({ component: CaseDetail });
@@ -39,7 +39,7 @@ function CaseDetail() {
           <Field label="العنوان" value={c.title} />
           <Field label="التصنيف" value={<Badge tone="gold">{c.category}</Badge>} />
           <Field label="المدينة" value={c.city} />
-          <Field label="الميزانية" value={c.budget} />
+          <Field label="الميزانية" value={caseBudget(c)} />
           <Field label="الموعد" value={c.deadline} />
           <Field label="عدد العروض" value={fmt(c.proposals)} />
           <Field label="الحالة" value={<Badge tone={csBadge[s]}>{csLabel[s]}</Badge>} />

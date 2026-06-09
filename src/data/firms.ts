@@ -3,6 +3,7 @@ import firm2 from "@/assets/firm-2.jpg";
 import firm3 from "@/assets/firm-3.jpg";
 import firm4 from "@/assets/firm-4.jpg";
 import { lawyers, type Lawyer } from "@/data/lawyers";
+import type { CountryCode } from "@/data/countries";
 
 export interface Firm {
   id: string;
@@ -14,6 +15,8 @@ export interface Firm {
   reviews: number;
   cases: number;
   city: string;
+  country: CountryCode;
+  countries: CountryCode[];
   established: number;
   teamSize: number;
   consultationPrice: number;
@@ -36,6 +39,8 @@ export const firms: Firm[] = [
     reviews: 214,
     cases: 1280,
     city: "القاهرة",
+    country: "EG",
+    countries: ["EG", "SA"],
     established: 2004,
     teamSize: 24,
     consultationPrice: 600,
@@ -51,7 +56,9 @@ export const firms: Firm[] = [
     rating: 4.9,
     reviews: 178,
     cases: 960,
-    city: "دبي",
+    city: "جدة",
+    country: "SA",
+    countries: ["SA", "JO"],
     established: 2010,
     teamSize: 18,
     consultationPrice: 750,
@@ -68,6 +75,8 @@ export const firms: Firm[] = [
     reviews: 142,
     cases: 845,
     city: "الرياض",
+    country: "SA",
+    countries: ["SA"],
     established: 2007,
     teamSize: 21,
     consultationPrice: 550,
@@ -84,6 +93,8 @@ export const firms: Firm[] = [
     reviews: 156,
     cases: 720,
     city: "الإسكندرية",
+    country: "EG",
+    countries: ["EG"],
     established: 2013,
     teamSize: 15,
     consultationPrice: 500,

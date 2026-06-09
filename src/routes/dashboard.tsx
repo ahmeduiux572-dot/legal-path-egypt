@@ -68,7 +68,6 @@ import {
   walletTransactions,
   walletBalance,
   caseTypes,
-  courts,
   sessionTypes,
   invoiceItems,
   caseDegrees,
@@ -86,6 +85,7 @@ import {
   searchLibrary,
   type LibraryBook,
 } from "@/data/library";
+import { formatMoney, getCountry, countries as countriesList } from "@/data/countries";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -100,6 +100,13 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const lawyer = lawyers[0];
+
+// الدولة محور لوحة المحامي — العملة والمحاكم ووسائل السحب تُشتق منها
+const LAWYER_COUNTRY = lawyer.country;
+const CURRENCY = getCountry(LAWYER_COUNTRY).currency.symbol;
+const COUNTRY_VAT = getCountry(LAWYER_COUNTRY).vat;
+const courts = getCountry(LAWYER_COUNTRY).courts;
+const money = (n: number) => formatMoney(n, LAWYER_COUNTRY);
 
 type SectionId =
   | "overview"
@@ -236,7 +243,7 @@ function DashboardPage() {
       items.push({ id: `con-${c.id}`, icon: MessageSquare, text: `${c.subject} — ${c.client}`, meta: `استشارة • ${c.date} ${c.time}`, urgent: false, go: () => go("consultations", c.id) }),
     );
     dashInvoices.filter((i) => i.status === "متأخرة").forEach((i) =>
-      items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${i.amount.toLocaleString()} ج.م`, urgent: true, go: () => go("invoices", i.id) }),
+      items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${money(i.amount)}`, urgent: true, go: () => go("invoices", i.id) }),
     );
     return items;
   }, []);
@@ -755,7 +762,7 @@ function VideoCall({ consultation, onClose }: { consultation: DashConsultation; 
 /* ---------- Overview ---------- */
 function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
   const stats = [
-    { label: "إجمالي الأرباح", value: "84,500 ج.م", icon: Wallet, hint: "هذا الشهر +12%" },
+    { label: "إجمالي الأرباح", value: money(84500), icon: Wallet, hint: "هذا الشهر +12%" },
     { label: "قضايا نشطة", value: String(dashCases.filter((c) => c.status === "نشطة").length), icon: Briefcase, hint: "قيد المتابعة" },
     { label: "عملاء", value: String(dashClients.length), icon: Users, hint: "إجمالي" },
     { label: "متوسط التقييم", value: lawyer.rating.toFixed(1), icon: Star, hint: `${lawyer.reviews} تقييم` },
@@ -814,11 +821,13 @@ const PROFILE_KEY = "muhamik_profile";
 interface ProfileData {
   name: string; title: string; specialty: string; city: string;
   price: number; experience: number; phone: string; email: string; bio: string;
+  countries: import("@/data/countries").CountryCode[];
 }
 function Profile() {
   const initial: ProfileData = {
     name: lawyer.name, title: lawyer.title, specialty: lawyer.specialty, city: lawyer.city,
     price: lawyer.price, experience: lawyer.experience, phone: lawyer.phone, email: lawyer.email, bio: lawyer.bio,
+    countries: [...lawyer.countries],
   };
   const [data, setData] = useState<ProfileData>(initial);
   const [editing, setEditing] = useState(false);
@@ -869,11 +878,34 @@ function Profile() {
             <Field label="الاسم"><input className={fieldCls} value={data.name} onChange={(e) => set("name", e.target.value)} required /></Field>
             <Field label="المسمى"><input className={fieldCls} value={data.title} onChange={(e) => set("title", e.target.value)} required /></Field>
             <Field label="التخصص"><input className={fieldCls} value={data.specialty} onChange={(e) => set("specialty", e.target.value)} /></Field>
-            <Field label="المدينة"><input className={fieldCls} value={data.city} onChange={(e) => set("city", e.target.value)} /></Field>
-            <Field label="سعر الاستشارة (ج.م)"><input type="number" className={fieldCls} value={data.price} onChange={(e) => set("price", Number(e.target.value))} /></Field>
+            <Field label="المدينة">
+              <select className={fieldCls} value={data.city} onChange={(e) => set("city", e.target.value)}>
+                {getCountry(LAWYER_COUNTRY).cities.map((c) => (<option key={c}>{c}</option>))}
+              </select>
+            </Field>
+            <Field label={`سعر الاستشارة (${CURRENCY})`}><input type="number" className={fieldCls} value={data.price} onChange={(e) => set("price", Number(e.target.value))} /></Field>
             <Field label="سنوات الخبرة"><input type="number" className={fieldCls} value={data.experience} onChange={(e) => set("experience", Number(e.target.value))} /></Field>
             <Field label="الهاتف"><input className={fieldCls} value={data.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
             <Field label="البريد الإلكتروني"><input type="email" className={fieldCls} value={data.email} onChange={(e) => set("email", e.target.value)} /></Field>
+            <div className="sm:col-span-2">
+              <Field label="الدول التي تخدمها">
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {countriesList.map((c) => {
+                    const on = data.countries.includes(c.code);
+                    return (
+                      <button
+                        type="button"
+                        key={c.code}
+                        onClick={() => setData((d) => ({ ...d, countries: on ? d.countries.filter((x) => x !== c.code) : [...d.countries, c.code] }))}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${on ? "border-gold bg-gold/15 text-gold" : "border-white/15 text-cream/65 hover:border-gold/40"}`}
+                      >
+                        {c.flag} {c.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+            </div>
             <div className="sm:col-span-2"><Field label="نبذة تعريفية"><textarea rows={4} className={fieldCls} value={data.bio} onChange={(e) => set("bio", e.target.value)} /></Field></div>
             <div className="flex gap-2 sm:col-span-2">
               <button type="button" onClick={() => { setData(initial); setEditing(false); }} className="flex-1 rounded-lg border border-white/15 py-2.5 text-sm font-semibold text-cream">إلغاء</button>
@@ -884,8 +916,9 @@ function Profile() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Info label="التخصص" value={data.specialty} />
             <Info label="المدينة" value={data.city} />
-            <Info label="سعر الاستشارة" value={`${data.price} ج.م`} />
+            <Info label="سعر الاستشارة" value={`${money(data.price)}`} />
             <Info label="سنوات الخبرة" value={`${data.experience} سنة`} />
+            <Info label="الدول المخدومة" value={data.countries.map((c) => getCountry(c).flag + " " + getCountry(c).name).join("، ")} />
             <Info label="الهاتف" value={data.phone} />
             <Info label="البريد الإلكتروني" value={data.email} />
             <div className="sm:col-span-2"><Info label="نبذة تعريفية" value={data.bio} /></div>
@@ -902,7 +935,7 @@ function Profile() {
 function SubscriptionCard() {
   const plan = {
     name: "الباقة الاحترافية",
-    price: "499 ج.م / شهرياً",
+    price: `${money(499)} / شهرياً`,
     renew: "15 يوليو 2026",
     status: "نشط",
     features: [
@@ -1055,7 +1088,7 @@ function Cases() {
         <FormSection title="الطرف الآخر">
           <Field label="اسم الخصم"><input className={fieldCls} value={form.opponent} onChange={(e) => setForm({ ...form, opponent: e.target.value })} /></Field>
           <Field label="محامي الخصم"><input className={fieldCls} value={form.opponentLawyer} onChange={(e) => setForm({ ...form, opponentLawyer: e.target.value })} /></Field>
-          <Field label="قيمة المطالبة (ج.م)"><input type="number" min={0} className={fieldCls} value={form.claimAmount} onChange={(e) => setForm({ ...form, claimAmount: e.target.value })} /></Field>
+          <Field label={`قيمة المطالبة (${CURRENCY})`}><input type="number" min={0} className={fieldCls} value={form.claimAmount} onChange={(e) => setForm({ ...form, claimAmount: e.target.value })} /></Field>
         </FormSection>
         <div>
           <h3 className="mb-4 border-b border-white/10 pb-2 text-sm font-bold text-gold">تفاصيل ومستندات</h3>
@@ -1097,7 +1130,7 @@ function Cases() {
           <DetailGrid title="الطرف الآخر">
             <DetailItem label="اسم الخصم" value={c.opponent} />
             <DetailItem label="محامي الخصم" value={c.opponentLawyer} />
-            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${c.claimAmount.toLocaleString()} ج.م` : undefined} />
+            <DetailItem label="قيمة المطالبة" value={c.claimAmount ? `${money(c.claimAmount)}` : undefined} />
           </DetailGrid>
         )}
         {(c.description || (c.files && c.files.length > 0)) && (
@@ -1110,7 +1143,7 @@ function Cases() {
         <RelatedSection title="جلسات القضية" icon={CalendarDays}
           items={dashSessions.filter((s) => s.caseRef === c.title).map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير القضية" icon={Receipt}
-          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
+          items={dashInvoices.filter((iv) => iv.caseRef === c.title).map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${money(iv.amount)}`, onClick: () => go("invoices", iv.id) }))} />
         <TimelinePanel events={getTimeline(c)} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
@@ -1192,7 +1225,12 @@ function Clients() {
         <FormSection title="البيانات الأساسية">
           <div className="sm:col-span-2"><Field label="الاسم الكامل"><input className={fieldCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field></div>
           <SelectField label="نوع العميل" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={["فرد", "شركة"]} placeholder="اختر النوع" />
-          <Field label="المدينة"><input className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <Field label="المدينة">
+            <select className={fieldCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
+              <option value="">اختر المدينة</option>
+              {getCountry(LAWYER_COUNTRY).cities.map((c) => (<option key={c}>{c}</option>))}
+            </select>
+          </Field>
           <div className="sm:col-span-2"><Field label={form.type === "شركة" ? "رقم السجل التجاري" : "الرقم القومي"}><input className={fieldCls} value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} /></Field></div>
         </FormSection>
         <FormSection title="بيانات التواصل">
@@ -1224,7 +1262,7 @@ function Clients() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">القضايا</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedCases.length}</p></div>
           <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">الجلسات</p><p className="mt-1 text-xl font-extrabold text-cream">{relatedSessions.length}</p></div>
-          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{totalBilled.toLocaleString()} ج.م</p></div>
+          <div className="rounded-xl border border-white/10 bg-navy-deep/50 p-4 text-center"><p className="text-xs text-cream/50">إجمالي الفواتير</p><p className="mt-1 text-xl font-extrabold text-gold">{money(totalBilled)}</p></div>
         </div>
         <DetailGrid title="بيانات التواصل">
           <DetailItem label="الهاتف" value={c.phone} />
@@ -1271,7 +1309,7 @@ function Clients() {
         <RelatedSection title="جلسات العميل" icon={CalendarDays}
           items={relatedSessions.map((s) => ({ id: s.id, primary: s.title, secondary: `${s.day} يونيو 2026 — ${s.time}`, meta: s.location, status: s.status, onClick: () => go("sessions", s.id) }))} />
         <RelatedSection title="فواتير العميل" icon={Receipt}
-          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${iv.amount.toLocaleString()} ج.م`, onClick: () => go("invoices", iv.id) }))} />
+          items={relatedInvoices.map((iv) => ({ id: iv.id, primary: iv.number, secondary: iv.item, meta: iv.issueDate ?? iv.date, status: iv.status, amount: `${money(iv.amount)}`, onClick: () => go("invoices", iv.id) }))} />
         <CommentsPanel comments={comments[c.id] ?? []} onAdd={(t) => addComment(c.id, t)} />
       </DetailPage>
     );
@@ -1648,7 +1686,7 @@ function Consultations() {
           <DetailItem label="التاريخ" value={c.date} />
           <DetailItem label="الوقت" value={c.time} />
           <DetailItem label="المدة" value={c.duration} />
-          <DetailItem label="السعر" value={`${c.price.toLocaleString()} ج.م`} />
+          <DetailItem label="السعر" value={`${money(c.price)}`} />
           <DetailItem label="الحالة" value={c.status} />
           <DetailItem label="القضية المرتبطة" value={c.caseRef} full />
         </DetailGrid>
@@ -1687,7 +1725,7 @@ function Consultations() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-extrabold text-cream">{c.price} ج.م</span>
+                <span className="font-extrabold text-cream">{money(c.price)}</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
                 {c.status !== "ملغاة" && (
                   <button onClick={() => setInCall(c)} aria-label="انضمام للمكالمة" className="flex h-9 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-xs font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
@@ -1715,7 +1753,7 @@ function Invoices() {
   const [adding, setAdding] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, DashComment[]>>({});
-  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: "", issueDate: "", dueDate: "", status: "معلقة", notes: "" };
+  const emptyForm = { client: "", caseRef: "", item: "", amount: "", tax: String(COUNTRY_VAT), issueDate: "", dueDate: "", status: "معلقة", notes: "" };
   const [form, setForm] = useState(emptyForm);
   const clientNames = dashClients.map((c) => c.name);
   const caseTitles = dashCases.map((c) => c.title);
@@ -1750,7 +1788,7 @@ function Invoices() {
           <div className="sm:col-span-2"><SelectField label="بند الفاتورة" value={form.item} onChange={(v) => setForm({ ...form, item: v })} options={invoiceItems} placeholder="اختر البند" /></div>
         </FormSection>
         <FormSection title="المبالغ والتواريخ">
-          <Field label="المبلغ (ج.م)"><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
+          <Field label={`المبلغ (${CURRENCY})`}><input type="number" min={0} className={fieldCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required /></Field>
           <Field label="الضريبة (%)"><input type="number" min={0} max={100} className={fieldCls} value={form.tax} onChange={(e) => setForm({ ...form, tax: e.target.value })} /></Field>
           <Field label="تاريخ الإصدار"><input className={fieldCls} placeholder="6 يونيو 2026" value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} /></Field>
           <Field label="تاريخ الاستحقاق"><input className={fieldCls} placeholder="15 يونيو 2026" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></Field>
@@ -1785,7 +1823,7 @@ function Invoices() {
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-cream/60">الإجمالي المستحق</span>
-            <span className="text-2xl font-extrabold text-gradient-gold">{(inv.amount + taxAmount).toLocaleString()} ج.م</span>
+            <span className="text-2xl font-extrabold text-gradient-gold">{money((inv.amount + taxAmount))}</span>
           </div>
         </div>
         <DetailGrid title="بيانات الفاتورة">
@@ -1795,8 +1833,8 @@ function Invoices() {
           <DetailItem label="القضية المرتبطة" value={inv.caseRef} full />
         </DetailGrid>
         <DetailGrid title="المبالغ والتواريخ">
-          <DetailItem label="المبلغ" value={`${inv.amount.toLocaleString()} ج.م`} />
-          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${taxAmount.toLocaleString()} ج.م)` : undefined} />
+          <DetailItem label="المبلغ" value={`${money(inv.amount)}`} />
+          <DetailItem label="الضريبة" value={inv.tax ? `${inv.tax}% (${money(taxAmount)})` : undefined} />
           <DetailItem label="تاريخ الإصدار" value={inv.issueDate ?? inv.date} />
           <DetailItem label="تاريخ الاستحقاق" value={inv.dueDate} />
         </DetailGrid>
@@ -1815,9 +1853,9 @@ function Invoices() {
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي الفواتير</p><p className="mt-2 text-2xl font-extrabold text-cream">{total.toLocaleString()} ج.م</p></div>
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">محصّلة</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{paid.toLocaleString()} ج.م</p></div>
-        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستحقة</p><p className="mt-2 text-2xl font-extrabold text-gold">{(total - paid).toLocaleString()} ج.م</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">إجمالي الفواتير</p><p className="mt-2 text-2xl font-extrabold text-cream">{money(total)}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">محصّلة</p><p className="mt-2 text-2xl font-extrabold text-emerald-400">{money(paid)}</p></div>
+        <div className="rounded-xl border border-white/10 bg-navy-card/60 p-6"><p className="text-sm text-cream/60">مستحقة</p><p className="mt-2 text-2xl font-extrabold text-gold">{money((total - paid))}</p></div>
       </div>
       <div className={card}>
         <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-cream"><Receipt className="h-5 w-5 text-gold" /> الفواتير</h2>
@@ -1829,7 +1867,7 @@ function Invoices() {
             <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-deep/50 p-4 transition-colors hover:border-gold/30">
               <div><p className="font-bold text-cream">{inv.number}</p><p className="mt-0.5 text-sm text-cream/60">{inv.client} — {inv.date}</p></div>
               <div className="flex items-center gap-4">
-                <span className="font-extrabold text-cream">{inv.amount.toLocaleString()} ج.م</span>
+                <span className="font-extrabold text-cream">{money(inv.amount)}</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor[inv.status]}`}>{inv.status}</span>
                 <ViewButton onClick={() => setViewingId(inv.id)} />
               </div>
@@ -1843,7 +1881,7 @@ function Invoices() {
 }
 
 /* ---------- Wallet ---------- */
-const walletMethods = ["فودافون كاش", "أورنج كاش", "اتصالات كاش", "إنستا باي"];
+const walletMethods = getCountry(LAWYER_COUNTRY).withdrawalMethods;
 function WalletPanel() {
   return <WalletPanelImpl />;
 }
@@ -2353,7 +2391,7 @@ function WalletPanelImpl() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-gold/30 bg-gradient-navy p-7 lg:col-span-1">
           <p className="text-sm text-cream/65">الرصيد المتاح</p>
-          <p className="mt-2 text-3xl font-extrabold text-gradient-gold">{walletBalance.toLocaleString()} ج.م</p>
+          <p className="mt-2 text-3xl font-extrabold text-gradient-gold">{money(walletBalance)}</p>
           <button onClick={() => { setOpen(true); setDone(false); }} className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-gold py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5">
             <ArrowDownToLine className="h-4 w-4" /> طلب سحب
           </button>
@@ -2364,7 +2402,7 @@ function WalletPanelImpl() {
             {walletTransactions.map((t) => (
               <div key={t.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-navy-deep/50 p-4">
                 <div><p className="text-sm font-semibold text-cream">{t.label}</p><p className="mt-0.5 text-xs text-cream/50">{t.date}</p></div>
-                <span className={`text-sm font-bold ${t.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>{t.amount > 0 ? "+" : "-"}{Math.abs(t.amount).toLocaleString()} ج.م</span>
+                <span className={`text-sm font-bold ${t.amount > 0 ? "text-emerald-400" : "text-red-400"}`}>{t.amount > 0 ? "+" : "-"}{money(Math.abs(t.amount))}</span>
               </div>
             ))}
           </div>
@@ -2381,9 +2419,9 @@ function WalletPanelImpl() {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
-              <Field label="المبلغ (ج.م)">
+              <Field label={`المبلغ (${CURRENCY})`}>
                 <input type="number" required min={1} max={walletBalance} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className={fieldCls} />
-                <p className="mt-1 text-xs text-cream/45">الحد الأقصى {walletBalance.toLocaleString()} ج.م</p>
+                <p className="mt-1 text-xs text-cream/45">الحد الأقصى {money(walletBalance)}</p>
               </Field>
               <div>
                 <span className="mb-1.5 block text-sm font-medium text-cream/80">المحفظة الإلكترونية</span>

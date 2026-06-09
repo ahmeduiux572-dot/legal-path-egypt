@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, X, LayoutDashboard, LogOut, ShieldCheck, UserCircle } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuth, logout } from "@/lib/auth";
+import { CountrySwitcher } from "./CountrySwitcher";
 
 const links = [
   { to: "/", label: "الرئيسية" },
@@ -45,6 +46,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <CountrySwitcher />
           {user ? (
             <>
               {isLawyer && (
@@ -102,6 +104,9 @@ export function Navbar() {
       {open && (
         <div className="border-t border-white/10 bg-navy-deep px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1">
+            <div className="mb-2">
+              <CountrySwitcher compact />
+            </div>
             {links.map((l) => (
               <Link
                 key={l.to}

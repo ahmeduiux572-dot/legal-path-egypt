@@ -4,7 +4,7 @@ import { Eye } from "lucide-react";
 import {
   PageHeader, DataTable, Badge, StatCard, Toolbar, ActionButton, type Column,
 } from "@/components/admin/parts";
-import { cases, type CaseListing } from "@/data/content";
+import { cases, caseBudget, type CaseListing } from "@/data/content";
 import { useAdminStore, caseStatus } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin/cases")({ component: CasesPage });
@@ -37,7 +37,7 @@ function CasesPage() {
     { key: "title", label: "القضية", render: (r) => <span className="font-semibold text-cream">{r.title}</span> },
     { key: "category", label: "التصنيف", render: (r) => <Badge tone="gold">{r.category}</Badge> },
     { key: "city", label: "المدينة" },
-    { key: "budget", label: "الميزانية" },
+    { key: "budget", label: "الميزانية", render: (r) => caseBudget(r) },
     { key: "proposals", label: "العروض", render: (r) => <Badge tone="blue">{fmt(r.proposals)}</Badge> },
     { key: "status", label: "الحالة", render: (r) => {
         const s = caseStatus(store, r.id);

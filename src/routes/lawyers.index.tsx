@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, Users, Building2, Scale, MapPin, ArrowUpDown } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { LawyerCard } from "@/components/LawyerCard";
 import { FirmsExplorer } from "@/components/FirmsExplorer";
 import { FilterSelect } from "@/components/FilterSelect";
-import { lawyers, specialties, cities } from "@/data/lawyers";
+import { lawyers, specialties } from "@/data/lawyers";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 
 export const Route = createFileRoute("/lawyers/")({
   head: () => ({
@@ -21,26 +23,34 @@ export const Route = createFileRoute("/lawyers/")({
 
 function LawyersPage() {
   const [activeTab, setActiveTab] = useState<"lawyers" | "firms">("lawyers");
+  const country = useActiveCountry();
+  const cityOptions = useMemo(() => ["كل المدن", ...getCountry(country).cities], [country]);
 
   // Lawyers filters
   const [lawyerQuery, setLawyerQuery] = useState("");
   const [specialty, setSpecialty] = useState<string>(specialties[0]);
-  const [city, setCity] = useState<string>(cities[0]);
+  const [city, setCity] = useState<string>("كل المدن");
   const [sort, setSort] = useState("rating");
+
+  // أعِد ضبط فلتر المدينة عند تغيير الدولة
+  useEffect(() => {
+    setCity("كل المدن");
+  }, [country]);
 
   const filteredLawyers = useMemo(() => {
     let list = lawyers.filter((l) => {
       const q = lawyerQuery.trim();
       const matchesQuery = !q || l.name.includes(q) || l.title.includes(q) || l.specialty.includes(q);
       const matchesSpec = specialty === specialties[0] || l.specialty === specialty;
-      const matchesCity = city === cities[0] || l.city === city;
-      return matchesQuery && matchesSpec && matchesCity;
+      const matchesCity = city === "كل المدن" || l.city === city;
+      const matchesCountry = l.countries.includes(country);
+      return matchesQuery && matchesSpec && matchesCity && matchesCountry;
     });
     list = [...list].sort((a, b) =>
       sort === "price" ? a.price - b.price : sort === "experience" ? b.experience - a.experience : b.rating - a.rating,
     );
     return list;
-  }, [lawyerQuery, specialty, city, sort]);
+  }, [lawyerQuery, specialty, city, sort, country]);
 
   return (
     <div className="bg-navy">
@@ -97,7 +107,7 @@ function LawyersPage() {
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 <FilterSelect value={specialty} options={[...specialties]} onChange={setSpecialty} icon={Scale} ariaLabel="فلترة التخصص" />
-                <FilterSelect value={city} options={[...cities]} onChange={setCity} icon={MapPin} ariaLabel="فلترة المدينة" />
+                <FilterSelect value={city} options={cityOptions} onChange={setCity} icon={MapPin} ariaLabel="فلترة المدينة" />
                 <FilterSelect
                   value={sort}
                   options={["rating", "price", "experience"]}

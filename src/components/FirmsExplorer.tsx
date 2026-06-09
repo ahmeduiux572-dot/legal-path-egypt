@@ -1,23 +1,32 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Scale, MapPin } from "lucide-react";
 import { FirmCard } from "@/components/FirmCard";
 import { FilterSelect } from "@/components/FilterSelect";
-import { firms, firmCities, firmSpecialties } from "@/data/firms";
+import { firms, firmSpecialties } from "@/data/firms";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 
 export function FirmsExplorer() {
+  const country = useActiveCountry();
+  const cityOptions = useMemo(() => ["كل المدن", ...getCountry(country).cities], [country]);
   const [query, setQuery] = useState("");
   const [specialty, setSpecialty] = useState<string>(firmSpecialties[0]);
-  const [city, setCity] = useState<string>(firmCities[0]);
+  const [city, setCity] = useState<string>("كل المدن");
+
+  useEffect(() => {
+    setCity("كل المدن");
+  }, [country]);
 
   const filtered = useMemo(() => {
     return firms.filter((f) => {
       const q = query.trim();
       const matchesQuery = !q || f.name.includes(q) || f.specialty.includes(q) || f.tagline.includes(q);
       const matchesSpec = specialty === firmSpecialties[0] || f.specialty === specialty;
-      const matchesCity = city === firmCities[0] || f.city === city;
-      return matchesQuery && matchesSpec && matchesCity;
+      const matchesCity = city === "كل المدن" || f.city === city;
+      const matchesCountry = f.countries.includes(country);
+      return matchesQuery && matchesSpec && matchesCity && matchesCountry;
     });
-  }, [query, specialty, city]);
+  }, [query, specialty, city, country]);
 
   return (
     <div>
@@ -33,7 +42,7 @@ export function FirmsExplorer() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <FilterSelect value={specialty} options={[...firmSpecialties]} onChange={setSpecialty} icon={Scale} ariaLabel="فلترة تخصص المكتب" />
-          <FilterSelect value={city} options={[...firmCities]} onChange={setCity} icon={MapPin} ariaLabel="فلترة مدينة المكتب" />
+          <FilterSelect value={city} options={cityOptions} onChange={setCity} icon={MapPin} ariaLabel="فلترة مدينة المكتب" />
         </div>
         <p className="mt-3 text-xs text-cream/50">{filtered.length} نتيجة</p>
       </div>

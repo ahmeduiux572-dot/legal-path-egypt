@@ -4,6 +4,7 @@ import { StarRating } from "@/components/StarRating";
 import { BookingDialog } from "@/components/BookingDialog";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { getLawyer } from "@/data/lawyers";
+import { formatMoney, getCountry } from "@/data/countries";
 
 export const Route = createFileRoute("/lawyers/$lawyerId")({
   head: ({ params }) => {
@@ -57,7 +58,7 @@ function LawyerProfile() {
               <h2 className="text-lg font-bold text-navy">{lawyer.title}</h2>
             </div>
             <div className="flex items-center justify-between border-b border-border py-4">
-              <span className="text-2xl font-extrabold text-navy">{lawyer.price} ج.م</span>
+              <span className="text-2xl font-extrabold text-navy">{formatMoney(lawyer.price, lawyer.country)}</span>
               <span className="text-sm text-muted-foreground">سعر الاستشارة</span>
             </div>
             <div className="flex items-center justify-between border-b border-border py-4">
@@ -68,11 +69,12 @@ function LawyerProfile() {
               <span className="text-sm text-muted-foreground">التقييم ({lawyer.reviews})</span>
             </div>
 
-            <BookingDialog name={lawyer.name} price={lawyer.price} />
+            <BookingDialog name={lawyer.name} price={lawyer.price} country={lawyer.country} />
 
             <div className="mt-5 space-y-3 text-sm">
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" />{lawyer.city}</span><span>المدينة</span></p>
               <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-gold" />{lawyer.experience} سنة</span><span>سنوات الخبرة</span></p>
+              <p className="flex items-center justify-between text-muted-foreground"><span className="flex items-center gap-2">{lawyer.countries.map((c) => getCountry(c).flag + " " + getCountry(c).name).join("، ")}</span><span>الدول المخدومة</span></p>
             </div>
           </div>
         </div>
