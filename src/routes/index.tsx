@@ -7,6 +7,8 @@ import { AdCarousel } from "@/components/AdCarousel";
 import { CountryBanner } from "@/components/CountryBanner";
 import { topRated, mostConsulted } from "@/data/lawyers";
 import { topFirms } from "@/data/firms";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 import heroLegal from "@/assets/hero-legal.jpg";
 import library from "@/assets/library.jpg";
 
@@ -41,6 +43,15 @@ const stats = [
 ];
 
 function Index() {
+  const country = useActiveCountry();
+  const countryName = getCountry(country).name;
+  const ratedInCountry = topRated.filter(
+    (l) => l.country === country || l.countries.includes(country),
+  );
+  const consultedInCountry = mostConsulted.filter(
+    (l) => l.country === country || l.countries.includes(country),
+  );
+  const firmsInCountry = topFirms.filter((f) => f.countries.includes(country));
   return (
     <div>
       {/* Hero */}
