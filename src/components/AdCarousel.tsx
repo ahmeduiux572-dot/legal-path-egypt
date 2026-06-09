@@ -3,9 +3,13 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ChevronLeft, ChevronRight, BadgeCheck, MapPin } from "lucide-react";
 import { featuredLawyerAds } from "@/data/ads";
 import { StarRating } from "./StarRating";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 
 export function AdCarousel() {
   const [index, setIndex] = useState(0);
+  const country = useActiveCountry();
+  const pitches = getCountry(country).marketing.pitches;
   const count = featuredLawyerAds.length;
 
   const go = useCallback((dir: number) => {
@@ -34,7 +38,7 @@ export function AdCarousel() {
             className="flex transition-transform duration-700 ease-out"
             style={{ transform: `translateX(${index * 100}%)` }}
           >
-            {featuredLawyerAds.map((ad) => (
+            {featuredLawyerAds.map((ad, i) => (
               <div
                 key={ad.id}
                 className="relative grid min-w-full grid-cols-1 bg-gradient-navy md:grid-cols-2"
@@ -69,7 +73,7 @@ export function AdCarousel() {
                   <div className="mt-2 flex items-center gap-1.5 text-xs text-cream/70">
                     <MapPin className="h-3.5 w-3.5 text-gold" /> {ad.city}
                   </div>
-                  <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/80">{ad.text}</p>
+                  <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/80">{pitches[i % pitches.length] ?? ad.text}</p>
                   <Link
                     to="/lawyers/$lawyerId"
                     params={{ lawyerId: ad.id }}
