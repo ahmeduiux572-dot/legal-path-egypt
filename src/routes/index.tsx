@@ -231,3 +231,12 @@ function Index() {
     </div>
   );
 }
+
+function HeroStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-navy-card/50 px-3 py-3 text-center backdrop-blur">
+      <div className="text-xl font-extrabold text-gold">{value}</div>
+      <div className="mt-1 text-[11px] text-cream/65">{label}</div>
+    </div>
+  );
+}
