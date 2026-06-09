@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, MapPin, Users, BadgeCheck } from "lucide-react";
 import type { Firm } from "@/data/firms";
+import { getCountry } from "@/data/countries";
 import { StarRating } from "./StarRating";
 
 export function FirmCard({ firm }: { firm: Firm }) {
+  const home = getCountry(firm.country);
   return (
     <Link
       to="/firms/$firmId"
@@ -22,6 +24,13 @@ export function FirmCard({ firm }: { firm: Firm }) {
         <span className="absolute right-3 top-3 rounded-full bg-navy-deep/80 px-3 py-1 text-[11px] font-semibold text-gold backdrop-blur">
           {firm.specialty}
         </span>
+        <span
+          className="absolute left-3 top-3 flex items-center gap-1 rounded-full border border-gold/40 bg-navy-deep/80 px-2.5 py-1 text-[11px] font-semibold text-cream backdrop-blur"
+          title={`المقر: ${home.name}`}
+        >
+          <span className="text-sm leading-none">{home.flag}</span>
+          {home.name}
+        </span>
       </div>
       <div className="flex flex-1 flex-col p-3 text-center sm:p-5">
         <h3 className="flex items-center justify-center gap-1.5 text-base font-bold text-cream">
@@ -30,6 +39,16 @@ export function FirmCard({ firm }: { firm: Firm }) {
             <BadgeCheck className="h-4 w-4 shrink-0 fill-gold/20 text-gold" aria-label="مكتب موثّق" />
           )}
         </h3>
+        {firm.countries.length > 1 && (
+          <div className="mt-2 flex items-center justify-center gap-1">
+            <span className="text-[10px] text-cream/50">يخدم في</span>
+            {firm.countries.map((c) => (
+              <span key={c} className="text-sm leading-none" title={getCountry(c).name}>
+                {getCountry(c).flag}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="mt-1 text-xs text-gold">{firm.tagline}</p>
         <div className="mt-3 flex items-center justify-center gap-2">
           <StarRating value={firm.rating} size={14} />
