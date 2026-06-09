@@ -3,7 +3,9 @@ import { MapPin, Wallet, Clock, Users } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PostCaseDialog } from "@/components/PostCaseDialog";
 import { SubmitOfferDialog } from "@/components/SubmitOfferDialog";
-import { cases } from "@/data/content";
+import { cases, caseBudget } from "@/data/content";
+import { useActiveCountry } from "@/lib/country-store";
+import { getCountry } from "@/data/countries";
 
 export const Route = createFileRoute("/cases")({
   head: () => ({
@@ -18,11 +20,13 @@ export const Route = createFileRoute("/cases")({
 });
 
 function CasesPage() {
+  const country = useActiveCountry();
+  const visible = cases.filter((c) => c.country === country);
   return (
     <div className="bg-navy">
       <section className="bg-gradient-navy">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
-          <SectionHeading light title="سوق القضايا" subtitle="اطرح قضيتك واستقبل عروضاً تنافسية من المحامين، أو تصفح القضايا المتاحة وقدّم عرضك." />
+          <SectionHeading light title="سوق القضايا" subtitle={`القضايا المتاحة في ${getCountry(country).name} ${getCountry(country).flag} — اطرح قضيتك واستقبل عروضاً تنافسية، أو تصفح القضايا وقدّم عرضك.`} />
         </div>
       </section>
 
@@ -42,7 +46,12 @@ function CasesPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
-          {cases.map((c) => (
+          {visible.length === 0 && (
+            <p className="col-span-full rounded-xl border border-white/10 bg-navy-card/50 p-8 text-center text-cream/60">
+              لا توجد قضايا متاحة حالياً في {getCountry(country).name}.
+            </p>
+          )}
+          {visible.map((c) => (
             <div key={c.id} className="flex flex-col rounded-xl border border-white/10 bg-navy-card/60 p-4 transition-all hover:-translate-y-1 hover:border-gold/40 sm:p-6">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-medium text-gold">{c.category}</span>
@@ -51,7 +60,7 @@ function CasesPage() {
               <h3 className="mt-4 text-base font-bold text-cream">{c.title}</h3>
               <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-cream/65">{c.description}</p>
               <div className="mt-4 space-y-2 border-t border-white/10 pt-4 text-xs text-cream/70">
-                <p className="flex items-center gap-2"><Wallet className="h-4 w-4 text-gold" />الميزانية: {c.budget}</p>
+                <p className="flex items-center gap-2"><Wallet className="h-4 w-4 text-gold" />الميزانية: {caseBudget(c)}</p>
                 <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" />{c.city}</p>
                 <p className="flex items-center gap-2"><Users className="h-4 w-4 text-gold" />{c.proposals} عروض مقدمة</p>
                 <p className="flex items-center gap-2"><Clock className="h-4 w-4 text-gold" />{c.deadline}</p>
