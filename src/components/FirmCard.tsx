@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, MapPin, Users, BadgeCheck } from "lucide-react";
 import type { Firm } from "@/data/firms";
-import { getCountry } from "@/data/countries";
+import { getCountry, formatMoney } from "@/data/countries";
 import { StarRating } from "./StarRating";
 
 export function FirmCard({ firm }: { firm: Firm }) {
@@ -58,7 +58,11 @@ export function FirmCard({ firm }: { firm: Firm }) {
           <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-gold" />{firm.city}</span>
           <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5 text-gold" />{firm.teamSize} محامٍ</span>
         </div>
-        <span className="mt-4 inline-flex items-center justify-center gap-1 text-sm font-semibold text-gold">
+        <div className="mt-4 flex items-center justify-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2">
+          <span className="text-[11px] text-cream/60">الاستشارة تبدأ من</span>
+          <span className="text-sm font-extrabold text-gold">{formatMoney(firm.consultationPrice, firm.country)}</span>
+        </div>
+        <span className="mt-3 inline-flex items-center justify-center gap-1 text-sm font-semibold text-gold">
           عرض المكتب
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
         </span>
