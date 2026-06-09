@@ -264,7 +264,7 @@ function DashboardPage() {
       items.push({ id: `inv-${i.id}`, icon: Receipt, text: `فاتورة متأخرة ${i.number} — ${i.client}`, meta: `فاتورة • ${money(i.amount)}`, urgent: true, go: () => go("invoices", i.id) }),
     );
     return items;
-  }, []);
+  }, [activeCountry]);
 
   const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
 
