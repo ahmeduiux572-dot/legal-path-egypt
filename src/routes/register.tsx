@@ -249,6 +249,29 @@ function Field({ label, type = "text", required }: { label: string; type?: strin
   );
 }
 
+function PhoneField({ dial }: { dial: string }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm text-cream/80">رقم الهاتف</label>
+      <div className="flex items-center gap-2">
+        <span dir="ltr" className="rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm font-semibold text-cream/80">{dial}</span>
+        <input type="tel" required className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-gold focus:outline-none" />
+      </div>
+    </div>
+  );
+}
+
+function CitySelect({ country }: { country: CountryCode }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm text-cream/80">المدينة</label>
+      <select className="w-full rounded-lg border border-white/15 bg-navy-deep px-3 py-2.5 text-sm text-cream focus:border-gold focus:outline-none">
+        {getCountry(country).cities.map((c) => (<option key={c}>{c}</option>))}
+      </select>
+    </div>
+  );
+}
+
 function FileInput({ label, value, onChange, accept }: { label: string; value: string | null; onChange: (v: string) => void; accept: string }) {
   return (
     <div>
