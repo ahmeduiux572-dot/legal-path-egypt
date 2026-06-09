@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
-import { countries } from "@/data/countries";
+import { useCountries } from "@/data/countries";
 import { useActiveCountry, setActiveCountry } from "@/lib/country-store";
 
 export function CountrySwitcher({ compact = false }: { compact?: boolean }) {
+  const countries = useCountries();
   const active = useActiveCountry();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
