@@ -59,6 +59,13 @@ import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
 import { aiUrl } from "@/lib/ai-endpoint";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
+import { toast } from "sonner";
+import {
+  processFile,
+  toPayload,
+  humanSize,
+  type ChatFile,
+} from "@/lib/chat-files";
 import {
   dashCases,
   dashClients,
