@@ -2669,6 +2669,22 @@ function LegalAI() {
                   </div>
                 )}
                 {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
+                {m.role === "ai" && i !== 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-2.5">
+                    <button
+                      onClick={() => downloadAsWord(docTitle(messages, i), m.text)}
+                      className="flex items-center gap-1.5 rounded-md border border-gold/30 px-2.5 py-1 text-[11px] text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> تنزيل Word
+                    </button>
+                    <button
+                      onClick={() => downloadAsPdf(docTitle(messages, i), m.text)}
+                      className="flex items-center gap-1.5 rounded-md border border-gold/30 px-2.5 py-1 text-[11px] text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold"
+                    >
+                      <ArrowDownToLine className="h-3.5 w-3.5" /> تنزيل PDF
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
