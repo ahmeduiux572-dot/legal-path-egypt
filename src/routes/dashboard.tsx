@@ -56,6 +56,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
+import { downloadAsWord, downloadAsPdf } from "@/lib/doc-export";
 import { useAuth } from "@/lib/auth";
 import { aiUrl } from "@/lib/ai-endpoint";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
