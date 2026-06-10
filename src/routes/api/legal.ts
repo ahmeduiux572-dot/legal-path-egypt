@@ -14,8 +14,16 @@ const messageSchema = z.object({
   text: z.string().min(1).max(4000),
 });
 
+const attachmentSchema = z.object({
+  kind: z.enum(["image", "pdf", "text"]),
+  name: z.string().min(1).max(300),
+  dataUrl: z.string().max(15_000_000).optional(),
+  text: z.string().max(200_000).optional(),
+});
+
 const inputSchema = z.object({
   messages: z.array(messageSchema).min(1).max(12),
+  attachments: z.array(attachmentSchema).max(8).optional(),
 });
 
 const SYSTEM_PROMPT = `أنت مساعد قانوني مصري خبير داخل منصة "مُحامٍ". تجيب فقط وفق القانون المصري وتستند إلى المصادر التالية عند الحاجة:
@@ -31,7 +39,8 @@ const SYSTEM_PROMPT = `أنت مساعد قانوني مصري خبير داخل
 1. أجب بالعربية بإيجاز شديد ووضوح، في نقاط مختصرة عند الحاجة.
 2. اذكر رقم القانون أو المادة عند الإمكان.
 3. إن كان السؤال خارج القانون المصري أو يحتاج محاميًا، نبّه لذلك بسطر واحد.
-4. لا تكرر المقدمات، ادخل في صلب الإجابة مباشرة.`;
+4. لا تكرر المقدمات، ادخل في صلب الإجابة مباشرة.
+5. عند إرفاق ملفات أو مستندات اعتمد على محتواها أولاً في إجابتك (التحليل، التلخيص، استخراج الأطراف والتواريخ، نقاط القوة والضعف، صياغة المذكرات)، ثم استكمل من معرفتك القانونية العامة عند الحاجة، ووضّح أي معلومة غير متوفرة في الملف.`;
 
 export const Route = createFileRoute("/api/legal")({
   server: {
@@ -73,10 +82,40 @@ export const Route = createFileRoute("/api/legal")({
           );
         }
 
-        const chatMessages = parsed.data.messages.map((m) => ({
-          role: m.role === "ai" ? "assistant" : "user",
-          content: m.text,
-        }));
+        const { messages, attachments } = parsed.data;
+
+        // Build OpenAI-compatible messages. Attachments are attached to the last
+        // user message as multimodal content blocks (images/pdf natively, docs
+        // as text) so the model reads the uploaded files first.
+        const chatMessages = messages.map((m, idx) => {
+          const role = m.role === "ai" ? "assistant" : "user";
+          const isLast = idx === messages.length - 1;
+          if (!isLast || role !== "user" || !attachments || attachments.length === 0) {
+            return { role, content: m.text };
+          }
+
+          const blocks: unknown[] = [{ type: "text", text: m.text }];
+          const docTexts: string[] = [];
+          for (const att of attachments) {
+            if (att.kind === "image" && att.dataUrl) {
+              blocks.push({ type: "image_url", image_url: { url: att.dataUrl } });
+            } else if (att.kind === "pdf" && att.dataUrl) {
+              blocks.push({
+                type: "file",
+                file: { filename: att.name, file_data: att.dataUrl },
+              });
+            } else if (att.kind === "text" && att.text) {
+              docTexts.push(`📄 محتوى المستند "${att.name}":\n${att.text}`);
+            }
+          }
+          if (docTexts.length > 0) {
+            blocks.push({
+              type: "text",
+              text: `\n\n=== الملفات المرفقة ===\n${docTexts.join("\n\n")}`,
+            });
+          }
+          return { role, content: blocks };
+        });
 
         try {
           const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -88,7 +127,7 @@ export const Route = createFileRoute("/api/legal")({
             body: JSON.stringify({
               model: "google/gemini-3-flash-preview",
               messages: [{ role: "system", content: SYSTEM_PROMPT }, ...chatMessages],
-              max_tokens: 600,
+              max_tokens: 2000,
               temperature: 0.3,
             }),
           });

@@ -52,11 +52,27 @@ import {
   Library as LibraryIcon,
   Minus,
   List,
+  Image as ImageIcon,
+  Trash2,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { useAuth } from "@/lib/auth";
 import { aiUrl } from "@/lib/ai-endpoint";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
+import { toast } from "sonner";
+import {
+  processFile,
+  toPayload,
+  humanSize,
+  type ChatFile,
+} from "@/lib/chat-files";
+import {
+  getStoredConvs,
+  saveConv,
+  deleteConv,
+  newConvId,
+  type StoredConv,
+} from "@/lib/legal-chat-store";
 import {
   dashCases,
   dashClients,
@@ -2467,56 +2483,137 @@ function WalletPanelImpl() {
 }
 
 /* ---------- Legal AI ---------- */
-interface ChatMsg { role: "user" | "ai"; text: string; }
+interface ChatMsg {
+  role: "user" | "ai";
+  text: string;
+  files?: { name: string; kind: ChatFile["kind"] }[];
+}
 const suggestions = [
-  "صياغة مذكرة دفاع في قضية نفقة",
-  "ما هي إجراءات رفع دعوى تعويض إصابة عمل؟",
-  "لخّص لي بنود عقد الشراكة التجارية",
+  "حلل هذه القضية",
+  "لخّص الملف",
+  "استخرج الأطراف والتواريخ",
+  "ما نقاط القوة والضعف؟",
+  "أنشئ مذكرة قانونية بناءً على الملف",
 ];
 function LegalAI() {
-  const greeting: ChatMsg = { role: "ai", text: "مرحباً، أنا المساعد القانوني الذكي. كيف يمكنني مساعدتك في قضاياك اليوم؟" };
+  const greeting: ChatMsg = { role: "ai", text: "مرحباً، أنا المساعد القانوني الذكي. ارفع ملفات القضية (PDF أو Word أو صور) أو اطرح سؤالك وسأحلله لك." };
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([greeting]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState<ChatFile[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [caseId, setCaseId] = useState("");
+  const [stored, setStored] = useState<StoredConv[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, files]);
+
+  useEffect(() => {
+    setStored(getStoredConvs());
+  }, []);
+
+  const refreshStored = () => setStored(getStoredConvs());
 
   const loadConv = (id: string) => {
+    const local = stored.find((c) => c.id === id);
+    if (local) {
+      setActiveConv(id);
+      setMessages(local.messages.length ? local.messages : [greeting]);
+      setCaseId(local.caseId || "");
+      setFiles([]); // heavy file data is session-only; metadata remains in messages
+      return;
+    }
     const conv = aiConversations.find((c) => c.id === id);
-    if (conv) { setActiveConv(id); setMessages(conv.messages); }
+    if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); }
   };
-  const newChat = () => { setActiveConv(null); setMessages([greeting]); };
+  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); };
+
+  const handleFiles = async (list: FileList | null) => {
+    if (!list || list.length === 0) return;
+    setUploading(true);
+    for (const file of Array.from(list)) {
+      try {
+        const cf = await processFile(file);
+        setFiles((prev) => [...prev, cf]);
+        toast.success(`تم رفع "${cf.name}" بنجاح`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "تعذّر رفع الملف");
+      }
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeFile = (id: string) => setFiles((prev) => prev.filter((f) => f.id !== id));
+
+  const persist = (convId: string, msgs: ChatMsg[]) => {
+    const firstUser = msgs.find((m) => m.role === "user");
+    const title = (firstUser?.text || "محادثة جديدة").slice(0, 40);
+    saveConv({
+      id: convId,
+      title,
+      date: new Date().toLocaleDateString("ar-EG", { day: "numeric", month: "long" }),
+      caseId: caseId || undefined,
+      messages: msgs.map((m) => ({
+        role: m.role,
+        text: m.text,
+        files: m.files?.map((f) => ({ name: f.name, kind: f.kind, size: 0 })),
+      })),
+    });
+    refreshStored();
+  };
 
   const send = async (text: string) => {
     const q = text.trim();
-    if (!q || loading) return;
-    const history = [...messages, { role: "user" as const, text: q }];
+    if ((!q && files.length === 0) || loading) return;
+    const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
+    const userText = q || "حلّل الملفات المرفقة من فضلك.";
+    const history: ChatMsg[] = [
+      ...messages,
+      { role: "user", text: userText, files: attachedMeta.length ? attachedMeta : undefined },
+    ];
     setMessages(history);
     setInput("");
+    const attachmentsPayload = toPayload(files);
+    const convId = activeConv && activeConv.startsWith("local-") ? activeConv : newConvId();
+    if (!activeConv || !activeConv.startsWith("local-")) setActiveConv(convId);
+    setFiles([]);
     setLoading(true);
     try {
-      // Send only the recent turns to keep token usage low.
-      const payload = history.filter((m) => m.text !== greeting.text).slice(-8);
+      const payload = history.filter((m) => m.text !== greeting.text).slice(-8).map((m) => ({ role: m.role, text: m.text }));
       const resp = await fetch(aiUrl("/api/legal"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload }),
+        body: JSON.stringify({ messages: payload, attachments: attachmentsPayload }),
       });
       const res = (await resp.json()) as { reply?: string };
-      setMessages((m) => [
-        ...m,
+      const finalMsgs: ChatMsg[] = [
+        ...history,
         { role: "ai", text: res.reply || "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." },
-      ]);
+      ];
+      setMessages(finalMsgs);
+      persist(convId, finalMsgs);
     } catch {
-      setMessages((m) => [...m, { role: "ai", text: "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." }]);
+      const finalMsgs: ChatMsg[] = [...history, { role: "ai", text: "تعذّر الاتصال بالمساعد القانوني، حاول مرة أخرى." }];
+      setMessages(finalMsgs);
+      persist(convId, finalMsgs);
     } finally {
       setLoading(false);
     }
   };
+
+  const removeConv = (id: string) => {
+    deleteConv(id);
+    refreshStored();
+    if (activeConv === id) newChat();
+  };
+
+  const fileIcon = (kind: ChatFile["kind"]) =>
+    kind === "image" ? <ImageIcon className="h-3.5 w-3.5 text-gold" /> : <FileText className="h-3.5 w-3.5 text-gold" />;
 
   return (
     <div className="grid gap-6 lg:grid-cols-4">
@@ -2526,6 +2623,18 @@ function LegalAI() {
         </button>
         <p className="mb-2 text-xs font-semibold text-cream/50">المحادثات السابقة</p>
         <div className="space-y-2">
+          {stored.map((c) => {
+            const linked = c.caseId ? dashCases.find((dc) => dc.id === c.caseId) : null;
+            return (
+              <div key={c.id} className={`group flex items-start gap-2 rounded-xl border p-3 transition-colors ${activeConv === c.id ? "border-gold/50 bg-gold/10" : "border-white/10 bg-navy-deep/50 hover:border-gold/30"}`}>
+                <button onClick={() => loadConv(c.id)} className="flex-1 text-start">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-cream"><MessageSquare className="h-3.5 w-3.5 text-gold" /> {c.title}</p>
+                  <p className="mt-1 text-xs text-cream/45">{c.date}{linked ? ` · ${linked.title}` : ""}</p>
+                </button>
+                <button onClick={() => removeConv(c.id)} aria-label="حذف المحادثة" className="text-cream/30 transition-colors hover:text-red-400"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            );
+          })}
           {aiConversations.map((c) => (
             <button key={c.id} onClick={() => loadConv(c.id)} className={`w-full rounded-xl border p-3 text-start transition-colors ${activeConv === c.id ? "border-gold/50 bg-gold/10" : "border-white/10 bg-navy-deep/50 hover:border-gold/30"}`}>
               <p className="flex items-center gap-2 text-sm font-semibold text-cream"><MessageSquare className="h-3.5 w-3.5 text-gold" /> {c.title}</p>
@@ -2536,28 +2645,83 @@ function LegalAI() {
       </div>
 
       <div className={`${card} flex h-[600px] flex-col lg:col-span-3`}>
-        <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-cream"><Sparkles className="h-5 w-5 text-gold" /> الذكاء الاصطناعي القانوني</h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-cream"><Sparkles className="h-5 w-5 text-gold" /> الذكاء الاصطناعي القانوني</h2>
+          <select value={caseId} onChange={(e) => setCaseId(e.target.value)} className={`${fieldCls} max-w-[220px] py-2 text-xs`}>
+            <option value="">ربط بقضية (اختياري)</option>
+            {dashCases.map((c) => (
+              <option key={c.id} value={c.id}>{c.title}</option>
+            ))}
+          </select>
+        </div>
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pr-1">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === "user" ? "whitespace-pre-line bg-gradient-gold text-navy" : "border border-white/10 bg-navy-deep/60 text-cream/85"}`}>{m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}</div>
+              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === "user" ? "whitespace-pre-line bg-gradient-gold text-navy" : "border border-white/10 bg-navy-deep/60 text-cream/85"}`}>
+                {m.files && m.files.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-1.5">
+                    {m.files.map((f, fi) => (
+                      <span key={fi} className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] ${m.role === "user" ? "bg-navy/15 text-navy" : "bg-white/5 text-cream/70"}`}>
+                        {fileIcon(f.kind)} {f.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
+              </div>
             </div>
           ))}
           {loading && (
             <div className="flex justify-end">
               <div className="flex max-w-[80%] items-center gap-2 rounded-2xl border border-white/10 bg-navy-deep/60 px-4 py-3 text-sm text-cream/60">
-                <Sparkles className="h-4 w-4 animate-pulse text-gold" /> يحلّل سؤالك القانوني...
+                <Sparkles className="h-4 w-4 animate-pulse text-gold" /> يحلّل المستندات وسؤالك القانوني...
               </div>
             </div>
           )}
         </div>
+
+        {/* Uploaded files preview */}
+        {(files.length > 0 || uploading) && (
+          <div className="mt-3 flex flex-wrap gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-2.5">
+            {files.map((f) => (
+              <div key={f.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy/40 px-2 py-1.5">
+                {f.kind === "image" && f.dataUrl ? (
+                  <a href={f.dataUrl} target="_blank" rel="noreferrer"><img src={f.dataUrl} alt={f.name} className="h-9 w-9 rounded object-cover" /></a>
+                ) : (
+                  <FileText className="h-5 w-5 text-gold" />
+                )}
+                <div className="max-w-[140px]">
+                  <p className="truncate text-xs font-medium text-cream">{f.name}</p>
+                  <p className="text-[10px] text-cream/40">{humanSize(f.size)}</p>
+                </div>
+                {f.dataUrl && (
+                  <a href={f.dataUrl} target="_blank" rel="noreferrer" aria-label="معاينة" className="text-cream/40 hover:text-gold"><Eye className="h-3.5 w-3.5" /></a>
+                )}
+                <button onClick={() => removeFile(f.id)} aria-label="حذف الملف" className="text-cream/40 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+              </div>
+            ))}
+            {uploading && <span className="flex items-center gap-2 px-2 text-xs text-cream/50"><Sparkles className="h-3.5 w-3.5 animate-pulse text-gold" /> جارٍ المعالجة...</span>}
+          </div>
+        )}
+
         <div className="mt-4 flex flex-wrap gap-2">
           {suggestions.map((s) => (
             <button key={s} onClick={() => send(s)} disabled={loading} className="rounded-full border border-gold/30 px-3 py-1.5 text-xs text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold disabled:opacity-50">{s}</button>
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
-          <input value={input} onChange={(e) => setInput(e.target.value)} disabled={loading} placeholder="اكتب سؤالك القانوني..." className={`${fieldCls} flex-1 py-3`} />
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,application/pdf,.pdf,.doc,.docx"
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={loading || uploading} aria-label="إرفاق ملف" className="flex items-center justify-center rounded-lg border border-gold/30 px-3 py-3 text-gold transition-colors hover:bg-gold/10 disabled:opacity-50">
+            <Paperclip className="h-4 w-4" />
+          </button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} disabled={loading} placeholder="اكتب سؤالك القانوني أو ارفع ملفاً..." className={`${fieldCls} flex-1 py-3`} />
           <button type="submit" disabled={loading} className="flex items-center gap-2 rounded-lg bg-gradient-gold px-5 py-3 text-sm font-bold text-navy shadow-gold transition-transform hover:-translate-y-0.5 disabled:opacity-50"><Send className="h-4 w-4" /> إرسال</button>
         </form>
       </div>
