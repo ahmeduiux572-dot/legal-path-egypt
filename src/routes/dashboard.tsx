@@ -56,6 +56,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
+import { downloadAsWord, downloadAsPdf } from "@/lib/doc-export";
 import { useAuth } from "@/lib/auth";
 import { aiUrl } from "@/lib/ai-endpoint";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
@@ -2496,6 +2497,16 @@ const suggestions = [
   "أنشئ مذكرة قانونية بناءً على الملف",
 ];
 function LegalAI() {
+  // Derive a document title from the AI reply heading or the preceding user question.
+  const docTitle = (msgs: ChatMsg[], i: number): string => {
+    const reply = msgs[i]?.text || "";
+    const heading = reply.split(/\r?\n/).map((l) => l.trim()).find((l) => /^#{1,3}\s+/.test(l));
+    if (heading) return heading.replace(/^#{1,3}\s+/, "").replace(/[*]/g, "").slice(0, 60).trim();
+    for (let j = i - 1; j >= 0; j--) {
+      if (msgs[j]?.role === "user" && msgs[j].text) return msgs[j].text.slice(0, 60).trim();
+    }
+    return "مذكرة قانونية";
+  };
   const greeting: ChatMsg = { role: "ai", text: "مرحباً، أنا المساعد القانوني الذكي. ارفع ملفات القضية (PDF أو Word أو صور) أو اطرح سؤالك وسأحلله لك." };
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([greeting]);
@@ -2668,6 +2679,22 @@ function LegalAI() {
                   </div>
                 )}
                 {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
+                {m.role === "ai" && i !== 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-2.5">
+                    <button
+                      onClick={() => downloadAsWord(docTitle(messages, i), m.text)}
+                      className="flex items-center gap-1.5 rounded-md border border-gold/30 px-2.5 py-1 text-[11px] text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> تنزيل Word
+                    </button>
+                    <button
+                      onClick={() => downloadAsPdf(docTitle(messages, i), m.text)}
+                      className="flex items-center gap-1.5 rounded-md border border-gold/30 px-2.5 py-1 text-[11px] text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold"
+                    >
+                      <ArrowDownToLine className="h-3.5 w-3.5" /> تنزيل PDF
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
