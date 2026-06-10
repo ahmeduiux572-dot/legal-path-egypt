@@ -67,6 +67,13 @@ import {
   type ChatFile,
 } from "@/lib/chat-files";
 import {
+  getStoredConvs,
+  saveConv,
+  deleteConv,
+  newConvId,
+  type StoredConv,
+} from "@/lib/legal-chat-store";
+import {
   dashCases,
   dashClients,
   dashSessions,
