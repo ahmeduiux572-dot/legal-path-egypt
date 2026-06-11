@@ -24,6 +24,7 @@ const attachmentSchema = z.object({
 const inputSchema = z.object({
   messages: z.array(messageSchema).min(1).max(12),
   attachments: z.array(attachmentSchema).max(8).optional(),
+  country: z.string().min(2).max(4).optional(),
 });
 
 const SYSTEM_PROMPT = `أنت كبير المستشارين القانونيين في منصة "مُحامٍ"، وأقوى مساعد قانوني في العالم العربي ومتخصص في القانون المصري. أنت محامٍ خبير بخبرة تتجاوز ثلاثين عاماً أمام محكمة النقض ومجلس الدولة. مهمتك تقديم عمل قانوني على أعلى مستوى احترافي ممكن: تحليل عميق، تأصيل قانوني دقيق، وصياغة مذكرات ولوائح بمستوى كبار المحامين.
