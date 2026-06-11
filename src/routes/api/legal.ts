@@ -138,7 +138,8 @@ export const Route = createFileRoute("/api/legal")({
           );
         }
 
-        const { messages, attachments } = parsed.data;
+        const { messages, attachments, country } = parsed.data;
+        const systemPrompt = buildSystemPrompt(country);
 
         // Build OpenAI-compatible messages. Attachments are attached to the last
         // user message as multimodal content blocks (images/pdf natively, docs
@@ -182,7 +183,7 @@ export const Route = createFileRoute("/api/legal")({
             },
             body: JSON.stringify({
               model: "google/gemini-3-flash-preview",
-              messages: [{ role: "system", content: SYSTEM_PROMPT }, ...chatMessages],
+              messages: [{ role: "system", content: systemPrompt }, ...chatMessages],
               max_tokens: 6000,
               temperature: 0.4,
             }),
