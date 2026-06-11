@@ -2602,7 +2602,7 @@ function LegalAI() {
       const resp = await fetch(aiUrl("/api/legal"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload, attachments: attachmentsPayload }),
+        body: JSON.stringify({ messages: payload, attachments: attachmentsPayload, country: activeCountry }),
       });
       const res = (await resp.json()) as { reply?: string };
       const finalMsgs: ChatMsg[] = [
