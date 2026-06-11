@@ -2497,6 +2497,7 @@ const suggestions = [
   "أنشئ مذكرة قانونية بناءً على الملف",
 ];
 function LegalAI() {
+  const activeCountry = useActiveCountry();
   // Derive a document title from the AI reply heading or the preceding user question.
   const docTitle = (msgs: ChatMsg[], i: number): string => {
     const reply = msgs[i]?.text || "";
