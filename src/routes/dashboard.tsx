@@ -2500,11 +2500,13 @@ function LegalAI() {
   // Derive a document title from the AI reply heading or the preceding user question.
   const docTitle = (msgs: ChatMsg[], i: number): string => {
     const reply = msgs[i]?.text || "";
-    const heading = reply.split(/\r?\n/).map((l) => l.trim()).find((l) => /^#{1,3}\s+/.test(l));
-    if (heading) return heading.replace(/^#{1,3}\s+/, "").replace(/[*]/g, "").slice(0, 60).trim();
-    for (let j = i - 1; j >= 0; j--) {
-      if (msgs[j]?.role === "user" && msgs[j].text) return msgs[j].text.slice(0, 60).trim();
-    }
+    // Use the first markdown heading of the reply as the document title.
+    const heading = reply
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .find((l) => /^#{1,3}\s+/.test(l));
+    if (heading) return heading.replace(/^#{1,3}\s+/, "").replace(/[*]/g, "").slice(0, 80).trim();
+    // Otherwise use a clean generic legal title — never dump the user's question.
     return "مذكرة قانونية";
   };
   const greeting: ChatMsg = { role: "ai", text: "مرحباً، أنا المساعد القانوني الذكي. ارفع ملفات القضية (PDF أو Word أو صور) أو اطرح سؤالك وسأحلله لك." };
