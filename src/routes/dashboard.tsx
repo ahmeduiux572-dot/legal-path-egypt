@@ -2497,6 +2497,7 @@ const suggestions = [
   "أنشئ مذكرة قانونية بناءً على الملف",
 ];
 function LegalAI() {
+  const activeCountry = useActiveCountry();
   // Derive a document title from the AI reply heading or the preceding user question.
   const docTitle = (msgs: ChatMsg[], i: number): string => {
     const reply = msgs[i]?.text || "";
@@ -2601,7 +2602,7 @@ function LegalAI() {
       const resp = await fetch(aiUrl("/api/legal"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload, attachments: attachmentsPayload }),
+        body: JSON.stringify({ messages: payload, attachments: attachmentsPayload, country: activeCountry }),
       });
       const res = (await resp.json()) as { reply?: string };
       const finalMsgs: ChatMsg[] = [
