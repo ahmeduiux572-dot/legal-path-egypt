@@ -213,8 +213,8 @@ export const Route = createFileRoute("/api/legal")({
             body: JSON.stringify({
               model: "google/gemini-3-flash-preview",
               messages: [{ role: "system", content: systemPrompt }, ...chatMessages],
-              max_tokens: 6000,
-              temperature: 0.4,
+              max_tokens: 16000,
+              temperature: 0.5,
             }),
           });
 
