@@ -2501,14 +2501,31 @@ function LegalAI() {
   // Derive a document title from the AI reply heading or the preceding user question.
   const docTitle = (msgs: ChatMsg[], i: number): string => {
     const reply = msgs[i]?.text || "";
-    // Use the first markdown heading of the reply as the document title.
+    const clean = (s: string) =>
+      s.replace(/^#{1,4}\s+/, "").replace(/[*_`]/g, "").replace(/\s+/g, " ").slice(0, 90).trim();
+    // 1) Prefer the first markdown heading of the reply (the document's own title).
     const heading = reply
       .split(/\r?\n/)
       .map((l) => l.trim())
-      .find((l) => /^#{1,3}\s+/.test(l));
-    if (heading) return heading.replace(/^#{1,3}\s+/, "").replace(/[*]/g, "").slice(0, 80).trim();
-    // Otherwise use a clean generic legal title — never dump the user's question.
-    return "مذكرة قانونية";
+      .find((l) => /^#{1,4}\s+\S/.test(l));
+    if (heading) return clean(heading);
+    // 2) Otherwise detect the document type from common legal keywords in the body.
+    const types: [RegExp, string][] = [
+      [/لائحة\s+طعن\s+بالنقض|طعن\s+بالنقض/, "لائحة طعن بالنقض"],
+      [/لائحة\s+تمييز|الطعن\s+بالتمييز/, "لائحة طعن بالتمييز"],
+      [/لائحة\s+استئناف|صحيفة\s+استئناف/, "لائحة استئناف"],
+      [/صحيفة\s+دعوى/, "صحيفة دعوى"],
+      [/إنذار/, "إنذار قانوني"],
+      [/عقد\s+\S+/, "عقد"],
+      [/تظلّ?م/, "تظلّم"],
+      [/مذكرة\s+بدفاع|مذكرة\s+دفاع|مذكرة/, "مذكرة دفاع"],
+    ];
+    for (const [re, label] of types) {
+      const m = reply.match(re);
+      if (m) return label;
+    }
+    // 3) Clean generic fallback — never dump the user's question.
+    return "مستند قانوني";
   };
   const greeting: ChatMsg = { role: "ai", text: "مرحباً، أنا المساعد القانوني الذكي. ارفع ملفات القضية (PDF أو Word أو صور) أو اطرح سؤالك وسأحلله لك." };
   const [activeConv, setActiveConv] = useState<string | null>(null);
