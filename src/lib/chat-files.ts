@@ -82,6 +82,7 @@ export async function processFile(file: File): Promise<ChatFile> {
     size: file.size,
     mime: file.type || (kind === "pdf" ? "application/pdf" : "application/octet-stream"),
     kind,
+    status: "ready",
   };
 
   if (kind === "image" || kind === "pdf") {
