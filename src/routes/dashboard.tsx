@@ -2536,6 +2536,7 @@ function LegalAI() {
   const [uploading, setUploading] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2561,7 +2562,17 @@ function LegalAI() {
     const conv = aiConversations.find((c) => c.id === id);
     if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); }
   };
-  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); };
+  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); setEditingIndex(null); };
+
+  // Edit a previously sent user message: load it into the input and mark its
+  // position so re-sending rewinds the conversation to that point.
+  const startEdit = (i: number) => {
+    if (loading) return;
+    setInput(messages[i]?.text || "");
+    setEditingIndex(i);
+    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }), 0);
+  };
+  const cancelEdit = () => { setEditingIndex(null); setInput(""); };
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
@@ -2603,10 +2614,14 @@ function LegalAI() {
     if ((!q && files.length === 0) || loading) return;
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
+    // When editing, rewind the conversation to the edited message's position so
+    // everything after it is regenerated from the new text.
+    const base = editingIndex !== null ? messages.slice(0, editingIndex) : messages;
     const history: ChatMsg[] = [
-      ...messages,
+      ...base,
       { role: "user", text: userText, files: attachedMeta.length ? attachedMeta : undefined },
     ];
+    setEditingIndex(null);
     setMessages(history);
     setInput("");
     const attachmentsPayload = toPayload(files);
@@ -2615,7 +2630,9 @@ function LegalAI() {
     setFiles([]);
     setLoading(true);
     try {
-      const payload = history.filter((m) => m.text !== greeting.text).slice(-8).map((m) => ({ role: m.role, text: m.text }));
+      // Send a large window of history so the assistant keeps strong memory of
+      // the whole conversation (documents, parties, earlier analysis…).
+      const payload = history.filter((m) => m.text !== greeting.text).slice(-30).map((m) => ({ role: m.role, text: m.text }));
       const resp = await fetch(aiUrl("/api/legal"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2699,6 +2716,17 @@ function LegalAI() {
                   </div>
                 )}
                 {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
+                {m.role === "user" && (
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      onClick={() => startEdit(i)}
+                      disabled={loading}
+                      className="flex items-center gap-1 rounded-md bg-navy/15 px-2 py-0.5 text-[11px] text-navy/80 transition-colors hover:bg-navy/25 disabled:opacity-50"
+                    >
+                      <Pencil className="h-3 w-3" /> تعديل
+                    </button>
+                  </div>
+                )}
                 {m.role === "ai" && i !== 0 && (
                   <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-2.5">
                     <button
@@ -2756,6 +2784,12 @@ function LegalAI() {
             <button key={s} onClick={() => send(s)} disabled={loading} className="rounded-full border border-gold/30 px-3 py-1.5 text-xs text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold disabled:opacity-50">{s}</button>
           ))}
         </div>
+        {editingIndex !== null && (
+          <div className="mt-3 flex items-center justify-between rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs text-cream/80">
+            <span className="flex items-center gap-1.5"><Pencil className="h-3.5 w-3.5 text-gold" /> تعديل الرسالة — سيُعاد توليد المحادثة من هذه النقطة.</span>
+            <button type="button" onClick={cancelEdit} className="text-cream/50 hover:text-red-400">إلغاء</button>
+          </div>
+        )}
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
           <input
             ref={fileInputRef}

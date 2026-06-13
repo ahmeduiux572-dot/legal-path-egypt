@@ -11,19 +11,21 @@ const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
 
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
-  text: z.string().min(1).max(4000),
+  // Allow long texts: AI memos/appeals can be very long and are sent back as
+  // conversation history, so the limit must be generous to keep memory working.
+  text: z.string().min(1).max(200_000),
 });
 
 const attachmentSchema = z.object({
   kind: z.enum(["image", "pdf", "text"]),
   name: z.string().min(1).max(300),
   dataUrl: z.string().max(15_000_000).optional(),
-  text: z.string().max(200_000).optional(),
+  text: z.string().max(600_000).optional(),
 });
 
 const inputSchema = z.object({
-  messages: z.array(messageSchema).min(1).max(12),
-  attachments: z.array(attachmentSchema).max(8).optional(),
+  messages: z.array(messageSchema).min(1).max(40),
+  attachments: z.array(attachmentSchema).max(12).optional(),
   country: z.string().min(2).max(4).optional(),
 });
 
@@ -105,7 +107,13 @@ const COMMON_RULES = `منهجك في الإجابة (إلزامي وصارم):
    ### الطلبات (نقض الحكم المطعون فيه والإحالة أو التصدّي)
    اجعل لوائح الطعن بالنقض/التمييز ولوائح الاستئناف هي أكثر مستنداتك تفصيلاً وقوة؛ فهي جوهر عمل المحامي.
 
-6. **عند إرفاق ملفات:** اعتمد على محتواها أولاً (التحليل، التلخيص، استخراج الأطراف والتواريخ والوقائع، نقاط القوة والضعف، ثم صياغة المستند المطلوب)، ثم استكمل من معرفتك القانونية، ووضّح بصراحة أي معلومة غير متوفرة في الملف.
+6. **عند إرفاق ملفات (قراءة عميقة إلزامية):** اقرأ كل مستند مرفق بالكامل من أوله إلى آخره (نصوص، صور ممسوحة ضوئياً عبر التعرّف الضوئي على الحروف OCR، جداول، تواقيع، أرقام، تواريخ، أختام) ولا تتجاهل أي جزء. اعتمد على محتوى الملف أولاً وقبل أي شيء، ثم:
+   - **استخرج بدقّة:** أطراف القضية وصفاتهم، أرقام الدعاوى والأحكام، المحكمة ودرجتها، التواريخ والمواعيد، الوقائع مرتّبة زمنياً، الطلبات، والمستندات المشار إليها.
+   - **حلّل تحليلاً معمّقاً:** كيّف الوقائع قانونياً، وبيّن المراكز القانونية لكل طرف.
+   - **نقاط القوة والضعف:** اذكرها صراحةً ومرقّمة لكل طرف، مع سندها.
+   - **اقتبس من الملف حرفياً** عند الحاجة بين علامتي تنصيص للإحالة الدقيقة.
+   - إن طُلب مستند (مذكرة/لائحة/عقد) فابنِه على وقائع الملف وأسماء أطرافه الحقيقية وأرقامه الفعلية، لا على فروض عامة.
+   - استكمل من معرفتك القانونية فقط بعد استنفاد ما في الملف، ووضّح بصراحة أي معلومة غير متوفرة فيه. لا تقل أبداً إنك لا تستطيع قراءة الملف؛ حلّل المتاح منه قدر الإمكان.
 
 7. لا تكرّر سؤال المستخدم في بداية ردّك، وابدأ مباشرة بالعنوان أو المضمون. لا تكتب "سؤالك هو" أو تُعيد صياغة الطلب.
 
@@ -211,7 +219,7 @@ export const Route = createFileRoute("/api/legal")({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-3-flash-preview",
+              model: "google/gemini-3.1-pro-preview",
               messages: [{ role: "system", content: systemPrompt }, ...chatMessages],
               max_tokens: 16000,
               temperature: 0.5,
