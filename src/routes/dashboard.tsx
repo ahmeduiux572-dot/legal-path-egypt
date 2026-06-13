@@ -2716,6 +2716,17 @@ function LegalAI() {
                   </div>
                 )}
                 {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
+                {m.role === "user" && (
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      onClick={() => startEdit(i)}
+                      disabled={loading}
+                      className="flex items-center gap-1 rounded-md bg-navy/15 px-2 py-0.5 text-[11px] text-navy/80 transition-colors hover:bg-navy/25 disabled:opacity-50"
+                    >
+                      <Pencil className="h-3 w-3" /> تعديل
+                    </button>
+                  </div>
+                )}
                 {m.role === "ai" && i !== 0 && (
                   <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-2.5">
                     <button
