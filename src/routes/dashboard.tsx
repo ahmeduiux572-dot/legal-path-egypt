@@ -2562,7 +2562,17 @@ function LegalAI() {
     const conv = aiConversations.find((c) => c.id === id);
     if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); }
   };
-  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); };
+  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); setEditingIndex(null); };
+
+  // Edit a previously sent user message: load it into the input and mark its
+  // position so re-sending rewinds the conversation to that point.
+  const startEdit = (i: number) => {
+    if (loading) return;
+    setInput(messages[i]?.text || "");
+    setEditingIndex(i);
+    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }), 0);
+  };
+  const cancelEdit = () => { setEditingIndex(null); setInput(""); };
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
