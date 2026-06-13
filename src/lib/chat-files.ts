@@ -11,6 +11,8 @@ export interface ChatFile {
   size: number;
   mime: string;
   kind: ChatFileKind;
+  /** processing = still extracting/OCR; ready = usable; error = failed */
+  status?: "processing" | "ready" | "error";
   /** data URL for images / pdfs (used for preview + model context) */
   dataUrl?: string;
   /** extracted plain text for word documents */
@@ -39,7 +41,7 @@ function readAsDataUrl(file: File): Promise<string> {
   });
 }
 
-function detectKind(file: File): ChatFileKind | null {
+export function detectKind(file: File): ChatFileKind | null {
   const name = file.name.toLowerCase();
   if (file.type.startsWith("image/")) return "image";
   if (file.type === "application/pdf" || name.endsWith(".pdf")) return "pdf";
