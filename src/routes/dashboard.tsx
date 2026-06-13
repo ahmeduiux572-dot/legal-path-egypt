@@ -2784,6 +2784,12 @@ function LegalAI() {
             <button key={s} onClick={() => send(s)} disabled={loading} className="rounded-full border border-gold/30 px-3 py-1.5 text-xs text-cream/75 transition-colors hover:bg-gold/10 hover:text-gold disabled:opacity-50">{s}</button>
           ))}
         </div>
+        {editingIndex !== null && (
+          <div className="mt-3 flex items-center justify-between rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs text-cream/80">
+            <span className="flex items-center gap-1.5"><Pencil className="h-3.5 w-3.5 text-gold" /> تعديل الرسالة — سيُعاد توليد المحادثة من هذه النقطة.</span>
+            <button type="button" onClick={cancelEdit} className="text-cream/50 hover:text-red-400">إلغاء</button>
+          </div>
+        )}
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
           <input
             ref={fileInputRef}
