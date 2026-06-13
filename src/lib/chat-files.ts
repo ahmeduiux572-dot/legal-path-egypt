@@ -112,7 +112,9 @@ export interface ChatFilePayload {
 }
 
 export function toPayload(files: ChatFile[]): ChatFilePayload[] {
-  return files.map((f) => {
+  return files
+    .filter((f) => f.status !== "processing" && f.status !== "error")
+    .map((f) => {
     if (f.kind === "doc") return { kind: "text", name: f.name, text: f.text };
     return { kind: f.kind, name: f.name, dataUrl: f.dataUrl };
   });
