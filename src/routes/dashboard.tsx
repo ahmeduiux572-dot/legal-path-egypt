@@ -2614,10 +2614,14 @@ function LegalAI() {
     if ((!q && files.length === 0) || loading) return;
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
+    // When editing, rewind the conversation to the edited message's position so
+    // everything after it is regenerated from the new text.
+    const base = editingIndex !== null ? messages.slice(0, editingIndex) : messages;
     const history: ChatMsg[] = [
-      ...messages,
+      ...base,
       { role: "user", text: userText, files: attachedMeta.length ? attachedMeta : undefined },
     ];
+    setEditingIndex(null);
     setMessages(history);
     setInput("");
     const attachmentsPayload = toPayload(files);
@@ -2626,7 +2630,9 @@ function LegalAI() {
     setFiles([]);
     setLoading(true);
     try {
-      const payload = history.filter((m) => m.text !== greeting.text).slice(-8).map((m) => ({ role: m.role, text: m.text }));
+      // Send a large window of history so the assistant keeps strong memory of
+      // the whole conversation (documents, parties, earlier analysis…).
+      const payload = history.filter((m) => m.text !== greeting.text).slice(-30).map((m) => ({ role: m.role, text: m.text }));
       const resp = await fetch(aiUrl("/api/legal"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
