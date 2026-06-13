@@ -2536,6 +2536,7 @@ function LegalAI() {
   const [uploading, setUploading] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
