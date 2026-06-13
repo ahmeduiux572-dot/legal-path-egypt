@@ -2535,7 +2535,7 @@ function LegalAI() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<ChatFile[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const uploading = files.some((f) => f.status === "processing");
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
