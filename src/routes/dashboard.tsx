@@ -2625,6 +2625,10 @@ function LegalAI() {
   const send = async (text: string) => {
     const q = text.trim();
     if ((!q && files.length === 0) || loading) return;
+    if (files.some((f) => f.status === "processing")) {
+      toast.info("انتظر اكتمال رفع الملف قبل الإرسال.");
+      return;
+    }
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
     // When editing, rewind the conversation to the edited message's position so
