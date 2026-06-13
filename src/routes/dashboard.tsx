@@ -2772,23 +2772,28 @@ function LegalAI() {
         {(files.length > 0 || uploading) && (
           <div className="mt-3 flex flex-wrap gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-2.5">
             {files.map((f) => (
-              <div key={f.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy/40 px-2 py-1.5">
-                {f.kind === "image" && f.dataUrl ? (
+              <div key={f.id} className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${f.status === "processing" ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy/40"}`}>
+                {f.status === "processing" ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-gold" />
+                ) : f.kind === "image" && f.dataUrl ? (
                   <a href={f.dataUrl} target="_blank" rel="noreferrer"><img src={f.dataUrl} alt={f.name} className="h-9 w-9 rounded object-cover" /></a>
                 ) : (
                   <FileText className="h-5 w-5 text-gold" />
                 )}
                 <div className="max-w-[140px]">
                   <p className="truncate text-xs font-medium text-cream">{f.name}</p>
-                  <p className="text-[10px] text-cream/40">{humanSize(f.size)}</p>
+                  <p className="text-[10px] text-cream/40">
+                    {f.status === "processing" ? "جارٍ القراءة والتحليل..." : `${humanSize(f.size)} · جاهز`}
+                  </p>
                 </div>
-                {f.dataUrl && (
+                {f.status !== "processing" && f.dataUrl && (
                   <a href={f.dataUrl} target="_blank" rel="noreferrer" aria-label="معاينة" className="text-cream/40 hover:text-gold"><Eye className="h-3.5 w-3.5" /></a>
                 )}
-                <button onClick={() => removeFile(f.id)} aria-label="حذف الملف" className="text-cream/40 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+                {f.status !== "processing" && (
+                  <button onClick={() => removeFile(f.id)} aria-label="حذف الملف" className="text-cream/40 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+                )}
               </div>
             ))}
-            {uploading && <span className="flex items-center gap-2 px-2 text-xs text-cream/50"><Sparkles className="h-3.5 w-3.5 animate-pulse text-gold" /> جارٍ المعالجة...</span>}
           </div>
         )}
 
