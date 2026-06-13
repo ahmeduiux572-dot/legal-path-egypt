@@ -11,19 +11,21 @@ const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
 
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
-  text: z.string().min(1).max(4000),
+  // Allow long texts: AI memos/appeals can be very long and are sent back as
+  // conversation history, so the limit must be generous to keep memory working.
+  text: z.string().min(1).max(200_000),
 });
 
 const attachmentSchema = z.object({
   kind: z.enum(["image", "pdf", "text"]),
   name: z.string().min(1).max(300),
   dataUrl: z.string().max(15_000_000).optional(),
-  text: z.string().max(200_000).optional(),
+  text: z.string().max(600_000).optional(),
 });
 
 const inputSchema = z.object({
-  messages: z.array(messageSchema).min(1).max(12),
-  attachments: z.array(attachmentSchema).max(8).optional(),
+  messages: z.array(messageSchema).min(1).max(40),
+  attachments: z.array(attachmentSchema).max(12).optional(),
   country: z.string().min(2).max(4).optional(),
 });
 
