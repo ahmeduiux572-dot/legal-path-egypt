@@ -2578,17 +2578,28 @@ function LegalAI() {
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
-    setUploading(true);
     for (const file of Array.from(list)) {
+      const kind = detectKind(file);
+      if (!kind) {
+        toast.error(`نوع الملف غير مدعوم: ${file.name}. المسموح: PDF و Word والصور.`);
+        continue;
+      }
+      // Show the file immediately with a "processing" state so the user sees it
+      // while it is being read / OCR'd, before the success confirmation.
+      const tempId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      setFiles((prev) => [
+        ...prev,
+        { id: tempId, name: file.name, size: file.size, mime: file.type, kind, status: "processing" },
+      ]);
       try {
         const cf = await processFile(file);
-        setFiles((prev) => [...prev, cf]);
+        setFiles((prev) => prev.map((f) => (f.id === tempId ? { ...cf, status: "ready" } : f)));
         toast.success(`تم رفع "${cf.name}" بنجاح`);
       } catch (e) {
+        setFiles((prev) => prev.filter((f) => f.id !== tempId));
         toast.error(e instanceof Error ? e.message : "تعذّر رفع الملف");
       }
     }
-    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
