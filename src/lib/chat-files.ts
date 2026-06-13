@@ -11,8 +11,6 @@ export interface ChatFile {
   size: number;
   mime: string;
   kind: ChatFileKind;
-  /** processing = still extracting/OCR; ready = usable; error = failed */
-  status?: "processing" | "ready" | "error";
   /** data URL for images / pdfs (used for preview + model context) */
   dataUrl?: string;
   /** extracted plain text for word documents */
@@ -41,7 +39,7 @@ function readAsDataUrl(file: File): Promise<string> {
   });
 }
 
-export function detectKind(file: File): ChatFileKind | null {
+function detectKind(file: File): ChatFileKind | null {
   const name = file.name.toLowerCase();
   if (file.type.startsWith("image/")) return "image";
   if (file.type === "application/pdf" || name.endsWith(".pdf")) return "pdf";
@@ -82,7 +80,6 @@ export async function processFile(file: File): Promise<ChatFile> {
     size: file.size,
     mime: file.type || (kind === "pdf" ? "application/pdf" : "application/octet-stream"),
     kind,
-    status: "ready",
   };
 
   if (kind === "image" || kind === "pdf") {
@@ -112,9 +109,7 @@ export interface ChatFilePayload {
 }
 
 export function toPayload(files: ChatFile[]): ChatFilePayload[] {
-  return files
-    .filter((f) => f.status !== "processing" && f.status !== "error")
-    .map((f) => {
+  return files.map((f) => {
     if (f.kind === "doc") return { kind: "text", name: f.name, text: f.text };
     return { kind: f.kind, name: f.name, dataUrl: f.dataUrl };
   });

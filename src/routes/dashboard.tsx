@@ -27,7 +27,6 @@ import {
   Search,
   X,
   Pencil,
-  Loader2,
   Save,
   Video,
   Building2,
@@ -66,7 +65,6 @@ import {
   processFile,
   toPayload,
   humanSize,
-  detectKind,
   type ChatFile,
 } from "@/lib/chat-files";
 import {
@@ -2535,7 +2533,7 @@ function LegalAI() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<ChatFile[]>([]);
-  const uploading = files.some((f) => f.status === "processing");
+  const [uploading, setUploading] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -2578,28 +2576,17 @@ function LegalAI() {
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
+    setUploading(true);
     for (const file of Array.from(list)) {
-      const kind = detectKind(file);
-      if (!kind) {
-        toast.error(`نوع الملف غير مدعوم: ${file.name}. المسموح: PDF و Word والصور.`);
-        continue;
-      }
-      // Show the file immediately with a "processing" state so the user sees it
-      // while it is being read / OCR'd, before the success confirmation.
-      const tempId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      setFiles((prev) => [
-        ...prev,
-        { id: tempId, name: file.name, size: file.size, mime: file.type, kind, status: "processing" },
-      ]);
       try {
         const cf = await processFile(file);
-        setFiles((prev) => prev.map((f) => (f.id === tempId ? { ...cf, status: "ready" } : f)));
+        setFiles((prev) => [...prev, cf]);
         toast.success(`تم رفع "${cf.name}" بنجاح`);
       } catch (e) {
-        setFiles((prev) => prev.filter((f) => f.id !== tempId));
         toast.error(e instanceof Error ? e.message : "تعذّر رفع الملف");
       }
     }
+    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -2625,10 +2612,6 @@ function LegalAI() {
   const send = async (text: string) => {
     const q = text.trim();
     if ((!q && files.length === 0) || loading) return;
-    if (files.some((f) => f.status === "processing")) {
-      toast.info("انتظر اكتمال رفع الملف قبل الإرسال.");
-      return;
-    }
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
     // When editing, rewind the conversation to the edited message's position so
@@ -2776,28 +2759,23 @@ function LegalAI() {
         {(files.length > 0 || uploading) && (
           <div className="mt-3 flex flex-wrap gap-2 rounded-xl border border-white/10 bg-navy-deep/50 p-2.5">
             {files.map((f) => (
-              <div key={f.id} className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${f.status === "processing" ? "border-gold/40 bg-gold/5" : "border-white/10 bg-navy/40"}`}>
-                {f.status === "processing" ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-gold" />
-                ) : f.kind === "image" && f.dataUrl ? (
+              <div key={f.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-navy/40 px-2 py-1.5">
+                {f.kind === "image" && f.dataUrl ? (
                   <a href={f.dataUrl} target="_blank" rel="noreferrer"><img src={f.dataUrl} alt={f.name} className="h-9 w-9 rounded object-cover" /></a>
                 ) : (
                   <FileText className="h-5 w-5 text-gold" />
                 )}
                 <div className="max-w-[140px]">
                   <p className="truncate text-xs font-medium text-cream">{f.name}</p>
-                  <p className="text-[10px] text-cream/40">
-                    {f.status === "processing" ? "جارٍ القراءة والتحليل..." : `${humanSize(f.size)} · جاهز`}
-                  </p>
+                  <p className="text-[10px] text-cream/40">{humanSize(f.size)}</p>
                 </div>
-                {f.status !== "processing" && f.dataUrl && (
+                {f.dataUrl && (
                   <a href={f.dataUrl} target="_blank" rel="noreferrer" aria-label="معاينة" className="text-cream/40 hover:text-gold"><Eye className="h-3.5 w-3.5" /></a>
                 )}
-                {f.status !== "processing" && (
-                  <button onClick={() => removeFile(f.id)} aria-label="حذف الملف" className="text-cream/40 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
-                )}
+                <button onClick={() => removeFile(f.id)} aria-label="حذف الملف" className="text-cream/40 hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
               </div>
             ))}
+            {uploading && <span className="flex items-center gap-2 px-2 text-xs text-cream/50"><Sparkles className="h-3.5 w-3.5 animate-pulse text-gold" /> جارٍ المعالجة...</span>}
           </div>
         )}
 
