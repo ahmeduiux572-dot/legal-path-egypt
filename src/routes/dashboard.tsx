@@ -66,6 +66,7 @@ import {
   processFile,
   toPayload,
   humanSize,
+  detectKind,
   type ChatFile,
 } from "@/lib/chat-files";
 import {
