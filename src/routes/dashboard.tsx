@@ -54,6 +54,7 @@ import {
   List,
   Image as ImageIcon,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import { lawyers } from "@/data/lawyers";
 import { downloadAsWord, downloadAsPdf } from "@/lib/doc-export";
