@@ -2536,6 +2536,7 @@ function LegalAI() {
   const [uploading, setUploading] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
+  const [contextFiles, setContextFiles] = useState<ChatFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2556,12 +2557,13 @@ function LegalAI() {
       setMessages(local.messages.length ? local.messages : [greeting]);
       setCaseId(local.caseId || "");
       setFiles([]); // heavy file data is session-only; metadata remains in messages
+      setContextFiles([]);
       return;
     }
     const conv = aiConversations.find((c) => c.id === id);
-    if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); }
+    if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); setContextFiles([]); }
   };
-  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); };
+  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setContextFiles([]); setCaseId(""); setInput(""); };
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
@@ -2609,9 +2611,11 @@ function LegalAI() {
     ];
     setMessages(history);
     setInput("");
-    const attachmentsPayload = toPayload(files);
+    const effectiveFiles = files.length > 0 ? files : contextFiles;
+    const attachmentsPayload = toPayload(effectiveFiles);
     const convId = activeConv && activeConv.startsWith("local-") ? activeConv : newConvId();
     if (!activeConv || !activeConv.startsWith("local-")) setActiveConv(convId);
+    if (files.length > 0) setContextFiles(files);
     setFiles([]);
     setLoading(true);
     try {
