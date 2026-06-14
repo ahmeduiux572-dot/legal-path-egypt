@@ -2496,6 +2496,7 @@ const suggestions = [
   "ما نقاط القوة والضعف؟",
   "أنشئ مذكرة قانونية بناءً على الملف",
 ];
+const MAX_CHAT_FILES = 10;
 function LegalAI() {
   const activeCountry = useActiveCountry();
   // Derive a document title from the AI reply heading or the preceding user question.
@@ -2569,6 +2570,10 @@ function LegalAI() {
     if (!list || list.length === 0) return;
     setUploading(true);
     for (const file of Array.from(list)) {
+      if (files.length >= MAX_CHAT_FILES) {
+        toast.error(`الحد الأقصى ${MAX_CHAT_FILES} ملفات في الرسالة الواحدة`);
+        break;
+      }
       try {
         const cf = await processFile(file);
         setFiles((prev) => [...prev, cf]);
@@ -2602,6 +2607,10 @@ function LegalAI() {
 
   const send = async (text: string) => {
     const q = text.trim();
+    if (uploading) {
+      toast.info("انتظر لحين انتهاء معالجة الملف ثم أرسل الرسالة.");
+      return;
+    }
     if ((!q && files.length === 0) || loading) return;
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
