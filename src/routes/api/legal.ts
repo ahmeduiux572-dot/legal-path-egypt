@@ -7,23 +7,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
+const FALLBACK_AI_BASE = "https://id-preview--01454a72-c1b8-433d-b96b-ea7652cb2695.lovable.app";
 
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
-  text: z.string().min(1).max(4000),
+  text: z.string().min(1).max(250_000),
 });
 
 const attachmentSchema = z.object({
   kind: z.enum(["image", "pdf", "text"]),
   name: z.string().min(1).max(300),
-  dataUrl: z.string().max(15_000_000).optional(),
+  dataUrl: z.string().max(30_000_000).optional(),
   text: z.string().max(200_000).optional(),
 });
 
 const inputSchema = z.object({
   messages: z.array(messageSchema).min(1).max(12),
-  attachments: z.array(attachmentSchema).max(8).optional(),
+  attachments: z.array(attachmentSchema).max(10).optional(),
   country: z.string().min(2).max(4).optional(),
 });
 
@@ -180,7 +180,11 @@ export const Route = createFileRoute("/api/legal")({
             return { role, content: m.text };
           }
 
-          const blocks: unknown[] = [{ type: "text", text: m.text }];
+          const attachmentNames = attachments.map((att) => `- ${att.name} (${att.kind})`).join("\n");
+          const blocks: unknown[] = [{
+            type: "text",
+            text: `${m.text}\n\nتم إرفاق الملفات التالية مع هذه الرسالة، ويجب قراءتها وتحليلها أولاً قبل الإجابة، ولا تقل إن الملف غير مرفق:\n${attachmentNames}`,
+          }];
           const docTexts: string[] = [];
           for (const att of attachments) {
             if (att.kind === "image" && att.dataUrl) {

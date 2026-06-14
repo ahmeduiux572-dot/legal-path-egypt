@@ -2496,6 +2496,7 @@ const suggestions = [
   "ما نقاط القوة والضعف؟",
   "أنشئ مذكرة قانونية بناءً على الملف",
 ];
+const MAX_CHAT_FILES = 10;
 function LegalAI() {
   const activeCountry = useActiveCountry();
   // Derive a document title from the AI reply heading or the preceding user question.
@@ -2536,6 +2537,7 @@ function LegalAI() {
   const [uploading, setUploading] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [stored, setStored] = useState<StoredConv[]>([]);
+  const [contextFiles, setContextFiles] = useState<ChatFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2556,20 +2558,27 @@ function LegalAI() {
       setMessages(local.messages.length ? local.messages : [greeting]);
       setCaseId(local.caseId || "");
       setFiles([]); // heavy file data is session-only; metadata remains in messages
+      setContextFiles([]);
       return;
     }
     const conv = aiConversations.find((c) => c.id === id);
-    if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); }
+    if (conv) { setActiveConv(id); setMessages(conv.messages); setCaseId(""); setFiles([]); setContextFiles([]); }
   };
-  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setCaseId(""); setInput(""); };
+  const newChat = () => { setActiveConv(null); setMessages([greeting]); setFiles([]); setContextFiles([]); setCaseId(""); setInput(""); };
 
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
     setUploading(true);
+    let acceptedCount = files.length;
     for (const file of Array.from(list)) {
+      if (acceptedCount >= MAX_CHAT_FILES) {
+        toast.error(`الحد الأقصى ${MAX_CHAT_FILES} ملفات في الرسالة الواحدة`);
+        break;
+      }
       try {
         const cf = await processFile(file);
         setFiles((prev) => [...prev, cf]);
+        acceptedCount += 1;
         toast.success(`تم رفع "${cf.name}" بنجاح`);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "تعذّر رفع الملف");
@@ -2600,6 +2609,10 @@ function LegalAI() {
 
   const send = async (text: string) => {
     const q = text.trim();
+    if (uploading) {
+      toast.info("انتظر لحين انتهاء معالجة الملف ثم أرسل الرسالة.");
+      return;
+    }
     if ((!q && files.length === 0) || loading) return;
     const attachedMeta = files.map((f) => ({ name: f.name, kind: f.kind }));
     const userText = q || "حلّل الملفات المرفقة من فضلك.";
@@ -2609,9 +2622,11 @@ function LegalAI() {
     ];
     setMessages(history);
     setInput("");
-    const attachmentsPayload = toPayload(files);
+    const effectiveFiles = files.length > 0 ? files : contextFiles;
+    const attachmentsPayload = toPayload(effectiveFiles);
     const convId = activeConv && activeConv.startsWith("local-") ? activeConv : newConvId();
     if (!activeConv || !activeConv.startsWith("local-")) setActiveConv(convId);
+    if (files.length > 0) setContextFiles(files);
     setFiles([]);
     setLoading(true);
     try {
