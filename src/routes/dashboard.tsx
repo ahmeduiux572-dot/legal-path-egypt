@@ -2569,14 +2569,16 @@ function LegalAI() {
   const handleFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
     setUploading(true);
+    let acceptedCount = files.length;
     for (const file of Array.from(list)) {
-      if (files.length >= MAX_CHAT_FILES) {
+      if (acceptedCount >= MAX_CHAT_FILES) {
         toast.error(`الحد الأقصى ${MAX_CHAT_FILES} ملفات في الرسالة الواحدة`);
         break;
       }
       try {
         const cf = await processFile(file);
         setFiles((prev) => [...prev, cf]);
+        acceptedCount += 1;
         toast.success(`تم رفع "${cf.name}" بنجاح`);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "تعذّر رفع الملف");
