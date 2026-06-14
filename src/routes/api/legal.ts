@@ -7,11 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
+const FALLBACK_AI_BASE = "https://id-preview--01454a72-c1b8-433d-b96b-ea7652cb2695.lovable.app";
 
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
-  text: z.string().min(1).max(4000),
+  text: z.string().min(1).max(60_000),
 });
 
 const attachmentSchema = z.object({
