@@ -18,7 +18,10 @@ export function aiUrl(path: string): string {
 
   const host = window.location.hostname;
   const isLovableHost =
-    host.endsWith(".lovable.app") || host === "localhost" || host === "127.0.0.1";
+    host.endsWith(".lovable.app") ||
+    host.endsWith(".lovableproject.com") ||
+    host === "localhost" ||
+    host === "127.0.0.1";
 
   if (isLovableHost) return path;
 
