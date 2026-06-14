@@ -10,7 +10,7 @@
 
 // Published Lovable URL for this project (this is the host that actually has
 // LOVABLE_API_KEY and serves the AI endpoints publicly).
-const FALLBACK_AI_BASE = "https://legal-path-egypt.lovable.app";
+const FALLBACK_AI_BASE = "https://id-preview--01454a72-c1b8-433d-b96b-ea7652cb2695.lovable.app";
 
 export function aiUrl(path: string): string {
   // During SSR keep it relative (same origin) — SSR on Lovable has the key.

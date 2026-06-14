@@ -11,19 +11,19 @@ const FALLBACK_AI_BASE = "https://id-preview--01454a72-c1b8-433d-b96b-ea7652cb26
 
 const messageSchema = z.object({
   role: z.enum(["user", "ai"]),
-  text: z.string().min(1).max(60_000),
+  text: z.string().min(1).max(250_000),
 });
 
 const attachmentSchema = z.object({
   kind: z.enum(["image", "pdf", "text"]),
   name: z.string().min(1).max(300),
-  dataUrl: z.string().max(15_000_000).optional(),
+  dataUrl: z.string().max(30_000_000).optional(),
   text: z.string().max(200_000).optional(),
 });
 
 const inputSchema = z.object({
   messages: z.array(messageSchema).min(1).max(12),
-  attachments: z.array(attachmentSchema).max(8).optional(),
+  attachments: z.array(attachmentSchema).max(10).optional(),
   country: z.string().min(2).max(4).optional(),
 });
 

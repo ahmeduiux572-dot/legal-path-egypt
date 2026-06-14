@@ -21,8 +21,8 @@ export interface ChatFile {
 
 /** Max characters of extracted text kept per document (keeps requests fast). */
 const MAX_DOC_CHARS = 120_000;
-/** Max raw file size we accept (10MB). */
-export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+/** Max raw file size we accept (20MB). */
+export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 
 export function humanSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
