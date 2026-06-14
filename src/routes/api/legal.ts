@@ -180,7 +180,11 @@ export const Route = createFileRoute("/api/legal")({
             return { role, content: m.text };
           }
 
-          const blocks: unknown[] = [{ type: "text", text: m.text }];
+          const attachmentNames = attachments.map((att) => `- ${att.name} (${att.kind})`).join("\n");
+          const blocks: unknown[] = [{
+            type: "text",
+            text: `${m.text}\n\nتم إرفاق الملفات التالية مع هذه الرسالة، ويجب قراءتها وتحليلها أولاً قبل الإجابة، ولا تقل إن الملف غير مرفق:\n${attachmentNames}`,
+          }];
           const docTexts: string[] = [];
           for (const att of attachments) {
             if (att.kind === "image" && att.dataUrl) {
